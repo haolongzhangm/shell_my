@@ -1,0 +1,37 @@
+#################fastboot
+preloader preloader_ckt95_lw_kk.bin
+lk lk.bin
+boot boot.img
+recovery recovery.img
+secro secro.img
+logo logo.bin
+system  system.img
+cache  cache.img
+userdata userdata.img
+
+fastboot flash preloader out/target/product/ckt95_lw_kk/preloader_ckt95_lw_kk.bin ; fastboot flash lk out/target/product/ckt95_lw_kk/lk.bin ; fastboot flash boot out/target/product/ckt95_lw_kk/boot.img ; fastboot flash recovery out/target/product/ckt95_lw_kk/recovery.img ; fastboot flash secro out/target/product/ckt95_lw_kk/secro.img ; fastboot flash logo out/target/product/ckt95_lw_kk/logo.bin ; fastboot flash  system out/target/product/ckt95_lw_kk/system.img ; fastboot flash cache out/target/product/ckt95_lw_kk/cache.img ; fastboot flash userdata out/target/product/ckt95_lw_kk/userdata.img ; 
+
+
+#############push mtk framwork
+
+Install: out/target/product/ckt95_lw_kk/system/framework/framework2.odex
+Install: out/target/product/ckt95_lw_kk/system/framework/framework2.jar.jex
+Install: out/target/product/ckt95_lw_kk/system/framework/framework2.jar
+Install: out/target/product/ckt95_lw_kk/system/framework/ext.odex
+Install: out/target/product/ckt95_lw_kk/system/framework/ext.jar.jex
+Install: out/target/product/ckt95_lw_kk/system/framework/ext.jar
+Install: out/target/product/ckt95_lw_kk/system/framework/framework.odex
+Install: out/target/product/ckt95_lw_kk/system/framework/framework.jar.jex
+Install: out/target/product/ckt95_lw_kk/system/framework/framework.jar
+
+adb push out/target/product/ckt95_lw_kk/system/framework/framework2.odex /system/framework/framework2.odex ; 
+adb push out/target/product/ckt95_lw_kk/system/framework/framework2.jar.jex /system/framework/framework2.jar.jex ; 
+adb push out/target/product/ckt95_lw_kk/system/framework/framework2.jar /system/framework/framework2.jar ; 
+adb push out/target/product/ckt95_lw_kk/system/framework/ext.odex  /system/framework/ext.odex ; 
+adb push out/target/product/ckt95_lw_kk/system/framework/ext.jar.jex /system/framework/ext.jar.jex ; 
+adb push out/target/product/ckt95_lw_kk/system/framework/ext.jar /system/framework/ext.jar ; 
+adb push out/target/product/ckt95_lw_kk/system/framework/framework.odex /system/framework/framework.odex ; 
+adb push out/target/product/ckt95_lw_kk/system/framework/framework.jar.jex /system/framework/framework.jar.jex ; 
+adb push out/target/product/ckt95_lw_kk/system/framework/framework.jar /system/framework/framework.jar ; 
+;
+

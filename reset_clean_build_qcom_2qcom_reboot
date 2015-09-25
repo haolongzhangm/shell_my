@@ -1,0 +1,126 @@
+#!/bin/bash
+time=` date +%Y_%m_%d_%H_%M_%S`;
+echo ==================!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!========================
+echo =================="warming, ###########"=================================
+echo =================="this shell will git checkout all git"=================
+echo =========================================================================
+echo
+echo
+echo 
+echo ==================="first build qcom proj to:mirageplus "================
+echo ==================="into qcom proj"======================================
+. qcom
+pwd
+echo ==================="git pull modem and vendor"===========================
+cd ../../
+pwd
+echo ==================="backup modem and vendor diff for patch"==============
+git diff > ${time}.patch
+echo ==================="reset --hard"========================================
+git reset --hard
+echo ==================="git pull modem and vendor now"=======================
+git pull
+sleep 2
+git pull
+sleep 2
+git pull
+echo ===================="into android kernel dir"============================
+cd LINUX/android/kernel/
+pwd
+echo ===================="back up kernel modify, maybe used later"============
+git diff > ${time}.patch
+echo ==================="reset --hard all proj"==============================
+cd ..
+pwd
+repo forall -c "git reset --hard"
+echo ===================="now time to sync android code"=====================
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+echo ====================="rm out dir"========================================
+rm -rf out
+echo ====================="build proj now"=====================================
+. build/envsetup.sh
+lunch mirageplus01a_msm8916_64-userdebug
+echo ======================"update api fisrt ,some err"=======================
+make update-api -j12
+sleep 5
+echo ======================"build android"=====================================
+make -j16
+echo ======================="build over"======================================
+sleep 10
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!"into 2qcom build"============================
+echo =============="just for mobeeplus proj"=====================================
+echo =================="warming, ###########"=================================
+echo =================="this shell will git checkout all git"=================
+echo =========================================================================
+echo
+echo
+echo 
+echo ==================="first build qcom proj to:mobeeplus "================
+echo ==================="into qcom proj"======================================
+. 2qcom
+pwd
+echo ==================="git pull modem and vendor"===========================
+cd ../../
+pwd
+echo ==================="backup modem and vendor diff for patch"==============
+git diff > ${time}.patch
+echo ==================="reset --hard"========================================
+git reset --hard
+echo ==================="git pull modem and vendor now"=======================
+git pull
+sleep 2
+git pull
+sleep 2
+git pull
+echo ===================="into android kernel dir"============================
+cd LINUX/android/kernel/
+pwd
+echo ===================="back up kernel modify, maybe used later"============
+git diff > ${time}.patch
+echo ==================="reset --hard all proj"==============================
+cd ..
+pwd
+repo forall -c "git reset --hard"
+echo ===================="now time to sync android code"=====================
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+repo sync -j4
+sleep 5
+echo ====================="rm out dir"========================================
+rm -rf out
+echo ====================="build proj now"=====================================
+. build/envsetup.sh
+lunch mobeeplus01a_msm8916_64-userdebug
+echo ======================"update api fisrt ,some err"=======================
+make update-api -j12
+sleep 5
+echo ======================"build android"=====================================
+make -j16
+echo ======================="build over"======================================
+sleep 10
+echo ======================="time to powerff system"=========================
+echo ======================="sync file system"================================
+sync 
+sync
+sync
+echo ======================="poweroff.............."=========================
+echo "111" |sudo -S poweroff

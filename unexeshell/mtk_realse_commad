@@ -1,0 +1,17 @@
+cp ../out/target/product/ckt95_lw_kk/obj/CODEGEN/cgen/APDB_MT6595_S01_KK1.MP11_ ./
+cp ../out/target/product/ckt95_lw_kk/boot.img ./
+cp ../out/target/product/ckt95_lw_kk/cache.img ./
+cp ../out/target/product/ckt95_lw_kk/lk.bin ./
+cp ../out/target/product/ckt95_lw_kk/logo.bin ./
+cp ../out/target/product/ckt95_lw_kk/MT6595_Android_scatter.txt ./
+cp ../out/target/product/ckt95_lw_kk/preloader_ckt95_lw_kk.bin ./
+cp ../out/target/product/ckt95_lw_kk/recovery.img ./
+cp ../out/target/product/ckt95_lw_kk/secro.img ./
+cp ../out/target/product/ckt95_lw_kk/system.img ./
+cp ../out/target/product/ckt95_lw_kk/userdata.img ./
+
+11
+
+tar -zcvf
+
+cp ../out/target/product/ckt95_lw_kk/boot.img ./ ; cp ../out/target/product/ckt95_lw_kk/cache.img ./ ; cp ../out/target/product/ckt95_lw_kk/lk.bin ./ ; cp ../out/target/product/ckt95_lw_kk/logo.bin ./ ; cp ../out/target/product/ckt95_lw_kk/MT6595_Android_scatter.txt ./ ; cp ../out/target/product/ckt95_lw_kk/preloader_ckt95_lw_kk.bin ./ ; cp ../out/target/product/ckt95_lw_kk/recovery.img ./ ; cp ../out/target/product/ckt95_lw_kk/secro.img ./ ; cp ../out/target/product/ckt95_lw_kk/system.img ./ ; cp ../out/target/product/ckt95_lw_kk/userdata.img ./ ; cp ../out/target/product/ckt95_lw_kk/obj/CODEGEN/cgen/APDB_MT6595_S01_KK1.MP11_ ./ ;  cp ../out/target/product/ckt95_lw_kk/system/etc/mddb/BPLGUInfoCustomAppSrcP_*  ./ ; cp ../out/target/product/ckt95_lw_kk/obj/KERNEL_OBJ/vmlinux ./ ; cp -rf ../out/target/product/ckt95_lw_kk/symbols/ ./ ;

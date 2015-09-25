@@ -1,0 +1,35 @@
+#!/bin/bash
+cd /home/zhl/桌面/Share/义隆升级程序包
+if [ $# -eq 0 ]
+	then 
+	echo "command : ekt 1 ---> for update"
+	echo "command : ekt 2 ---> for show ekt file"
+elif [ $1 == 1 ]
+	then
+		echo ===================================================
+		echo "for ekt update FW"
+		echo ===================================================
+		adb devices
+		echo ---------------------------------------------------
+		adb shell "ls /dev/elan-iap -l"
+		echo ---------------------------------------------------
+		echo "rm old FW"
+		adb shell "rm /data/*.ekt"
+		echo "push new FW"
+		adb push *.ekt /data
+		echo "push bin"
+		adb push elan_iap /data
+		echo chmod +X
+		adb shell "chmod 666 /dev/elan-iap"
+		adb shell "chmod 777 /data/elan_iap"
+		echo #################   DO UPDATE     ###############
+		adb shell "/data/elan_iap /data/*.ekt 0x15 2k"
+		echo ################ UPDATE OVER ####################
+elif [ $1 == 2 ]
+	then
+		echo "show ekt file...."
+		ls *.ekt
+else
+		echo "do nothing"
+		echo "command : ekt 1 ---> for update"
+fi

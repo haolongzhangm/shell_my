@@ -1,0 +1,10 @@
+#!/bin/bash
+echo ========================export arm tools at current dir=======================================
+echo =======================example arm..objdump addr2line etc ====================================
+echo ======================-have to use . or source into include shell env ========================
+. qcom
+. build/envsetup.sh
+lunch mirageplus01a_msm8916_64-userdebug
+cd -
+echo =======================eheck result ====================================================
+arm-linux-androideabi-objcopy --version

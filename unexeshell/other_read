@@ -1,0 +1,29 @@
+2014-08-08 15:21:59
+
+http://en.wikipedia.org/wiki/Mediatek
+http://en.wikipedia.org/wiki/Qualcomm_Snapdragon
+http://en.wikipedia.org/wiki/ARM_architecture
+
+2015-02-25
+http://elinux.org/Device_Trees
+
+http://stackoverflow.com/questions/14000736/tool-to-visualize-the-device-tree  dts图形工具
+
+http://www.elinux.org/Android_Memory_Usage  android 内存debug
+
+2015-02-26
+http://www.ruanyifeng.com/blog/2015/02/make.html
+
+2015-02-27
+http://blog.csdn.net/innost/article/details/19299937    selinux
+
+http://10.120.10.100:9002/index.php/Mtk_qcom_64bit_porting_part1   64位和32位的兼容 
+
+http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0483h/BABIHIDE.html    -------------------
+
+20150303
+
+http://10.120.10.100:9002/index.php/Mtk_qcom_64bit_porting_part2#.E6.95.B0.E6.8D.AE.E7.B1.BB.E5.9E.8B.E7.9A.84.E5.85.BC.E5.AE.B9   64位和32位的兼容
+
+20150309
+http://www.linuxidc.com/Linux/2011-10/44627p5.htm              kobject

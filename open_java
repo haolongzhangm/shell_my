@@ -1,0 +1,8 @@
+#!/bin/bash
+echo ====================now use open java sdk and replace sun jdk========================
+echo ====================this shell will called by qcom l proj which build need open java=
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+export CLASSPATH=$CLASSPATH:$JAVA_HOME/lib
+echo ====================check java env ===============================================
+java -version

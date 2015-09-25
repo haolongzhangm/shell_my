@@ -1,0 +1,9 @@
+#!/bin/bash
+echo "find " $1 "from pdf"
+find . -name "*.pdf" | while read pdf
+do
+echo "========================================================================================="
+echo $pdf
+	pdftotext "$pdf"
+done
+
