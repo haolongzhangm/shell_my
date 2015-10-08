@@ -1,0 +1,3 @@
+0000000000000000000000000000000000000000 ad517ab5884135ec720a7b587af47eee7ea087ea haolong.zhang <haolong.zhang@ck-telecom.com> 1432801158 +0800	clone: from git://www.codeaurora.org/platform/vendor/qcom-opensource/tools.git
+ad517ab5884135ec720a7b587af47eee7ea087ea c1cc56b059e8eabdefb160fa7d7a1a4b4f3e8aeb haolong.zhang <haolong.zhang@ck-telecom.com> 1432888102 +0800	commit: add my config
+c1cc56b059e8eabdefb160fa7d7a1a4b4f3e8aeb 56246d005ede3ea5159f41512f4748cc5448b0fd haolong.zhang <haolong.zhang@ck-telecom.com> 1444285830 +0800	commit: update ramdump shell
