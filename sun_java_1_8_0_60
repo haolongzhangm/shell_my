@@ -1,0 +1,8 @@
+#!/bin/bash
+echo ====================now use sun java sdk and replace open jdk========================
+echo ====================this shell will called by qcom kk proj and mtk kk proj========
+export JAVA_HOME=/home/zhl/java_home/jdk1.8.0_60
+export PATH=$JAVA_HOME/bin:$PATH
+export CLASSPATH=$CLASSPATH:$JAVA_HOME/lib
+echo ====================check java env ===============================================
+java -version
