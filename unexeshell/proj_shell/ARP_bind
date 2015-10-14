@@ -1,0 +1,6 @@
+#!/system/bin/sh
+while :  
+do  
+	    busybox arp -s 192.168.1.1 5c:63:bf:c8:1c:ac
+		sleep 10  
+done  

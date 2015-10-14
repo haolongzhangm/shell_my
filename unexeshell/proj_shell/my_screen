@@ -1,0 +1,14 @@
+#!/bin/bash
+echo haolong test android screencap reflash time 1:s........................................................
+for((i=1;i<100;))
+do
+adb shell screencap -p | sed 's/\r$//' > screen.png
+echo =======================================================================================================
+sleep 1
+echo
+echo
+echo
+echo
+echo android screencap reflash time 10ms....................................................................
+done
+

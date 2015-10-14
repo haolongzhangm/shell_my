@@ -1,0 +1,7 @@
+#!/system/bin/sh
+i=1
+while(($i<=2))
+do
+echo $(date "+%Y-%m-%d %H:%M:%S")
+sleep 1
+done

@@ -1,0 +1,13 @@
+#!/system/bin/sh
+i=1
+monkey -s 6516 --pkg-blacklist-file /sdcard/blacklist.txt --throttle 300 --ignore-crashes --ignore-timeouts --ignore-security-exceptions -v 99000000 > /mnt/sdcard/mktest.txt
+while(($i<=2))
+do
+echo $(date "+%Y-%m-%d %H:%M:%S") >> /sdcard/battart_charg.log
+cat /sys/devices/platform/battery/FG_Battery_CurrentConsumption >> /sdcard/battart_charg.log
+cat /sys/class/power_supply/battery/batt_temp >> /sdcard/battart_charg.log
+cat /sys/class/power_supply/battery/batt_vol >> /sdcard/battart_charg.log
+cat /sys/devices/platform/battery_meter/FG_Current >> /sdcard/battart_charg.log
+echo ========================================================== >> /sdcard/battart_charg.log
+sleep 1
+done

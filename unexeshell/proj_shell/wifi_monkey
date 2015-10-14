@@ -1,0 +1,8 @@
+#!/system/bin/sh
+i=1
+while(($i<=2))
+do
+echo "sleep 5 sec and swith wifi status ...."
+input  tap  190 138
+sleep 5
+done

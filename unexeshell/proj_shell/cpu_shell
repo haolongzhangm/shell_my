@@ -1,0 +1,22 @@
+#!/system/bin/sh
+i=1
+while(($i<=2))
+do
+echo $(date "+%Y-%m-%d %H:%M:%S") >> /sdcard/cpu_online_core_and_freq.log
+echo "cur_freq below" >> /sdcard/cpu_online_core_and_freq.log 
+cat /sys/devices/system/cpu/*/cpufreq/cpuinfo_cur_freq >> /sdcard/cpu_online_core_and_freq.log
+echo --------------------------------------------------------- >> /sdcard/cpu_online_core_and_freq.log
+echo "max_freq below" >> /sdcard/cpu_online_core_and_freq.log 
+cat /sys/devices/system/cpu/*/cpufreq/cpuinfo_max_freq >> /sdcard/cpu_online_core_and_freq.log
+echo --------------------------------------------------------- >> /sdcard/cpu_online_core_and_freq.log
+echo "mode below below" >> /sdcard/cpu_online_core_and_freq.log 
+cat /sys/devices/system/cpu/*/cpufreq/scaling_governor >> /sdcard/cpu_online_core_and_freq.log
+echo --------------------------------------------------------- >> /sdcard/cpu_online_core_and_freq.log
+echo "availabe freq below" >> /sdcard/cpu_online_core_and_freq.log 
+cat /sys/devices/system/cpu/*/cpufreq/scaling_available_frequencies >> /sdcard/cpu_online_core_and_freq.log
+echo --------------------------------------------------------- >> /sdcard/cpu_online_core_and_freq.log
+echo "avaliable mode" >> /sdcard/cpu_online_core_and_freq.log 
+cat /sys/devices/system/cpu/*/cpufreq/scaling_available_governors >> /sdcard/cpu_online_core_and_freq.log
+echo ================================================================= >> /sdcard/cpu_online_core_and_freq.log
+sleep 1
+done
