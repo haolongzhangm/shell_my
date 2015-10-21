@@ -39,6 +39,7 @@ echo "make cscope ARCH=arm"
 echo ===================================================================================
 echo ==========================clean build android core ================================
 echo "cd frameworks/base; git reset --hard ; croot; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; make update-api -j6 ;  make -j6"
+echo "7zip: 7za a -t7z -mx=5 test.7z test-dir ; 7za X test.7z"
 }
 if [ $# -eq 0 ]
 then
