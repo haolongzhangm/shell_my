@@ -107,3 +107,6 @@ inoremap ' ''<ESC>i
 "        return a:char
 "    endif
 "endfunction
+" find result to quickfix
+command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
+command -nargs=1 Vgallfile :vimgrep /<args>/ **/*.* | copen
