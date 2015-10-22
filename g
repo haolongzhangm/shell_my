@@ -1,2 +1,2 @@
 #!/bin/sh
-git log
+git log --stat
