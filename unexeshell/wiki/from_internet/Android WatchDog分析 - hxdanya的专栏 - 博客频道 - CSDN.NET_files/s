@@ -1,0 +1,35 @@
+ADFHOST2246="http://csdnim.allyes.com";
+ADFCID2246=15;
+ADFBID2246=2246;
+ADFLOC='CNSCCD00';
+ADFUSER2246="http://csdnim.allyes.com/c?d=csdnim&i=z15,10288468,2246,11409&rf=&a=dxBkhhOYb2A5yG6CCqNpaLaJA&u=";
+ALLYESID4="0A22114B1E32E980";
+ADFPGC="2,5,15,0,2978,2246,11409,10288468";
+
+document.write("<script type='text/javascript'>\n");
+document.write("var googletag = googletag || {};\n");
+document.write("googletag.cmd = googletag.cmd || [];\n");
+document.write("(function() {\n");
+document.write("var gads = document.createElement('script');\n");
+document.write("gads.async = true;\n");
+document.write("gads.type = 'text/javascript';\n");
+document.write("var useSSL = 'https:' == document.location.protocol;\n");
+document.write("gads.src = (useSSL ? 'https:' : 'http:') + \n");
+document.write("'//www.googletagservices.com/tag/js/gpt.js';\n");
+document.write("var node = document.getElementsByTagName('script')[0];\n");
+document.write("node.parentNode.insertBefore(gads, node);\n");
+document.write("})();\n");
+document.write("</Scr"+"ipt>\n");
+document.write("\n");
+document.write("<div id='div-gpt-ad-1429585234886-0'>\n");
+document.write("<script type='text/javascript'>\n");
+document.write("googletag.cmd.push(function() {\n");
+document.write("googletag.defineSlot('/8456/IDG.CN_B2B_csdn.net', [728, 90], 'div-gpt-ad-1429585234886-0')\n");
+document.write(".addService(googletag.pubads())\n");
+document.write(".setTargeting(\"category\",\"blog\");\n");
+document.write("googletag.enableServices();\n");
+document.write("googletag.display('div-gpt-ad-1429585234886-0');\n");
+document.write("});\n");
+document.write("</Scr"+"ipt>\n");
+document.write("</div>");
+

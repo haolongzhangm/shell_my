@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<!-- saved from url=(0186)http://openapi.baidu.com/widget/social/like?app_id=3629560&third_source_id=3629560&url=http%3A%2F%2Fblog.csdn.net%2Fhxdanya%2Farticle%2Fdetails%2F6738135&cssLink=1&id=vote143512845196366 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script src="base.js"></script>
+    <title></title>
+    <style>
+        body{
+            margin: 0;
+            background: transparent;
+        }
+        .vote{
+            height: 44px;
+            width: 65px;
+            position: relative;
+        }
+        .voted.vote .icon{
+            background: url("//apps.bdimg.com/developer/static/1431670156157/social-widget/images/voted.png") no-repeat 0 0 transparent;
+            background-size: 25px 25px;
+        }
+        .vote .icon {
+            background: url("//apps.bdimg.com/developer/static/1431670156157/social-widget/images/vote.png") no-repeat 0 0 transparent;
+            background-size: 25px 25px;
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            position: absolute;
+            left: 2px;
+            top: 9px;
+        }
+        .ani{
+            -webkit-animation:ani .5s;
+        }
+        @-webkit-keyframes ani {
+            0%{
+                background-size: 25px 25px;
+                width: 25px;
+                height: 25px;
+                left: 2px;
+                top: 9px;
+            }
+            50%{
+                background-size: 35px 35px;
+                width: 35px;
+                height: 35px;
+                left: -3px;
+                top: 4px;
+            }
+            100%{
+                background-size: 25px 25px;
+                width: 25px;
+                height: 25px;
+                left: 2px;
+                top: 9px;
+            }
+        }
+        .vote .num {
+            color: #ffffff;
+            font-size: 15px;
+            line-height: 44px;
+            position: absolute;
+            left: 30px;
+        }
+
+
+        .voted.vote.black .icon{
+            background-image: url("//apps.bdimg.com/developer/static/1431670156157/social-widget/images/voted_black.png");
+        }
+        .vote.black .icon {
+            background-image: url("//apps.bdimg.com/developer/static/1431670156157/social-widget/images/vote_black.png");
+        }
+        .vote.black .num {
+            color: #000;
+        }
+
+    </style>
+
+        <link rel="stylesheet" href="http://m.baidu.com/static/search/siteapp/ss/css/legoDemo.css?t=2015062414">
+    </head>
+<body data-login="1" data-token="a80d07d4b98425f208ae73726a922304" data-topic="74328" data-total="231" data-like="0">
+
+<div class="vote  ">
+    <span class="icon"></span><span class="num">231</span>
+</div>
+
+<script>
+
+    var body = $('body')[0];
+    var $vote = $('.vote');
+    var dataset = typeof body.dataset !== 'undefined';
+    var setting = function(key, value) {
+        if (!dataset) {
+            if (typeof value !== 'undefined') {
+                body.setAttribute('data-' + key, value);
+            } else {
+                return body.getAttribute('data-' + key);
+            }
+        } else {
+            if (typeof value !== 'undefined') {
+                body.dataset[key] = value;
+            } else {
+                return body.dataset[key];
+            }
+        }
+    };
+    var vote_setting = function(key, value) {
+        if (!dataset) {
+            if (typeof value !== 'undefined') {
+                $vote[0].setAttribute('data-' + key, value);
+            } else {
+                return $vote[0].getAttribute('data-' + key);
+            }
+        } else {
+            if (typeof value !== 'undefined') {
+                $vote[0].dataset[key] = value;
+            } else {
+                return $vote[0].dataset[key];
+            }
+        }
+    };
+
+    //todo
+    var post = function(vote, sync) {
+        $.postMessage({
+            type: 'bottomBar',
+            vote: vote ? 1 : 0,
+            sync: sync ? 1 : 0
+        });
+    };
+    var callbackList = [];
+    var getCuid = function(obj) {
+        if (obj.error == '0' && obj.cuid) {
+            setting('cuid', obj.cuid);
+        } else {
+            setting('cuid', 'error');
+            /*$.postMessage({
+                'type': 'vote',
+                'method': 'tips',
+                'msg': '请求cuid出错'
+            });*/
+        }
+        while (callbackList.length) {
+            var func = callbackList.pop();
+            try {
+                func();
+            } catch (e) {}
+        }
+    };
+
+    var $icon = $('.icon');
+    var $num = $('.num');
+    var params = $.getParams();
+    var vote = {
+        init: function() {
+            $icon.bind('click', function() {
+                if (!setting('login')) {
+                    vote.login();
+                    return;
+                }
+
+
+                //动画中不响应，也是最小间隔时间的设置
+                if ($icon.hasClass('ani')) {
+                    return;
+                }
+                var me = this;
+                var func = arguments.callee;
+                if ($.needCuid()) {
+                    if (!setting('cuid')) {
+                        callbackList.push(function() {
+                            func.call(me);
+                        });
+                        $.getScript('//127.0.0.1:7777/getcuid?callback=getCuid', getCuid, 500);
+                        return;
+                    }
+                }
+
+                var num = parseInt($num.html());
+                $icon.addClass('ani');
+                setTimeout(function(){
+                    $icon.removeClass('ani');
+                }, 500);
+
+                //全部假点赞了
+                if ($vote.hasClass('voted')) {
+                    $vote.removeClass('voted');
+                    if (!num) {
+                        $num.html('赞');
+                    } else {
+                        $num.html(--num || '赞');
+                    }
+                    //todo
+                    post();
+
+                    if (vote_setting('loading')) {
+                        vote.cancel();
+                    } else {
+                        vote_setting('loading', '1');
+                        vote.vote(setting('topic'), 1);
+                    }
+
+                } else {
+
+                    $vote.addClass('voted');
+                    if (!num) {
+                        $num.html('1');
+                    } else {
+                        $num.html(++num);
+                    }
+                    //todo
+                    post(1);
+                    if (vote_setting('loading')) {
+                        vote.cancel();
+                    } else {
+                        vote_setting('loading', '1');
+                        if (!setting('topic')) {
+                            vote.add();
+                        } else {
+                            vote.vote(setting('topic'));
+                        }
+                    }
+
+                }
+
+            });
+            if (params.style == 'black') {
+                $('.vote').addClass('black');
+            }
+            window.onload = function() {
+                $.postMessage({
+                    'type': 'vote',
+                    'method': 'show',
+                    'id': params.id
+                });
+                //点赞操作，登录后假赞一个
+                if (params.vote == 1 && setting('login')) {
+                    if ($.needCuid()) {
+                        if (!setting('cuid')) {
+                            callbackList.push(function() {
+                                vote.falseVote();
+                            });
+                            $.getScript('//127.0.0.1:7777/getcuid?callback=getCuid', getCuid, 500);
+                        } else {
+                            vote.falseVote();
+                        }
+                    } else {
+                        vote.falseVote();
+                    }
+
+                    post(1, 1);
+                } else {
+                    post((setting('like') == '0' || !setting('like')) ? 0 : 1, 1);
+                }
+            };
+
+
+            //todo:  临时方案
+            window.addEventListener('message', function(e){
+                if (e.data.method == 'topic_id') {
+                    if (!setting('topic') || setting('topic') == '0') {
+                        $.post('/social/api/2.0/topic/add', {
+                            'csrf_token': setting('token'),
+                            'third_source_id': params.third_source_id,
+                            'topic_url': params.url,
+                            'app_id': params.app_id
+                        }, function(data) {
+                            console.log(data);
+                            if (data.error_code) {
+                                $.postMessage({
+                                    'type': 'vote',
+                                    'method': 'topic_id',
+                                    'topic_id': 0
+                                });
+                                return;
+                            }
+                            setting('topic', data.topic_id);
+                            $.postMessage({
+                                'type': 'vote',
+                                'method': 'topic_id',
+                                'topic_id': setting('topic')
+                            });
+                        });
+                    } else {
+                        $.postMessage({
+                            'type': 'vote',
+                            'method': 'topic_id',
+                            'topic_id': setting('topic')
+                        });
+                    }
+                }
+                if (e.data.method == 'vote') {
+                    try {
+                        var ua = navigator.userAgent;
+                        if (ua.search(/BlendUI/) == -1) {
+                            return;
+                        }
+                        var version;
+                        if (version = /BaiduLightAppRuntime\/([\d+.]+)/.exec(ua)) {
+                            if (version[1].match(/(\d+\.\d+)/)[1] >= 2.5) {
+                                var ev = document.createEvent('HTMLEvents');
+                                ev.initEvent('click', false, true);
+                                $icon[0].dispatchEvent(ev);
+                            }
+                        }
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+            }, false);
+        },
+        falseVote: function() {
+            var url = '/social/api/2.0/topic/vote/add';
+
+            if (setting('like') == '1') {
+                //已经赞过了
+                $.postMessage({
+                    'type': 'vote',
+                    'method': 'tips',
+                    'msg': '你已经赞过了'
+                });
+
+            } else {
+                try{
+                    var ev = document.createEvent('HTMLEvents');
+                    ev.initEvent('click', false, true);
+                    $icon[0].dispatchEvent(ev);
+                }catch(e){
+                    console.log(e);
+                }
+            }
+        },
+
+        login: function() {
+            $.postMessage({
+                'type': 'vote',
+                'method': 'login',
+                'sign': params.third_source_id
+            });
+        },
+        add: function() {
+            $vote[0].xhr = $.ajax({
+                'type': 'POST',
+                'url': '/social/api/2.0/topic/add',
+                'dataType': 'JSON',
+                'data': {
+                    'csrf_token': setting('token'),
+                    'third_source_id': params.third_source_id,
+                    'topic_url': params.url,
+                    'app_id': params.app_id
+                },
+                success: function(data) {
+                    $vote[0].xhr = '';
+                    if (data.error_code) {
+                        $.postMessage({
+                            'type': 'vote',
+                            'method': 'tips',
+                            'msg': $.error_code(data.error_code)
+                        });
+                        return;
+                    }
+                    setting('topic', data.topic_id);
+                    vote.vote(data.topic_id);
+                },
+                error: function() {
+                    vote.cancel(1);
+                },
+                timeout: 5000
+            });
+        },
+        vote: function(topic_id, cancle) {
+            var url = '/social/api/2.0/topic/vote/add';
+            if (cancle) {
+                url = '/social/api/2.0/topic/vote/cancel';
+            }
+            var request_param = {
+                'csrf_token': setting('token'),
+                'app_id': params.app_id,
+                'topic_id': topic_id
+            };
+            if (setting('cuid') && setting('cuid') != 'error') {
+                request_param.cuid = setting('cuid');
+            }
+            var num = parseInt($num.html());
+            $vote[0].xhr = $.ajax({
+                'type': 'GET',
+                'url': url,
+                'dataType': 'JSON',
+                'data': request_param,
+                success: function(data) {
+                    $vote[0].xhr = '';
+                    vote_setting('loading', '');
+                    if (cancle) {
+                        if (data.error_code) {
+                            $vote.addClass('voted');
+                            if (!num) {
+                                $num.html('1');
+                            } else {
+                                $num.html(++num);
+                            }
+                            switch (data.error_code) {
+                                case 10002:
+                                case 11007:
+                                    $vote.removeClass('voted');
+                                default :
+                                    $.postMessage({
+                                        'type': 'vote',
+                                        'method': 'tips',
+                                        'msg': $.error_code(data.error_code)
+                                    });
+                            }
+                            return;
+                        }
+                    } else {
+                        if (data.error_code) {
+                            $vote.removeClass('voted');
+                            if (!num) {
+                                $num.html('赞');
+                            } else {
+                                $num.html(--num || '赞');
+                            }
+                            switch (data.error_code) {
+                                case 10002:
+                                    vote.login();
+                                    break;
+                                case 11007:
+                                    $vote.addClass('voted');
+                                default :
+                                    $.postMessage({
+                                        'type': 'vote',
+                                        'method': 'tips',
+                                        'msg': $.error_code(data.error_code)
+                                    });
+
+                            }
+                            return;
+                        }
+                    }
+
+                },
+                error: function() {
+                    vote.cancel(1);
+                },
+                timeout: 5000
+            });
+
+        },
+        cancel: function(error) {
+            if (error) {
+                $vote[0].xhr = '';
+                $vote[0].dataset.loading = '';
+
+                var num = parseInt($num.html());
+
+                if ($vote.hasClass('voted')) {
+                    $vote.removeClass('voted');
+                    if (!num) {
+                        $num.html('赞');
+                    } else {
+                        $num.html(--num || '赞');
+                    }
+                    post();
+
+                } else {
+                    $vote.addClass('voted');
+                    if (!num) {
+                        $num.html('1');
+                    } else {
+                        $num.html(++num);
+                    }
+                    post(1);
+                }
+
+                $.postMessage({
+                    'type': 'vote',
+                    'method': 'tips',
+                    'msg': $.error_code(0)
+                });
+            } else {
+                if ($vote[0].xhr) {
+                    $vote[0].xhr.noerror = 1;
+                    $vote[0].xhr.abort();
+                }
+                $vote[0].xhr = '';
+                $vote[0].dataset.loading = '';
+            }
+        },
+        checkLogin: function () {
+            var login = setting('login');
+            $.ajax({
+                'type': 'GET',
+                'dataType': 'JSON',
+                'timeout': 10000,
+                'url': '/widget/social/login?format=json',
+                'data': {
+                    'topic_id': setting('topic'),
+                    'app_id': setting('appid')
+                },
+                'success': function (data) {
+                    if (data.uid && !login) {
+                        location.reload();
+                    }
+                }
+            });
+        }
+    };
+    vote.init();
+    vote.checkLogin();
+</script>
+
+
+</body></html>
