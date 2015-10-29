@@ -1,0 +1,2992 @@
+From d94dd5ee60cd08e5c76d4782fa09095b697626b8 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Tue, 16 Jun 2015 14:01:28 +0800
+Subject: [PATCH] 20150616enable_all_kernel_log_no_tmp_warmming
+
+Change-Id: I71b13b5bb9e0fdbc8feba1529fd8840595ecb16b
+---
+ .../mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c   | 560 ++++++++++-----------
+ .../mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c |  97 ++--
+ .../common/kernel/cam_cal/ar1820otp/ar1820otp.c    |   2 +-
+ .../imgsensor/ar1820_mipi_raw/ar1820mipi_Sensor.c  |   2 +-
+ .../common/kernel/imgsensor/src/kd_sensorlist.c    |   2 +-
+ .../mt6595/kernel/imgsensor/src/kd_sensorlist.c    |   2 +-
+ .../combo/drv_wlan/mt6630/wlan/include/debug.h     |   2 +-
+ mediatek/kernel/drivers/power/battery_common.c     |   4 +-
+ mediatek/kernel/drivers/power/battery_meter.c      |   2 +-
+ mediatek/kernel/drivers/vibrator/vibrator_drv.c    |  10 +-
+ mediatek/kernel/include/linux/hwmsen_helper.h      |   8 -
+ .../hardware/mtkcam/core/drv/isp/isp_drv.cpp       |  10 -
+ mediatek/platform/mt6595/kernel/core/camera_isp.c  |  16 +-
+ .../mt6595/kernel/core/include/mach/hotplug.h      |   2 +-
+ .../kernel/core/include/mach/mt_freqhopping.h      |  20 +-
+ mediatek/platform/mt6595/kernel/core/mt_clkmgr.c   |  10 +-
+ mediatek/platform/mt6595/kernel/core/mt_ptp.c      |  10 +-
+ .../mt6595/kernel/drivers/dispsys/ddp_color.c      |   4 +-
+ .../mt6595/kernel/drivers/dispsys/ddp_log.h        |  11 +-
+ mediatek/platform/mt6595/kernel/drivers/m4u/m4u.c  |   4 +-
+ .../platform/mt6595/kernel/drivers/m4u/m4u_debug.c |   2 +-
+ .../mt6595/kernel/drivers/thermal/mtk_ts_cpu.c     |   4 +-
+ .../mt6595/kernel/drivers/videox/disp_drv_log.h    |   7 +-
+ .../mt6595/kernel/drivers/videox/primary_display.c |   6 +-
+ 24 files changed, 375 insertions(+), 422 deletions(-)
+
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c
+index 9e958de..2860b0e 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c
+@@ -71,15 +71,7 @@
+ #endif
+ 
+ #include "mt_soc_pcm_common.h"
+-static int mt6631_debug = 0;
+-module_param(mt6631_debug, int, 0644);
+-#define mt6631_debug(fmt, args...) \
+-	do \
+-	{ \
+-		if(mt6631_debug){ \
+-			printk(fmt, ##args); \
+-		} \
+-	}while(0);
++
+ //#define VOW_TONE_TEST
+ 
+ extern void mt6331_upmu_set_rg_audmicbias1lowpen(kal_uint32 val);
+@@ -184,7 +176,7 @@ static void  RestorePowerState(void)
+ static bool mAnaSuspend = false;
+ void SetAnalogSuspend(bool bEnable)
+ {
+-    mt6631_debug("%s bEnable ==%d mAnaSuspend = %d \n", __func__, bEnable, mAnaSuspend);
++    printk("%s bEnable ==%d mAnaSuspend = %d \n", __func__, bEnable, mAnaSuspend);
+     if ((bEnable == true) && (mAnaSuspend == false))
+     {
+         Ana_Log_Print();
+@@ -245,15 +237,15 @@ void SetAnalogSuspend(bool bEnable)
+ static int audck_buf_Count = 0;
+ void audckbufEnable(bool enable)
+ {
+-    mt6631_debug("audckbufEnable audck_buf_Count = %d enable = %d \n", audck_buf_Count, enable);
++    printk("audckbufEnable audck_buf_Count = %d enable = %d \n", audck_buf_Count, enable);
+     mutex_lock(&Ana_buf_Ctrl_Mutex);
+     if (enable)
+     {
+         if (audck_buf_Count == 0)
+         {
+-            mt6631_debug("+clk_buf_ctrl(CLK_BUF_AUDIO,true)\n");
++            printk("+clk_buf_ctrl(CLK_BUF_AUDIO,true)\n");
+             clk_buf_ctrl(CLK_BUF_AUDIO, true);
+-            mt6631_debug("-clk_buf_ctrl(CLK_BUF_AUDIO,true)\n");
++            printk("-clk_buf_ctrl(CLK_BUF_AUDIO,true)\n");
+         }
+         audck_buf_Count++;
+     }
+@@ -262,13 +254,13 @@ void audckbufEnable(bool enable)
+         audck_buf_Count--;
+         if (audck_buf_Count == 0)
+         {
+-            mt6631_debug("+clk_buf_ctrl(CLK_BUF_AUDIO,false)\n");
++            printk("+clk_buf_ctrl(CLK_BUF_AUDIO,false)\n");
+             clk_buf_ctrl(CLK_BUF_AUDIO, false);
+-            mt6631_debug("-clk_buf_ctrl(CLK_BUF_AUDIO,false)\n");
++            printk("-clk_buf_ctrl(CLK_BUF_AUDIO,false)\n");
+         }
+         if (audck_buf_Count < 0)
+         {
+-            mt6631_debug("audck_buf_Count count <0 \n");
++            printk("audck_buf_Count count <0 \n");
+             audck_buf_Count = 0;
+         }
+     }
+@@ -278,7 +270,7 @@ void audckbufEnable(bool enable)
+ static int ClsqAuxCount = 0;
+ static void ClsqAuxEnable(bool enable)
+ {
+-    mt6631_debug("ClsqAuxEnable ClsqAuxCount = %d enable = %d \n", ClsqAuxCount, enable);
++    printk("ClsqAuxEnable ClsqAuxCount = %d enable = %d \n", ClsqAuxCount, enable);
+     mutex_lock(& AudAna_lock);
+     if (enable)
+     {
+@@ -293,7 +285,7 @@ static void ClsqAuxEnable(bool enable)
+         ClsqAuxCount--;
+         if (ClsqAuxCount < 0)
+         {
+-            mt6631_debug("ClsqAuxEnable count <0 \n");
++            printk("ClsqAuxEnable count <0 \n");
+             ClsqAuxCount = 0;
+         }
+         if (ClsqAuxCount == 0)
+@@ -307,7 +299,7 @@ static void ClsqAuxEnable(bool enable)
+ static int ClsqCount = 0;
+ static void ClsqEnable(bool enable)
+ {
+-    mt6631_debug("ClsqEnable ClsqAuxCount = %d enable = %d \n", ClsqCount, enable);
++    printk("ClsqEnable ClsqAuxCount = %d enable = %d \n", ClsqCount, enable);
+     mutex_lock(& AudAna_lock);
+     if (enable)
+     {
+@@ -322,7 +314,7 @@ static void ClsqEnable(bool enable)
+         ClsqCount--;
+         if (ClsqCount < 0)
+         {
+-            mt6631_debug("ClsqEnable count <0 \n");
++            printk("ClsqEnable count <0 \n");
+             ClsqCount = 0;
+         }
+         if (ClsqCount == 0)
+@@ -336,7 +328,7 @@ static void ClsqEnable(bool enable)
+ static int TopCkCount = 0;
+ static void Topck_Enable(bool enable)
+ {
+-    mt6631_debug("Topck_Enable enable = %d TopCkCount = %d \n", enable, TopCkCount);
++    printk("Topck_Enable enable = %d TopCkCount = %d \n", enable, TopCkCount);
+     mutex_lock(&Ana_Clk_Mutex);
+     if (enable == true)
+     {
+@@ -355,7 +347,7 @@ static void Topck_Enable(bool enable)
+         }
+         if (TopCkCount <= 0)
+         {
+-            mt6631_debug("TopCkCount <0 =%d\n ", TopCkCount);
++            printk("TopCkCount <0 =%d\n ", TopCkCount);
+             TopCkCount = 0;
+         }
+     }
+@@ -365,7 +357,7 @@ static void Topck_Enable(bool enable)
+ static int NvRegCount = 0;
+ static void NvregEnable(bool enable)
+ {
+-    mt6631_debug("NvregEnable NvRegCount == %d enable = %d \n", NvRegCount, enable);
++    printk("NvregEnable NvRegCount == %d enable = %d \n", NvRegCount, enable);
+     mutex_lock(&Ana_Clk_Mutex);
+     if (enable == true)
+     {
+@@ -384,7 +376,7 @@ static void NvregEnable(bool enable)
+         }
+         if (NvRegCount < 0)
+         {
+-            mt6631_debug("NvRegCount <0 =%d\n ", NvRegCount);
++            printk("NvRegCount <0 =%d\n ", NvRegCount);
+             NvRegCount = 0;
+         }
+     }
+@@ -412,7 +404,7 @@ static void AdcClockEnable(bool enable)
+         }
+         if (AdcClockCount <= 0)
+         {
+-            mt6631_debug("TopCkCount <0 =%d\n ", AdcClockCount);
++            printk("TopCkCount <0 =%d\n ", AdcClockCount);
+             AdcClockCount = 0;
+         }
+     }
+@@ -422,7 +414,7 @@ static void AdcClockEnable(bool enable)
+ #if defined (MTK_VOW_SUPPORT)
+ void vow_irq_handler(void)
+ {
+-    mt6631_debug("audio irq event....\n");
++    printk("audio irq event....\n");
+     //TurnOnVOWADcPowerACC(AUDIO_ANALOG_DEVICE_IN_ADC1, false);
+     TurnOnVOWDigitalHW(false);
+ #if defined(VOW_TONE_TEST)
+@@ -453,7 +445,7 @@ static void LowPowerAdcClockEnable(bool enable)
+         }
+         if (LowPowerAdcClockCount < 0)
+         {
+-            mt6631_debug("LowPowerAdcClockCount <0 =%d\n ", LowPowerAdcClockCount);
++            printk("LowPowerAdcClockCount <0 =%d\n ", LowPowerAdcClockCount);
+             LowPowerAdcClockCount = 0;
+         }
+     }
+@@ -475,7 +467,7 @@ static void Apply_Speaker_Gain(void)
+ 
+ void setOffsetTrimMux(unsigned int Mux)
+ {
+-    mt6631_debug("%s Mux = %d\n", __func__, Mux);
++    printk("%s Mux = %d\n", __func__, Mux);
+     Ana_Set_Reg(AUDBUF_CFG7 , Mux << 12, 0xf << 12); // buffer mux select
+ }
+ 
+@@ -489,23 +481,23 @@ static int mHprTrimOffset = 2048;
+ 
+ void SetHplTrimOffset(int Offset)
+ {
+-    mt6631_debug("%s Offset = %d\n",__func__,Offset);
++    printk("%s Offset = %d\n",__func__,Offset);
+     mHplTrimOffset = Offset;
+     if ((Offset > 2098) || (Offset < 1998))
+     {
+         mHplTrimOffset = 2048;
+-        mt6631_debug("SetHplTrimOffset offset may be invalid offset = %d\n", Offset);
++        printk("SetHplTrimOffset offset may be invalid offset = %d\n", Offset);
+     }
+ }
+ 
+ void SetHprTrimOffset(int Offset)
+ {
+-    mt6631_debug("%s Offset = %d\n",__func__,Offset);
++    printk("%s Offset = %d\n",__func__,Offset);
+     mHprTrimOffset = Offset;
+     if ((Offset > 2098) || (Offset < 1998))
+     {
+         mHplTrimOffset = 2048;
+-        mt6631_debug("SetHplTrimOffset offset may be invalid offset = %d\n", Offset);
++        printk("SetHplTrimOffset offset may be invalid offset = %d\n", Offset);
+     }
+ }
+ 
+@@ -526,7 +518,7 @@ void OpenTrimBufferHardware(bool enable)
+     if (enable)
+     {
+         TurnOnDacPower();
+-        mt6631_debug("%s \n", __func__);
++        printk("%s \n", __func__);
+         Ana_Set_Reg(AUDNVREGGLB_CFG0, 0x0000, 0xffff); // Enable AUDGLB
+         OpenClassAB();
+         Ana_Set_Reg(AUDLDO_NVREG_CFG0,   0x0028, 0xffff); // Enable cap-less LDOs (1.6V)
+@@ -548,7 +540,7 @@ void OpenTrimBufferHardware(bool enable)
+     }
+     else
+     {
+-        mt6631_debug("Audio_Amp_Change off amp\n");
++        printk("Audio_Amp_Change off amp\n");
+         Ana_Set_Reg(AUDDAC_CFG0, 0x0000, 0xffff); // Disable Audio DAC
+         Ana_Set_Reg(AUDCLKGEN_CFG0, 0x5500, 0xffff); // Disable AUD_CLK
+         Ana_Set_Reg(IBIASDIST_CFG0, 0x0192, 0xffff); // Disable IBIST
+@@ -568,7 +560,7 @@ void OpenAnalogTrimHardware(bool enable)
+     if (enable)
+     {
+         TurnOnDacPower();
+-        mt6631_debug("%s \n", __func__);
++        printk("%s \n", __func__);
+         //Ana_Set_Reg(AUDNVREGGLB_CFG0, 0x0000, 0xffff); // Enable AUDGLB
+         OpenClassAB();
+         Ana_Set_Reg(AUDLDO_NVREG_CFG0,   0x0028, 0xffff); // Enable cap-less LDOs (1.6V)
+@@ -590,7 +582,7 @@ void OpenAnalogTrimHardware(bool enable)
+     }
+     else
+     {
+-        mt6631_debug("Audio_Amp_Change off amp\n");
++        printk("Audio_Amp_Change off amp\n");
+         Ana_Set_Reg(AUDDAC_CFG0, 0x0000, 0xffff); // Disable Audio DAC
+         Ana_Set_Reg(AUDCLKGEN_CFG0, 0x5500, 0xffff); // Disable AUD_CLK
+         Ana_Set_Reg(IBIASDIST_CFG0, 0x0192, 0xffff); // Disable IBIST
+@@ -606,7 +598,7 @@ void OpenAnalogTrimHardware(bool enable)
+ 
+ void OpenAnalogHeadphone(bool bEnable)
+ {
+-    mt6631_debug("OpenAnalogHeadphone bEnable = %d", bEnable);
++    printk("OpenAnalogHeadphone bEnable = %d", bEnable);
+     if (bEnable)
+     {
+         SetHplTrimOffset(2048);
+@@ -628,7 +620,7 @@ void OpenAnalogHeadphone(bool bEnable)
+ 
+ bool OpenHeadPhoneImpedanceSetting(bool bEnable)
+ {
+-    mt6631_debug("%s benable = %d\n", __func__, bEnable);
++    printk("%s benable = %d\n", __func__, bEnable);
+     if (GetDLStatus() == true)
+     {
+         return false;
+@@ -682,15 +674,15 @@ static void SetHprOffset(int OffsetTrimming)
+     short Dccompsentation = 0;
+     int DCoffsetValue = 0;
+     unsigned short RegValue = 0;
+-    mt6631_debug("%s OffsetTrimming = %d \n",__func__,OffsetTrimming);
++    printk("%s OffsetTrimming = %d \n",__func__,OffsetTrimming);
+     DCoffsetValue = OffsetTrimming *  1000000;
+     DCoffsetValue = (DCoffsetValue / DC1devider);  // in uv
+-    mt6631_debug("%s DCoffsetValue = %d \n",__func__,DCoffsetValue);
++    printk("%s DCoffsetValue = %d \n",__func__,DCoffsetValue);
+     DCoffsetValue = (DCoffsetValue / DC1unit_in_uv);
+-    mt6631_debug("%s DCoffsetValue = %d \n",__func__,DCoffsetValue);
++    printk("%s DCoffsetValue = %d \n",__func__,DCoffsetValue);
+     Dccompsentation = DCoffsetValue;
+     RegValue = Dccompsentation;
+-    mt6631_debug("%s RegValue = 0x%x\n",__func__,RegValue);
++    printk("%s RegValue = 0x%x\n",__func__,RegValue);
+     Ana_Set_Reg(AFE_DL_DC_COMP_CFG1, RegValue , 0xffff);
+ }
+ 
+@@ -699,15 +691,15 @@ static void SetHplOffset(int OffsetTrimming)
+     short Dccompsentation = 0;
+     int DCoffsetValue = 0;
+     unsigned short RegValue = 0;
+-    mt6631_debug("%s OffsetTrimming = %d \n",__func__,OffsetTrimming);
++    printk("%s OffsetTrimming = %d \n",__func__,OffsetTrimming);
+     DCoffsetValue = OffsetTrimming *1000000;
+     DCoffsetValue = (DCoffsetValue / DC1devider);  // in uv
+-    mt6631_debug("%s DCoffsetValue = %d \n",__func__,DCoffsetValue);
++    printk("%s DCoffsetValue = %d \n",__func__,DCoffsetValue);
+     DCoffsetValue = (DCoffsetValue / DC1unit_in_uv);
+-    mt6631_debug("%s DCoffsetValue = %d \n",__func__,DCoffsetValue);
++    printk("%s DCoffsetValue = %d \n",__func__,DCoffsetValue);
+     Dccompsentation = DCoffsetValue;
+     RegValue = Dccompsentation;
+-    mt6631_debug("%s RegValue = 0x%x\n",__func__,RegValue);
++    printk("%s RegValue = 0x%x\n",__func__,RegValue);
+     Ana_Set_Reg(AFE_DL_DC_COMP_CFG0, RegValue  , 0xffff);
+ }
+ 
+@@ -725,14 +717,14 @@ static void EnableDcCompensation(bool bEnable)
+ 
+ static void SetHprOffsetTrim(void)
+ {
+-    mt6631_debug("%s mHprTrimOffset = %d TrimOffset = %d \n",__func__,mHprTrimOffset,TrimOffset);
++    printk("%s mHprTrimOffset = %d TrimOffset = %d \n",__func__,mHprTrimOffset,TrimOffset);
+     int OffsetTrimming = mHprTrimOffset - TrimOffset;
+     SetHprOffset(OffsetTrimming);
+ }
+ 
+ static void SetHpLOffsetTrim(void)
+ {
+-    mt6631_debug("%s mHprTrimOffset = %d TrimOffset = %d \n",__func__,mHplTrimOffset,TrimOffset);
++    printk("%s mHprTrimOffset = %d TrimOffset = %d \n",__func__,mHplTrimOffset,TrimOffset);
+     int OffsetTrimming = mHplTrimOffset - TrimOffset;
+     SetHplOffset(OffsetTrimming);
+ }
+@@ -809,7 +801,7 @@ static void OpenClassAB(void)
+ 
+ static void SetDCcoupleNP(int ADCType, int mode)
+ {
+-    mt6631_debug("%s ADCType= %d mode = %d\n", __func__, ADCType, mode);
++    printk("%s ADCType= %d mode = %d\n", __func__, ADCType, mode);
+     switch (mode)
+     {
+         case AUDIO_ANALOGUL_MODE_ACC:
+@@ -956,7 +948,7 @@ static void SetMic3powermode(bool lowpower)
+ 
+ static void OpenMicbias1(bool bEnable)
+ {
+-    mt6631_debug("%s bEnable = %d \n", __func__, bEnable);
++    printk("%s bEnable = %d \n", __func__, bEnable);
+     if (bEnable == true)
+     {
+         mt6331_upmu_set_rg_audpwdbmicbias1(true); // mic bias power 1 on
+@@ -976,7 +968,7 @@ static void SetMicbias1lowpower(bool benable)
+ static void OpenMicbias0(bool bEanble)
+ {
+ 
+-    mt6631_debug("%s bEanble = %d\n", __func__, bEanble);
++    printk("%s bEanble = %d\n", __func__, bEanble);
+     if (bEanble == true)
+     {
+         mt6331_upmu_set_rg_audpwdbmicbias0(true); // mic bias power 0 on
+@@ -1047,7 +1039,7 @@ static uint32 GetULNewIFFrequency(uint32 frequency)
+ uint32 GetULFrequency(uint32 frequency)
+ {
+     uint32 Reg_value = 0;
+-    mt6631_debug("%s frequency =%d\n", __func__, frequency);
++    printk("%s frequency =%d\n", __func__, frequency);
+     switch (frequency)
+     {
+         case 8000:
+@@ -1086,34 +1078,34 @@ uint32 ULSampleRateTransform(uint32 SampleRate)
+ 
+ static int mt63xx_codec_startup(struct snd_pcm_substream *substream , struct snd_soc_dai *Daiport)
+ {
+-    //mt6631_debug("+mt63xx_codec_startup name = %s number = %d\n", substream->name, substream->number);
++    //printk("+mt63xx_codec_startup name = %s number = %d\n", substream->name, substream->number);
+     if (substream->stream == SNDRV_PCM_STREAM_CAPTURE && substream->runtime->rate)
+     {
+-        //mt6631_debug("mt63xx_codec_startup set up SNDRV_PCM_STREAM_CAPTURE rate = %d\n", substream->runtime->rate);
++        //printk("mt63xx_codec_startup set up SNDRV_PCM_STREAM_CAPTURE rate = %d\n", substream->runtime->rate);
+         mBlockSampleRate[AUDIO_ANALOG_DEVICE_IN_ADC] = substream->runtime->rate;
+ 
+     }
+     else if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK && substream->runtime->rate)
+     {
+-        //mt6631_debug("mt63xx_codec_startup set up SNDRV_PCM_STREAM_PLAYBACK rate = %d\n", substream->runtime->rate);
++        //printk("mt63xx_codec_startup set up SNDRV_PCM_STREAM_PLAYBACK rate = %d\n", substream->runtime->rate);
+         mBlockSampleRate[AUDIO_ANALOG_DEVICE_OUT_DAC] = substream->runtime->rate;
+     }
+-    //mt6631_debug("-mt63xx_codec_startup name = %s number = %d\n", substream->name, substream->number);
++    //printk("-mt63xx_codec_startup name = %s number = %d\n", substream->name, substream->number);
+     return 0;
+ }
+ 
+ static int mt63xx_codec_prepare(struct snd_pcm_substream *substream , struct snd_soc_dai *Daiport)
+ {
+-    //mt6631_debug("mt63xx_codec_prepare set up  rate = %d\n", substream->runtime->rate);
++    //printk("mt63xx_codec_prepare set up  rate = %d\n", substream->runtime->rate);
+     if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
+     {
+-        mt6631_debug("mt63xx_codec_prepare set up SNDRV_PCM_STREAM_CAPTURE rate = %d\n", substream->runtime->rate);
++        printk("mt63xx_codec_prepare set up SNDRV_PCM_STREAM_CAPTURE rate = %d\n", substream->runtime->rate);
+         mBlockSampleRate[AUDIO_ANALOG_DEVICE_IN_ADC] = substream->runtime->rate;
+ 
+     }
+     else if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+     {
+-        mt6631_debug("mt63xx_codec_prepare set up SNDRV_PCM_STREAM_PLAYBACK rate = %d\n", substream->runtime->rate);
++        printk("mt63xx_codec_prepare set up SNDRV_PCM_STREAM_PLAYBACK rate = %d\n", substream->runtime->rate);
+         mBlockSampleRate[AUDIO_ANALOG_DEVICE_OUT_DAC] = substream->runtime->rate;
+     }
+     return 0;
+@@ -1130,7 +1122,7 @@ static int mt6323_codec_trigger(struct snd_pcm_substream *substream , int comman
+             break;
+     }
+ 
+-    //mt6631_debug("mt6323_codec_trigger command = %d\n ", command);
++    //printk("mt6323_codec_trigger command = %d\n ", command);
+     return 0;
+ }
+ 
+@@ -1355,7 +1347,7 @@ static struct snd_soc_dai_driver mtk_6331_dai_codecs[] =
+ uint32 GetDLNewIFFrequency(unsigned int frequency)
+ {
+     uint32 Reg_value = 0;
+-    //mt6631_debug("AudioPlatformDevice ApplyDLNewIFFrequency ApplyDLNewIFFrequency = %d", frequency);
++    //printk("AudioPlatformDevice ApplyDLNewIFFrequency ApplyDLNewIFFrequency = %d", frequency);
+     switch (frequency)
+     {
+         case 8000:
+@@ -1385,7 +1377,7 @@ uint32 GetDLNewIFFrequency(unsigned int frequency)
+         case 48000:
+             Reg_value = 8;
+         default:
+-            mt6631_debug("ApplyDLNewIFFrequency with frequency = %d", frequency);
++            printk("ApplyDLNewIFFrequency with frequency = %d", frequency);
+     }
+     return Reg_value;
+ }
+@@ -1405,7 +1397,7 @@ static bool GetDLStatus(void)
+ 
+ static void TurnOnDacPower(void)
+ {
+-    mt6631_debug("TurnOnDacPower\n");
++    printk("TurnOnDacPower\n");
+     audckbufEnable(true);
+     ClsqEnable(true);
+     Topck_Enable(true);
+@@ -1435,7 +1427,7 @@ static void TurnOnDacPower(void)
+ 
+ static void TurnOffDacPower(void)
+ {
+-    mt6631_debug("TurnOffDacPower\n");
++    printk("TurnOffDacPower\n");
+     Ana_Set_Reg(AFE_CLASSH_CFG1, 0x24, 0xffff);
+     Ana_Set_Reg(AFE_CLASSH_CFG0, 0xd518, 0xffff); // ClassH off
+     Ana_Set_Reg(AUDLDO_NVREG_CFG0, 0x0, 0xffff); // NCP off
+@@ -1448,12 +1440,12 @@ static void TurnOffDacPower(void)
+ static void HeadsetVoloumeRestore(void)
+ {
+     int index = 0,oldindex = 0,offset =0,count =1;
+-    mt6631_debug("%s\n", __func__);
++    printk("%s\n", __func__);
+     index =   8 ;
+     oldindex = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTR];
+     if(index  > oldindex)
+     {
+-        mt6631_debug("index = %d oldindex = %d \n",index,oldindex);
++        printk("index = %d oldindex = %d \n",index,oldindex);
+         offset = index - oldindex;
+         while(offset >0)
+         {
+@@ -1465,7 +1457,7 @@ static void HeadsetVoloumeRestore(void)
+     }
+     else
+     {
+-        mt6631_debug("index = %d oldindex = %d \n",index,oldindex);
++        printk("index = %d oldindex = %d \n",index,oldindex);
+         offset = oldindex - index;
+         while(offset >0)
+         {
+@@ -1481,12 +1473,12 @@ static void HeadsetVoloumeRestore(void)
+ static void HeadsetVoloumeSet(void)
+ {
+     int index = 0,oldindex = 0,offset =0, count =1;
+-    mt6631_debug("%s\n", __func__);
++    printk("%s\n", __func__);
+     index =   mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTR];
+     oldindex = 8;
+     if(index  > oldindex)
+     {
+-        mt6631_debug("index = %d oldindex = %d \n",index,oldindex);
++        printk("index = %d oldindex = %d \n",index,oldindex);
+         offset = index - oldindex;
+         while(offset >0)
+         {
+@@ -1498,7 +1490,7 @@ static void HeadsetVoloumeSet(void)
+     }
+     else
+     {
+-        mt6631_debug("index = %d oldindex = %d \n",index,oldindex);
++        printk("index = %d oldindex = %d \n",index,oldindex);
+         offset = oldindex - index;
+         while(offset >0)
+         {
+@@ -1523,7 +1515,7 @@ static void Audio_Amp_Change(int channels , bool enable)
+         if (mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTL] == false &&
+             mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTR] == false)
+         {
+-            mt6631_debug("%s \n", __func__);
++            printk("%s \n", __func__);
+ 
+             OpenClassH();
+ 
+@@ -1576,7 +1568,7 @@ static void Audio_Amp_Change(int channels , bool enable)
+         if (mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTL] == false &&
+             mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTR] == false)
+         {
+-            mt6631_debug("Audio_Amp_Change off amp\n");
++            printk("Audio_Amp_Change off amp\n");
+             HeadsetVoloumeRestore();// Set HPR/HPL gain as 0dB, step by step
+             //Ana_Set_Reg(ZCD_CON2,  0x0489 , 0xffff);
+             Ana_Set_Reg(AUDBUF_CFG0, 0xE148, 0xffff); // Disable HPR/HPL
+@@ -1611,7 +1603,7 @@ static void Audio_Amp_Change(int channels , bool enable)
+ static int Audio_AmpL_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_AmpL_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTL]);
++    printk("Audio_AmpL_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTL]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTL];
+     return 0;
+ }
+@@ -1620,7 +1612,7 @@ static int Audio_AmpL_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ {
+     mutex_lock(&Ana_Ctrl_Mutex);
+ 
+-    mt6631_debug("%s() gain = %ld \n ", __func__, ucontrol->value.integer.value[0]);
++    printk("%s() gain = %ld \n ", __func__, ucontrol->value.integer.value[0]);
+     if ((ucontrol->value.integer.value[0]  == true) && (mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTL]  == false))
+     {
+         Audio_Amp_Change(AUDIO_ANALOG_CHANNELS_LEFT1 , true);
+@@ -1638,7 +1630,7 @@ static int Audio_AmpL_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static int Audio_AmpR_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_AmpR_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTR]);
++    printk("Audio_AmpR_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTR]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTR];
+     return 0;
+ }
+@@ -1647,7 +1639,7 @@ static int Audio_AmpR_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ {
+     mutex_lock(&Ana_Ctrl_Mutex);
+ 
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if ((ucontrol->value.integer.value[0]  == true) && (mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HPOUTR]  == false))
+     {
+         Audio_Amp_Change(AUDIO_ANALOG_CHANNELS_RIGHT1 , true);
+@@ -1665,7 +1657,7 @@ static int Audio_AmpR_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static void  SetVoiceAmpVolume(void)
+ {
+     int index;
+-    mt6631_debug("%s\n", __func__);
++    printk("%s\n", __func__);
+     index =  mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HSOUTL];
+     Ana_Set_Reg(ZCD_CON3, index , 0x001f);
+ }
+@@ -1674,13 +1666,13 @@ static void Voice_Amp_Change(bool enable)
+ {
+     if (enable)
+     {
+-        mt6631_debug("turn on ampL\n");
++        printk("turn on ampL\n");
+         if (GetDLStatus() == false)
+         {
+             Ana_Set_Reg(0x0680, 0x0000, 0xffff); // Enable AUDGLB
+             Ana_Set_Reg(TOP_CKSEL_CON_CLR, 0x0001, 0x0001); //use internal 26M
+             TurnOnDacPower();
+-            mt6631_debug("Voice_Amp_Change on amp\n");
++            printk("Voice_Amp_Change on amp\n");
+             OpenClassAB();
+             Ana_Set_Reg(AUDLDO_NVREG_CFG0,   0x0028, 0xffff); // Enable cap-less LDOs (1.6V)
+             Ana_Set_Reg(AUDLDO_NVREG_CFG0,   0x0068, 0xffff); // Enable NV regulator (-1.6V)
+@@ -1699,7 +1691,7 @@ static void Voice_Amp_Change(bool enable)
+     }
+     else
+     {
+-        mt6631_debug("turn off ampL\n");
++        printk("turn off ampL\n");
+         if (GetDLStatus() == false)
+         {
+             TurnOffDacPower();
+@@ -1716,7 +1708,7 @@ static void Voice_Amp_Change(bool enable)
+ static int Voice_Amp_Get(struct snd_kcontrol *kcontrol,
+                          struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Voice_Amp_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HSOUTL]);
++    printk("Voice_Amp_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HSOUTL]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HSOUTL];
+     return 0;
+ }
+@@ -1724,7 +1716,7 @@ static int Voice_Amp_Get(struct snd_kcontrol *kcontrol,
+ static int Voice_Amp_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     mutex_lock(&Ana_Ctrl_Mutex);
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if ((ucontrol->value.integer.value[0]  == true) && (mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_HSOUTL]  == false))
+     {
+         Voice_Amp_Change(true);
+@@ -1747,7 +1739,7 @@ static void Speaker_Amp_Change(bool enable)
+         {
+             TurnOnDacPower();
+         }
+-        mt6631_debug("turn on Speaker_Amp_Change \n");
++        printk("turn on Speaker_Amp_Change \n");
+         // here pmic analog control
+         //Ana_Set_Reg(AUDNVREGGLB_CFG0  , 0x0000 , 0xffffffff);
+         OpenClassAB();
+@@ -1783,7 +1775,7 @@ static void Speaker_Amp_Change(bool enable)
+     }
+     else
+     {
+-        mt6631_debug("turn off Speaker_Amp_Change \n");
++        printk("turn off Speaker_Amp_Change \n");
+ #ifdef CONFIG_MTK_SPEAKER
+         if (Speaker_mode == AUDIO_SPEAKER_MODE_D)
+         {
+@@ -1816,7 +1808,7 @@ static void Speaker_Amp_Change(bool enable)
+ static int Speaker_Amp_Get(struct snd_kcontrol *kcontrol,
+                            struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_SPKL] ;
+     return 0;
+ }
+@@ -1824,7 +1816,7 @@ static int Speaker_Amp_Get(struct snd_kcontrol *kcontrol,
+ static int Speaker_Amp_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+ 
+-    mt6631_debug("%s() value = %ld \n ", __func__, ucontrol->value.integer.value[0]);
++    printk("%s() value = %ld \n ", __func__, ucontrol->value.integer.value[0]);
+     if ((ucontrol->value.integer.value[0] == true) && (mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_SPKL]  == false))
+     {
+         Speaker_Amp_Change(true);
+@@ -1846,7 +1838,7 @@ static void Headset_Speaker_Amp_Change(bool enable)
+         {
+             TurnOnDacPower();
+         }
+-        mt6631_debug("turn on Speaker_Amp_Change \n");
++        printk("turn on Speaker_Amp_Change \n");
+         // here pmic analog control
+         //Ana_Set_Reg(AUDNVREGGLB_CFG0  , 0x0000 , 0xffffffff);
+         OpenClassAB();
+@@ -1932,7 +1924,7 @@ static void Headset_Speaker_Amp_Change(bool enable)
+         Ana_Set_Reg(AUDLDO_NVREG_CFG0  , 0x0028 , 0xffff); // Disable NV regulator (-1.6V)
+         Ana_Set_Reg(AUDLDO_NVREG_CFG0  , 0x0000 , 0xffff); // Disable cap-less LDOs (1.6V)
+ 
+-        mt6631_debug("turn off Speaker_Amp_Change \n");
++        printk("turn off Speaker_Amp_Change \n");
+         if (GetDLStatus() == false)
+         {
+             Ana_Set_Reg(AFE_DL_SRC2_CON0_L , 0x1800 , 0xffff);
+@@ -1950,7 +1942,7 @@ static void Headset_Speaker_Amp_Change(bool enable)
+ static int Headset_Speaker_Amp_Get(struct snd_kcontrol *kcontrol,
+                                    struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_SPEAKER_HEADSET_R] ;
+     return 0;
+ }
+@@ -1959,7 +1951,7 @@ static int Headset_Speaker_Amp_Set(struct snd_kcontrol *kcontrol, struct snd_ctl
+ {
+     //struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+ 
+-    mt6631_debug("%s() gain = %lu \n ", __func__, ucontrol->value.integer.value[0]);
++    printk("%s() gain = %lu \n ", __func__, ucontrol->value.integer.value[0]);
+     if ((ucontrol->value.integer.value[0]  == true) && (mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_SPEAKER_HEADSET_R]  == false))
+     {
+         Headset_Speaker_Amp_Change(true);
+@@ -2014,7 +2006,7 @@ static int Audio_Speaker_OcFlag_Get(struct snd_kcontrol *kcontrol,
+ 
+ static int Audio_Speaker_OcFlag_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s is not support setting \n", __func__);
++    printk("%s is not support setting \n", __func__);
+     return 0;
+ }
+ 
+@@ -2031,7 +2023,7 @@ static int Audio_Speaker_Current_Sensing_Set(struct snd_kcontrol *kcontrol, stru
+ 
+     if (ucontrol->value.integer.value[0])
+     {
+-        mt6631_debug("enable Audio_Speaker_Current_Sensing_Set\n");
++        printk("enable Audio_Speaker_Current_Sensing_Set\n");
+         //Ana_Set_Reg (SPK_CON12,  0x9300, 0xffff);CON12 invalid @ 6332
+         Ana_Set_Reg(SPK_CON16,  0x8000, 0x8000); //[15]ISENSE enable
+         Ana_Set_Reg(SPK_CON14,  0x0050, 0x0050); //[6]VSENSE enable
+@@ -2041,7 +2033,7 @@ static int Audio_Speaker_Current_Sensing_Set(struct snd_kcontrol *kcontrol, stru
+     }
+     else
+     {
+-        mt6631_debug("disable Audio_Speaker_Current_Sensing_Set\n");
++        printk("disable Audio_Speaker_Current_Sensing_Set\n");
+         //Ana_Set_Reg (SPK_CON12,  0x1300, 0xffff); CON12 invalid @ 6332
+         Ana_Set_Reg(SPK_CON16,  0x0, 0x8000); //[15]ISENSE disable
+         Ana_Set_Reg(SPK_CON14,  0x0, 0x0050); //[6]VSENSE enable
+@@ -2156,7 +2148,7 @@ const uint32 I_Buffer_Table[HW_BUFFER_LENGTH] =
+ 
+ int Audio_AuxAdcData_Get_ext(void)
+ {
+-    mt6631_debug("vibspk auxadc in+\n");
++    printk("vibspk auxadc in+\n");
+     const int dRecCount = 1024;
+     int dRecReadIndex = 0;
+     int dValidCount = 0;
+@@ -2200,7 +2192,7 @@ int Audio_AuxAdcData_Get_ext(void)
+         Ana_Set_Reg(0x809E, 0x0004, 0xFFFF);
+         while ((Ana_Get_Reg(0x809A) & 0x4) != 0)
+         {
+-            mt6631_debug("WAITING clock\n");
++            printk("WAITING clock\n");
+         }
+ 
+         Ana_Set_Reg(0x809A, 0x6023, 0xFFFF); //0x6027
+@@ -2216,7 +2208,7 @@ int Audio_AuxAdcData_Get_ext(void)
+         msleep(2);
+         while ((Ana_Get_Reg(0x8CCE) & 0x8) != 0)
+         {
+-            mt6631_debug("WAITING FQMTR_CON0[3]\n");
++            printk("WAITING FQMTR_CON0[3]\n");
+             //Do nothing;
+         }
+         //delay 1ms ，ensure Busy =1
+@@ -2227,9 +2219,9 @@ int Audio_AuxAdcData_Get_ext(void)
+         output_freq = (32768 * freq_meter_data) / (175);
+         //output_freq = (32000*freq_meter_data)/(366*33);
+         //output_freq = (12000000*freq_meter_data)/64;
+-        mt6631_debug("freq_meter_data %d %d\n", freq_meter_data, output_freq);
++        printk("freq_meter_data %d %d\n", freq_meter_data, output_freq);
+         output_freq = output_freq / 96000;
+-        mt6631_debug("freq divider %d\n", output_freq);
++        printk("freq divider %d\n", output_freq);
+     }
+ #endif
+     dMax = dCurValue = 0;
+@@ -2255,10 +2247,10 @@ int Audio_AuxAdcData_Get_ext(void)
+ 
+     //        Ana_Set_Reg(MT6332_AUXADC_CON33, 0, 0xFFFF);
+ 
+-    //        mt6631_debug("hochi CON13 [%x] CON12 [%x]\n", Ana_Get_Reg(MT6332_AUXADC_CON13), Ana_Get_Reg(MT6332_AUXADC_CON12));
++    //        printk("hochi CON13 [%x] CON12 [%x]\n", Ana_Get_Reg(MT6332_AUXADC_CON13), Ana_Get_Reg(MT6332_AUXADC_CON12));
+     Ana_Set_Reg(MT6332_AUXADC_CON13, 0x0200, 0x0200);     //[9]: enable
+ 
+-    //        mt6631_debug("hochi while+ [%x]\n", Ana_Get_Reg(MT6332_AUXADC_CON33));
++    //        printk("hochi while+ [%x]\n", Ana_Get_Reg(MT6332_AUXADC_CON33));
+ 
+     do
+     {
+@@ -2266,12 +2258,12 @@ int Audio_AuxAdcData_Get_ext(void)
+         v_cnt = (iv_queue >> 8) & 0x3F;
+         i_cnt = iv_queue & 0x3F;
+         //ov_flag = iv_queue & 0x8000;
+-        //            mt6631_debug("hochi o [%d] v [%d] i [%d] t [%d]\n",ov_flag,v_cnt,i_cnt,dRecReadIndex);
++        //            printk("hochi o [%d] v [%d] i [%d] t [%d]\n",ov_flag,v_cnt,i_cnt,dRecReadIndex);
+         /*
+             if (ov_flag != 0)
+             {
+-                mt6631_debug("hochi %s overflow \n", __func__);
+-                mt6631_debug("hochi ov MT6332_AUXADC_CON33 [%x]\n", iv_queue);
++                printk("hochi %s overflow \n", __func__);
++                printk("hochi ov MT6332_AUXADC_CON33 [%x]\n", iv_queue);
+                 break;
+             }
+             else
+@@ -2279,7 +2271,7 @@ int Audio_AuxAdcData_Get_ext(void)
+         {
+             dCheckCount++;
+         }
+-        //mt6631_debug("o [%d] v [%d] i [%d]",ov_flag,v_cnt,i_cnt);
++        //printk("o [%d] v [%d] i [%d]",ov_flag,v_cnt,i_cnt);
+ 
+         if (/*(v_cnt > 0) ||*/ (i_cnt > 0))
+         {
+@@ -2387,8 +2379,8 @@ int Audio_AuxAdcData_Get_ext(void)
+                 /*
+                 if ((v_tmp & 0x8000) == 0 || (i_tmp & 0x8000) == 0)
+                 {
+-                    mt6631_debug("hochi AUXADC_CON33=0x%x at %d\n\n", iv_queue, hw_read_idx);
+-                    mt6631_debug("hochi v_tmp=0x%x i_tmp= 0x%x, hw_read_idx %d, V_Addr 0x%x, I_Addr 0x%x\n\n", v_tmp, i_tmp, hw_read_idx, I_Buffer_Table[hw_read_idx], V_Buffer_Table[hw_read_idx]);
++                    printk("hochi AUXADC_CON33=0x%x at %d\n\n", iv_queue, hw_read_idx);
++                    printk("hochi v_tmp=0x%x i_tmp= 0x%x, hw_read_idx %d, V_Addr 0x%x, I_Addr 0x%x\n\n", v_tmp, i_tmp, hw_read_idx, I_Buffer_Table[hw_read_idx], V_Buffer_Table[hw_read_idx]);
+                 }
+                 */
+                 if (dCurValue > dMax)
+@@ -2407,7 +2399,7 @@ int Audio_AuxAdcData_Get_ext(void)
+             if (iov_flag)
+             {
+                 Ana_Set_Reg(MT6332_AUXADC_CON12, 0x0080, 0x0080);
+-                mt6631_debug("vibspk auxadc skip io [%d] i [%d]\n", iov_flag, iov_cnt);
++                printk("vibspk auxadc skip io [%d] i [%d]\n", iov_flag, iov_cnt);
+                 Ana_Set_Reg(MT6332_AUXADC_CON12, 0, 0x0080);
+             }
+         }
+@@ -2417,9 +2409,9 @@ int Audio_AuxAdcData_Get_ext(void)
+     while (dRecCount > dRecReadIndex/* && dValidCount > 0*/);
+ 
+     // if (ov_flag)
+-    //     mt6631_debug("hochi : overflow dRecReadIndex [%d] dValidCount [%d] dCheckCount [%d]\n",dRecReadIndex,dValidCount,dCheckCount);
++    //     printk("hochi : overflow dRecReadIndex [%d] dValidCount [%d] dCheckCount [%d]\n",dRecReadIndex,dValidCount,dCheckCount);
+     // else
+-    mt6631_debug("vibspk auxadc- : dMax = %d dRecReadIndex [%d] dValidCount [%d] dCheckCount [%d]\n", dMax, dRecReadIndex, dValidCount, dCheckCount);
++    printk("vibspk auxadc- : dMax = %d dRecReadIndex [%d] dValidCount [%d] dCheckCount [%d]\n", dMax, dRecReadIndex, dValidCount, dCheckCount);
+ #if 0//0519
+     Ana_Set_Reg(0x80be, 0x02, 0x02);
+     Ana_Set_Reg(0x80c0, 0x02, 0x02);
+@@ -2430,7 +2422,7 @@ int Audio_AuxAdcData_Get_ext(void)
+ #endif
+     Ana_Set_Reg(MT6332_AUXADC_CON13, 0, 0x0200);     //[9]: enable
+     mEnableAuxAdc = 2;
+-    mt6631_debug("vibspk auxadc-\n");
++    printk("vibspk auxadc-\n");
+     return dMax;
+ }
+ 
+@@ -2451,7 +2443,7 @@ static int Audio_AuxAdcData_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_AuxAdcData_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     dAuxAdcChannel = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s dAuxAdcChannel = 0x%x \n", __func__, dAuxAdcChannel);
++    printk("%s dAuxAdcChannel = 0x%x \n", __func__, dAuxAdcChannel);
+     return 0;
+ }
+ 
+@@ -2482,7 +2474,7 @@ static const char *Voice_Mux_function[] = {"Voice", "Speaker"};
+ static int Lineout_PGAL_Get(struct snd_kcontrol *kcontrol,
+                             struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Speaker_PGA_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_SPKL]);
++    printk("Speaker_PGA_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_SPKL]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_SPKL];
+     return 0;
+ }
+@@ -2490,11 +2482,11 @@ static int Lineout_PGAL_Get(struct snd_kcontrol *kcontrol,
+ static int Lineout_PGAL_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s(), index = %d\n", __func__, ucontrol->value.enumerated.item[0]);
++    printk("%s(), index = %d\n", __func__, ucontrol->value.enumerated.item[0]);
+ 
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(DAC_DL_PGA_Speaker_GAIN))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+@@ -2510,7 +2502,7 @@ static int Lineout_PGAL_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
+ static int Lineout_PGAR_Get(struct snd_kcontrol *kcontrol,
+                             struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s  = %d\n", __func__, mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_SPKR]);
++    printk("%s  = %d\n", __func__, mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_SPKR]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_SPKR];
+     return 0;
+ }
+@@ -2519,11 +2511,11 @@ static int Lineout_PGAR_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
+ {
+     //    struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+     int index = 0;
+-    mt6631_debug("%s(), index = %d\n", __func__, ucontrol->value.enumerated.item[0]);
++    printk("%s(), index = %d\n", __func__, ucontrol->value.enumerated.item[0]);
+ 
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(DAC_DL_PGA_Speaker_GAIN))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+@@ -2539,7 +2531,7 @@ static int Lineout_PGAR_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
+ static int Handset_PGA_Get(struct snd_kcontrol *kcontrol,
+                            struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Handset_PGA_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HSOUTL]);
++    printk("Handset_PGA_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HSOUTL]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HSOUTL];
+     return 0;
+ }
+@@ -2549,11 +2541,11 @@ static int Handset_PGA_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_va
+     //    struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+     int index = 0;
+ 
+-    mt6631_debug("%s(), index = %d\n", __func__, ucontrol->value.enumerated.item[0]);
++    printk("%s(), index = %d\n", __func__, ucontrol->value.enumerated.item[0]);
+ 
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(DAC_DL_PGA_Handset_GAIN))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+@@ -2570,7 +2562,7 @@ static int Handset_PGA_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_va
+ static void HeadsetLVolumeSet(void)
+ {
+     int index = 0;
+-    mt6631_debug("%s\n", __func__);
++    printk("%s\n", __func__);
+     index =   mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTL];
+     Ana_Set_Reg(ZCD_CON2, index , 0x001f);
+ }
+@@ -2578,7 +2570,7 @@ static void HeadsetLVolumeSet(void)
+ static int Headset_PGAL_Get(struct snd_kcontrol *kcontrol,
+                             struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Headset_PGAL_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTL]);
++    printk("Headset_PGAL_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTL]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTL];
+     return 0;
+ }
+@@ -2588,11 +2580,11 @@ static int Headset_PGAL_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
+     //    struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+     int index = 0;
+ 
+-    mt6631_debug("%s(), index = %d arraysize = %d \n", __func__, ucontrol->value.enumerated.item[0], ARRAY_SIZE(DAC_DL_PGA_Headset_GAIN));
++    printk("%s(), index = %d arraysize = %d \n", __func__, ucontrol->value.enumerated.item[0], ARRAY_SIZE(DAC_DL_PGA_Headset_GAIN));
+ 
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(DAC_DL_PGA_Headset_GAIN))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+@@ -2608,7 +2600,7 @@ static int Headset_PGAL_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
+ static void HeadsetRVolumeSet(void)
+ {
+     int index = 0;
+-    mt6631_debug("%s\n", __func__);
++    printk("%s\n", __func__);
+     index =   mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTR];
+     Ana_Set_Reg(ZCD_CON2, index << 7, 0x0f80);
+ }
+@@ -2616,7 +2608,7 @@ static void HeadsetRVolumeSet(void)
+ static int Headset_PGAR_Get(struct snd_kcontrol *kcontrol,
+                             struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Headset_PGAR_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTR]);
++    printk("Headset_PGAR_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTR]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_HPOUTR];
+     return 0;
+ }
+@@ -2626,11 +2618,11 @@ static int Headset_PGAR_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
+     //    struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+     int index = 0;
+ 
+-    mt6631_debug("%s(), index = %d\n", __func__, ucontrol->value.enumerated.item[0]);
++    printk("%s(), index = %d\n", __func__, ucontrol->value.enumerated.item[0]);
+ 
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(DAC_DL_PGA_Headset_GAIN))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+@@ -2647,7 +2639,7 @@ static int Headset_PGAR_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
+ static int Voice_Mux_Get(struct snd_kcontrol *kcontrol,
+                          struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Voice_Mux_Get = %d\n", mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_VOICE]);
++    printk("Voice_Mux_Get = %d\n", mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_VOICE]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_VOICE];
+     return 0;
+ }
+@@ -2656,17 +2648,17 @@ static int Voice_Mux_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_valu
+ {
+ 
+     struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.integer.value[0])
+     {
+-        mt6631_debug("%s()\n", __func__);
++        printk("%s()\n", __func__);
+         snd_soc_dapm_disable_pin(&codec->dapm, "SPEAKER");
+         snd_soc_dapm_disable_pin(&codec->dapm, "RX_BIAS");
+         snd_soc_dapm_sync(&codec->dapm);
+     }
+     else
+     {
+-        mt6631_debug("%s()\n", __func__);
++        printk("%s()\n", __func__);
+         snd_soc_dapm_enable_pin(&codec->dapm, "SPEAKER");
+         snd_soc_dapm_enable_pin(&codec->dapm, "RX_BIAS");
+         snd_soc_dapm_sync(&codec->dapm);
+@@ -2681,7 +2673,7 @@ static uint32 mHp_Impedance = 32;
+ static int Audio_Hp_Impedance_Get(struct snd_kcontrol *kcontrol,
+                                   struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_Hp_Impedance_Get = %d\n", mHp_Impedance);
++    printk("Audio_Hp_Impedance_Get = %d\n", mHp_Impedance);
+     ucontrol->value.integer.value[0] = mHp_Impedance;
+     return 0;
+ 
+@@ -2690,14 +2682,14 @@ static int Audio_Hp_Impedance_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_Hp_Impedance_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     mHp_Impedance = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s Audio_Hp_Impedance_Set = 0x%x \n", __func__, mHp_Impedance);
++    printk("%s Audio_Hp_Impedance_Set = 0x%x \n", __func__, mHp_Impedance);
+     return 0;
+ }
+ 
+ static int Aud_Clk_Buf_Get(struct snd_kcontrol *kcontrol,
+                            struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("\%s n", __func__);
++    printk("\%s n", __func__);
+     ucontrol->value.integer.value[0] = audck_buf_Count;
+     return 0;
+ }
+@@ -2705,7 +2697,7 @@ static int Aud_Clk_Buf_Get(struct snd_kcontrol *kcontrol,
+ static int Aud_Clk_Buf_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s(), value = %d\n", __func__, ucontrol->value.enumerated.item[0]);
++    printk("%s(), value = %d\n", __func__, ucontrol->value.enumerated.item[0]);
+     if (ucontrol->value.integer.value[0])
+     {
+         audckbufEnable(true);
+@@ -2797,7 +2789,7 @@ static bool GetDacStatus(void)
+ 
+ static bool TurnOnADcPowerACC(int ADCType, bool enable)
+ {
+-    mt6631_debug("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
++    printk("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
+     if (enable)
+     {
+         uint32 ULIndex = GetULFrequency(mBlockSampleRate[AUDIO_ANALOG_DEVICE_IN_ADC]);
+@@ -2972,7 +2964,7 @@ static bool TurnOnADcPowerACC(int ADCType, bool enable)
+         }
+         else
+         {
+-            mt6631_debug("\n");
++            printk("\n");
+         }
+     }
+     else
+@@ -3031,7 +3023,7 @@ static bool TurnOnADcPowerACC(int ADCType, bool enable)
+ 
+ static bool TurnOnADcPowerDmic(int ADCType, bool enable)
+ {
+-    mt6631_debug("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
++    printk("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
+     if (enable)
+     {
+         uint32 ULIndex = GetULFrequency(mBlockSampleRate[AUDIO_ANALOG_DEVICE_IN_ADC]);
+@@ -3106,7 +3098,7 @@ static bool TurnOnADcPowerDmic(int ADCType, bool enable)
+         }
+         else
+         {
+-            mt6631_debug("\n");
++            printk("\n");
+         }
+     }
+     else
+@@ -3169,7 +3161,7 @@ static bool TurnOnADcPowerDmic(int ADCType, bool enable)
+ 
+ static bool TurnOnADcPowerDCC(int ADCType, bool enable)
+ {
+-    mt6631_debug("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
++    printk("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
+     if (enable)
+     {
+         uint32 ULIndex = GetULFrequency(mBlockSampleRate[AUDIO_ANALOG_DEVICE_IN_ADC]);
+@@ -3359,7 +3351,7 @@ static bool TurnOnADcPowerDCC(int ADCType, bool enable)
+         }
+         else
+         {
+-            mt6631_debug("\n");
++            printk("\n");
+         }
+     }
+     else
+@@ -3429,7 +3421,7 @@ static bool TurnOnADcPowerDCC(int ADCType, bool enable)
+ 
+ static bool TurnOnADcPowerDCCECM(int ADCType, bool enable)
+ {
+-    mt6631_debug("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
++    printk("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
+     if (enable)
+     {
+         uint32 ULIndex = GetULFrequency(mBlockSampleRate[AUDIO_ANALOG_DEVICE_IN_ADC]);
+@@ -3628,7 +3620,7 @@ static bool TurnOnADcPowerDCCECM(int ADCType, bool enable)
+         }
+         else
+         {
+-            mt6631_debug("\n");
++            printk("\n");
+         }
+     }
+     else
+@@ -3699,7 +3691,7 @@ static bool TurnOnADcPowerDCCECM(int ADCType, bool enable)
+ 
+ static bool TurnOnVOWDigitalHW(bool enable)
+ {
+-    mt6631_debug("%s enable = %d \n", __func__, enable);
++    printk("%s enable = %d \n", __func__, enable);
+     if (enable)
+     {
+         Ana_Set_Reg(AFE_VOW_TOP, 0x0810, 0xffff);   //VOW control (window mode)
+@@ -3714,7 +3706,7 @@ static bool TurnOnVOWDigitalHW(bool enable)
+ 
+ static bool TurnOnVOWADcPowerACC(int ADCType, bool enable)
+ {
+-    mt6631_debug("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
++    printk("%s ADCType = %d enable = %d \n", __func__, ADCType, enable);
+     if (enable)
+     {
+ #if defined(VOW_TONE_TEST)
+@@ -3866,14 +3858,14 @@ static const struct soc_enum Audio_UL_Enum[] =
+ static int Audio_ADC1_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_ADC1_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC1]);
++    printk("Audio_ADC1_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC1]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC1];
+     return 0;
+ }
+ 
+ static int Audio_ADC1_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     mutex_lock(&Ana_Power_Mutex);
+     if (ucontrol->value.integer.value[0])
+     {
+@@ -3922,14 +3914,14 @@ static int Audio_ADC1_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static int Audio_ADC2_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_ADC2_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC2]);
++    printk("Audio_ADC2_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC2]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC2];
+     return 0;
+ }
+ 
+ static int Audio_ADC2_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     mutex_lock(&Ana_Power_Mutex);
+     if (ucontrol->value.integer.value[0])
+     {
+@@ -3978,14 +3970,14 @@ static int Audio_ADC2_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static int Audio_ADC3_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_ADC3_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC3]);
++    printk("Audio_ADC3_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC3]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC3];
+     return 0;
+ }
+ 
+ static int Audio_ADC3_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     mutex_lock(&Ana_Power_Mutex);
+     if (ucontrol->value.integer.value[0])
+     {
+@@ -4035,14 +4027,14 @@ static int Audio_ADC3_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static int Audio_ADC4_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_ADC4_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC4]);
++    printk("Audio_ADC4_Get = %d\n", mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC4]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_DEVICE_IN_ADC4];
+     return 0;
+ }
+ 
+ static int Audio_ADC4_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     mutex_lock(&Ana_Power_Mutex);
+     if (ucontrol->value.integer.value[0])
+     {
+@@ -4091,7 +4083,7 @@ static int Audio_ADC4_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static int Audio_ADC1_Sel_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC1]);
++    printk("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC1]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC1];
+     return 0;
+ }
+@@ -4113,22 +4105,22 @@ static void Audio_ADC1_Set_Input(int Input)
+     }
+     else
+     {
+-        mt6631_debug("%s() warning \n ", __func__);
++        printk("%s() warning \n ", __func__);
+     }
+-    mt6631_debug("%s() done \n", __func__);
++    printk("%s() done \n", __func__);
+ }
+ 
+ static int Audio_ADC1_Sel_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int input = ucontrol->value.integer.value[0] ;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Adc_Input_Sel))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     Audio_ADC1_Set_Input(input);
+-    mt6631_debug("%s() done \n", __func__);
++    printk("%s() done \n", __func__);
+     mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC1] = ucontrol->value.integer.value[0];
+     return 0;
+ }
+@@ -4136,7 +4128,7 @@ static int Audio_ADC1_Sel_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem
+ static int Audio_ADC2_Sel_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC2]);
++    printk("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC2]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC2];
+     return 0;
+ }
+@@ -4157,7 +4149,7 @@ static void Audio_ADC2_Set_Input(int Input)
+     }
+     else
+     {
+-        mt6631_debug("%s() warning \n ", __func__);
++        printk("%s() warning \n ", __func__);
+     }
+ }
+ 
+@@ -4165,14 +4157,14 @@ static void Audio_ADC2_Set_Input(int Input)
+ static int Audio_ADC2_Sel_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int input = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Adc_Input_Sel))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     Audio_ADC2_Set_Input(input);
+-    mt6631_debug("%s() done \n", __func__);
++    printk("%s() done \n", __func__);
+     mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC2] = ucontrol->value.integer.value[0];
+     return 0;
+ }
+@@ -4193,14 +4185,14 @@ static void Audio_ADC3_Set_Input(int Input)
+     }
+     else
+     {
+-        mt6631_debug("%s() warning \n ", __func__);
++        printk("%s() warning \n ", __func__);
+     }
+ }
+ 
+ static int Audio_ADC3_Sel_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC3]);
++    printk("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC3]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC3];
+     return 0;
+ }
+@@ -4208,15 +4200,15 @@ static int Audio_ADC3_Sel_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_ADC3_Sel_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int input = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+ 
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Adc_Input_Sel))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     Audio_ADC3_Set_Input(input);
+-    mt6631_debug("%s() done \n", __func__);
++    printk("%s() done \n", __func__);
+     mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC3] = ucontrol->value.integer.value[0];
+     return 0;
+ }
+@@ -4224,7 +4216,7 @@ static int Audio_ADC3_Sel_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem
+ static int Audio_ADC4_Sel_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC4]);
++    printk("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC4]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC4];
+     return 0;
+ }
+@@ -4245,7 +4237,7 @@ static void Audio_ADC4_Set_Input(int Input)
+     }
+     else
+     {
+-        mt6631_debug("%s() warning \n ", __func__);
++        printk("%s() warning \n ", __func__);
+     }
+ }
+ 
+@@ -4253,22 +4245,22 @@ static void Audio_ADC4_Set_Input(int Input)
+ static int Audio_ADC4_Sel_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int input = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+ 
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Adc_Input_Sel))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     Audio_ADC4_Set_Input(input);
+-    mt6631_debug("%s() done \n", __func__);
++    printk("%s() done \n", __func__);
+     mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_MIC4] = ucontrol->value.integer.value[0];
+     return 0;
+ }
+ 
+ static bool AudioPreAmp1_Sel(int Mul_Sel)
+ {
+-    mt6631_debug("%s Mul_Sel = %d ", __func__, Mul_Sel);
++    printk("%s Mul_Sel = %d ", __func__, Mul_Sel);
+     if (Mul_Sel == 0)
+     {
+         Ana_Set_Reg(AUDPREAMP_CFG0, 0x0000, 0x0030);    // pinumx open
+@@ -4284,7 +4276,7 @@ static bool AudioPreAmp1_Sel(int Mul_Sel)
+     }
+     else
+     {
+-        mt6631_debug("AnalogSetMux warning");
++        printk("AnalogSetMux warning");
+     }
+ 
+     return true;
+@@ -4294,30 +4286,30 @@ static bool AudioPreAmp1_Sel(int Mul_Sel)
+ static int Audio_PreAmp1_Get(struct snd_kcontrol *kcontrol,
+                              struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s() mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_PREAMP_1]; = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_PREAMP_1]);
++    printk("%s() mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_PREAMP_1]; = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_PREAMP_1]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_PREAMP_1];
+     return 0;
+ }
+ 
+ static int Audio_PreAmp1_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+ 
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(PreAmp_Mux_function))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_PREAMP_1] = ucontrol->value.integer.value[0];
+     AudioPreAmp1_Sel(mCodec_data->mAudio_Ana_Mux[AUDIO_ANALOG_MUX_IN_PREAMP_1]);
+-    mt6631_debug("%s() done \n", __func__);
++    printk("%s() done \n", __func__);
+     return 0;
+ }
+ 
+ static int Audio_PGA1_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_AmpR_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP1]);
++    printk("Audio_AmpR_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP1]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP1];
+     return 0;
+ }
+@@ -4325,10 +4317,10 @@ static int Audio_PGA1_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_PGA1_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(ADC_UL_PGA_GAIN))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+@@ -4341,7 +4333,7 @@ static int Audio_PGA1_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static int Audio_PGA2_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_PGA2_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP2]);
++    printk("Audio_PGA2_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP2]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP2];
+     return 0;
+ }
+@@ -4349,10 +4341,10 @@ static int Audio_PGA2_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_PGA2_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(ADC_UL_PGA_GAIN))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+@@ -4365,7 +4357,7 @@ static int Audio_PGA2_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static int Audio_PGA3_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_AmpR_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP3]);
++    printk("Audio_AmpR_Get = %d\n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP3]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP3];
+     return 0;
+ }
+@@ -4373,10 +4365,10 @@ static int Audio_PGA3_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_PGA3_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(ADC_UL_PGA_GAIN))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+@@ -4388,7 +4380,7 @@ static int Audio_PGA3_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static int Audio_PGA4_Get(struct snd_kcontrol *kcontrol,
+                           struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_AmpR_Get = %d \n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP4]);
++    printk("Audio_AmpR_Get = %d \n", mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP4]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP4];
+     return 0;
+ }
+@@ -4396,10 +4388,10 @@ static int Audio_PGA4_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_PGA4_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(ADC_UL_PGA_GAIN))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+@@ -4411,7 +4403,7 @@ static int Audio_PGA4_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_val
+ static int Audio_MicSource1_Get(struct snd_kcontrol *kcontrol,
+                                 struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("Audio_MicSource1_Get = %d\n", mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_1]);
++    printk("Audio_MicSource1_Get = %d\n", mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_1]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_1];
+     return 0;
+ }
+@@ -4419,14 +4411,14 @@ static int Audio_MicSource1_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_MicSource1_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Pmic_Digital_Mux))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() index = %d done \n", __func__, index);
++    printk("%s() index = %d done \n", __func__, index);
+     Ana_Set_Reg(AFE_MIC_ARRAY_CFG, index | index << 8, 0x0303);
+     mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_1] = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4435,7 +4427,7 @@ static int Audio_MicSource1_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_el
+ static int Audio_MicSource2_Get(struct snd_kcontrol *kcontrol,
+                                 struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_2]);
++    printk("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_2]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_2];
+     return 0;
+ }
+@@ -4443,14 +4435,14 @@ static int Audio_MicSource2_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_MicSource2_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Pmic_Digital_Mux))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() done \n", __func__);
++    printk("%s() done \n", __func__);
+     Ana_Set_Reg(AFE_MIC_ARRAY_CFG, index << 2 | index << 10, 0x0c0c);
+     mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_2] = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4459,7 +4451,7 @@ static int Audio_MicSource2_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_el
+ static int Audio_MicSource3_Get(struct snd_kcontrol *kcontrol,
+                                 struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_3]);
++    printk("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_3]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_3];
+     return 0;
+ }
+@@ -4467,14 +4459,14 @@ static int Audio_MicSource3_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_MicSource3_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Pmic_Digital_Mux))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() done \n", __func__);
++    printk("%s() done \n", __func__);
+     Ana_Set_Reg(AFE_MIC_ARRAY_CFG, index << 4 | index << 12, 0x3030);
+     mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_3] = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4484,7 +4476,7 @@ static int Audio_MicSource3_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_el
+ static int Audio_MicSource4_Get(struct snd_kcontrol *kcontrol,
+                                 struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_4]);
++    printk("%s() = %d\n", __func__, mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_4]);
+     ucontrol->value.integer.value[0] = mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_4];
+     return 0;
+ }
+@@ -4492,14 +4484,14 @@ static int Audio_MicSource4_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_MicSource4_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+     int index = 0;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Pmic_Digital_Mux))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     index = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() done \n", __func__);
++    printk("%s() done \n", __func__);
+     Ana_Set_Reg(AFE_MIC_ARRAY_CFG, index << 6 | index << 14, 0xc0c0);
+     mCodec_data->mAudio_Ana_Mux[AUDIO_MICSOURCE_MUX_IN_4] = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4509,42 +4501,42 @@ static int Audio_MicSource4_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_el
+ static int Audio_Mic1_Mode_Select_Get(struct snd_kcontrol *kcontrol,
+                                       struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s() mAudio_Analog_Mic1_mode = %d\n", __func__, mAudio_Analog_Mic1_mode);
++    printk("%s() mAudio_Analog_Mic1_mode = %d\n", __func__, mAudio_Analog_Mic1_mode);
+     ucontrol->value.integer.value[0] = mAudio_Analog_Mic1_mode;
+     return 0;
+ }
+ 
+ static int Audio_Mic1_Mode_Select_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Audio_AnalogMic_Mode))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     mAudio_Analog_Mic1_mode = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Analog_Mic1_mode);
++    printk("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Analog_Mic1_mode);
+     return 0;
+ }
+ 
+ static int Audio_Mic2_Mode_Select_Get(struct snd_kcontrol *kcontrol,
+                                       struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, mAudio_Analog_Mic2_mode);
++    printk("%s()  = %d\n", __func__, mAudio_Analog_Mic2_mode);
+     ucontrol->value.integer.value[0] = mAudio_Analog_Mic2_mode;
+     return 0;
+ }
+ 
+ static int Audio_Mic2_Mode_Select_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Audio_AnalogMic_Mode))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     mAudio_Analog_Mic2_mode = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Analog_Mic2_mode);
++    printk("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Analog_Mic2_mode);
+     return 0;
+ }
+ 
+@@ -4552,63 +4544,63 @@ static int Audio_Mic2_Mode_Select_Set(struct snd_kcontrol *kcontrol, struct snd_
+ static int Audio_Mic3_Mode_Select_Get(struct snd_kcontrol *kcontrol,
+                                       struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, mAudio_Analog_Mic3_mode);
++    printk("%s()  = %d\n", __func__, mAudio_Analog_Mic3_mode);
+     ucontrol->value.integer.value[0] = mAudio_Analog_Mic3_mode;
+     return 0;
+ }
+ 
+ static int Audio_Mic3_Mode_Select_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Audio_AnalogMic_Mode))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     mAudio_Analog_Mic3_mode = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Analog_Mic3_mode);
++    printk("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Analog_Mic3_mode);
+     return 0;
+ }
+ 
+ static int Audio_Mic4_Mode_Select_Get(struct snd_kcontrol *kcontrol,
+                                       struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, mAudio_Analog_Mic4_mode);
++    printk("%s()  = %d\n", __func__, mAudio_Analog_Mic4_mode);
+     ucontrol->value.integer.value[0] = mAudio_Analog_Mic4_mode;
+     return 0;
+ }
+ 
+ static int Audio_Mic4_Mode_Select_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Audio_AnalogMic_Mode))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     mAudio_Analog_Mic4_mode = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Analog_Mic4_mode);
++    printk("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Analog_Mic4_mode);
+     return 0;
+ }
+ 
+ static int Audio_Adc_Power_Mode_Get(struct snd_kcontrol *kcontrol,
+                                     struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, mAdc_Power_Mode);
++    printk("%s()  = %d\n", __func__, mAdc_Power_Mode);
+     ucontrol->value.integer.value[0] = mAdc_Power_Mode;
+     return 0;
+ }
+ 
+ static int Audio_Adc_Power_Mode_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(ADC_power_mode))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+     mAdc_Power_Mode = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAdc_Power_Mode);
++    printk("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAdc_Power_Mode);
+     return 0;
+ }
+ 
+@@ -4616,17 +4608,17 @@ static int Audio_Adc_Power_Mode_Set(struct snd_kcontrol *kcontrol, struct snd_ct
+ static int Audio_Vow_ADC_Func_Switch_Get(struct snd_kcontrol *kcontrol,
+                                          struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, mAudio_Vow_Analog_Func_Enable);
++    printk("%s()  = %d\n", __func__, mAudio_Vow_Analog_Func_Enable);
+     ucontrol->value.integer.value[0] = mAudio_Vow_Analog_Func_Enable;
+     return 0;
+ }
+ 
+ static int Audio_Vow_ADC_Func_Switch_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Audio_VOW_ADC_Function))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+ 
+@@ -4640,24 +4632,24 @@ static int Audio_Vow_ADC_Func_Switch_Set(struct snd_kcontrol *kcontrol, struct s
+     }
+ 
+     mAudio_Vow_Analog_Func_Enable = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Vow_Analog_Func_Enable);
++    printk("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Vow_Analog_Func_Enable);
+     return 0;
+ }
+ 
+ static int Audio_Vow_Digital_Func_Switch_Get(struct snd_kcontrol *kcontrol,
+                                              struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, mAudio_Vow_Digital_Func_Enable);
++    printk("%s()  = %d\n", __func__, mAudio_Vow_Digital_Func_Enable);
+     ucontrol->value.integer.value[0] = mAudio_Vow_Digital_Func_Enable;
+     return 0;
+ }
+ 
+ static int Audio_Vow_Digital_Func_Switch_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Audio_VOW_Digital_Function))
+     {
+-        mt6631_debug("return -EINVAL\n");
++        printk("return -EINVAL\n");
+         return -EINVAL;
+     }
+ 
+@@ -4671,7 +4663,7 @@ static int Audio_Vow_Digital_Func_Switch_Set(struct snd_kcontrol *kcontrol, stru
+     }
+ 
+     mAudio_Vow_Digital_Func_Enable = ucontrol->value.integer.value[0];
+-    mt6631_debug("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Vow_Digital_Func_Enable);
++    printk("%s() mAudio_Analog_Mic1_mode = %d \n", __func__, mAudio_Vow_Digital_Func_Enable);
+     return 0;
+ }
+ 
+@@ -4680,7 +4672,7 @@ static int Audio_Vow_Cfg0_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+     int value = /*Ana_Get_Reg(AFE_MAD_CFG0)*/reg_AFE_VOW_CFG0;
+-    mt6631_debug("%s()  = %d\n", __func__, value);
++    printk("%s()  = %d\n", __func__, value);
+     ucontrol->value.integer.value[0] = value;
+     return 0;
+ }
+@@ -4688,7 +4680,7 @@ static int Audio_Vow_Cfg0_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_Vow_Cfg0_Set(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
++    printk("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
+     //Ana_Set_Reg(AFE_MAD_CFG0, ucontrol->value.integer.value[0], 0xffff);
+     reg_AFE_VOW_CFG0 = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4698,7 +4690,7 @@ static int Audio_Vow_Cfg1_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+     int value = /*Ana_Get_Reg(AFE_MAD_CFG1)*/reg_AFE_VOW_CFG1;
+-    mt6631_debug("%s()  = %d\n", __func__, value);
++    printk("%s()  = %d\n", __func__, value);
+     ucontrol->value.integer.value[0] = value;
+     return 0;
+ }
+@@ -4706,7 +4698,7 @@ static int Audio_Vow_Cfg1_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_Vow_Cfg1_Set(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
++    printk("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
+     //Ana_Set_Reg(AFE_MAD_CFG1, ucontrol->value.integer.value[0], 0xffff);
+     reg_AFE_VOW_CFG1 = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4716,7 +4708,7 @@ static int Audio_Vow_Cfg2_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+     int value = /*Ana_Get_Reg(AFE_MAD_CFG2)*/reg_AFE_VOW_CFG2;
+-    mt6631_debug("%s()  = %d\n", __func__, value);
++    printk("%s()  = %d\n", __func__, value);
+     ucontrol->value.integer.value[0] = value;
+     return 0;
+ }
+@@ -4724,7 +4716,7 @@ static int Audio_Vow_Cfg2_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_Vow_Cfg2_Set(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
++    printk("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
+     //Ana_Set_Reg(AFE_MAD_CFG2, ucontrol->value.integer.value[0], 0xffff);
+     reg_AFE_VOW_CFG2 = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4734,7 +4726,7 @@ static int Audio_Vow_Cfg3_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+     int value = /*Ana_Get_Reg(AFE_MAD_CFG3)*/reg_AFE_VOW_CFG3;
+-    mt6631_debug("%s()  = %d\n", __func__, value);
++    printk("%s()  = %d\n", __func__, value);
+     ucontrol->value.integer.value[0] = value;
+     return 0;
+ }
+@@ -4742,7 +4734,7 @@ static int Audio_Vow_Cfg3_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_Vow_Cfg3_Set(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
++    printk("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
+     //Ana_Set_Reg(AFE_MAD_CFG3, ucontrol->value.integer.value[0], 0xffff);
+     reg_AFE_VOW_CFG3 = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4752,7 +4744,7 @@ static int Audio_Vow_Cfg4_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+     int value = /*Ana_Get_Reg(AFE_MAD_CFG4)*/reg_AFE_VOW_CFG4;
+-    mt6631_debug("%s()  = %d\n", __func__, value);
++    printk("%s()  = %d\n", __func__, value);
+     ucontrol->value.integer.value[0] = value;
+     return 0;
+ }
+@@ -4760,7 +4752,7 @@ static int Audio_Vow_Cfg4_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_Vow_Cfg4_Set(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
++    printk("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
+     //Ana_Set_Reg(AFE_MAD_CFG4, ucontrol->value.integer.value[0], 0xffff);
+     reg_AFE_VOW_CFG4 = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4770,7 +4762,7 @@ static int Audio_Vow_Cfg5_Get(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+     int value = /*Ana_Get_Reg(AFE_MAD_CFG5)*/reg_AFE_VOW_CFG5;
+-    mt6631_debug("%s()  = %d\n", __func__, value);
++    printk("%s()  = %d\n", __func__, value);
+     ucontrol->value.integer.value[0] = value;
+     return 0;
+ }
+@@ -4778,7 +4770,7 @@ static int Audio_Vow_Cfg5_Get(struct snd_kcontrol *kcontrol,
+ static int Audio_Vow_Cfg5_Set(struct snd_kcontrol *kcontrol,
+                               struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
++    printk("%s()  = %d\n", __func__, ucontrol->value.integer.value[0]);
+     //Ana_Set_Reg(AFE_MAD_CFG5, ucontrol->value.integer.value[0], 0xffff);
+     reg_AFE_VOW_CFG5 = ucontrol->value.integer.value[0];
+     return 0;
+@@ -4808,7 +4800,7 @@ static int SineTable_UL2_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_
+ static int SineTable_UL2_Get(struct snd_kcontrol *kcontrol,
+                              struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     ucontrol->value.integer.value[0] = SineTable_UL2_flag;
+     return 0;
+ }
+@@ -4816,18 +4808,18 @@ static int SineTable_UL2_Get(struct snd_kcontrol *kcontrol,
+ static int SineTable_DAC_HP_Get(struct snd_kcontrol *kcontrol,
+                                 struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     ucontrol->value.integer.value[0] = SineTable_DAC_HP_flag;
+     return 0;
+ }
+ 
+ static int SineTable_DAC_HP_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.integer.value[0])
+     {
+         SineTable_DAC_HP_flag = ucontrol->value.integer.value[0];
+-        mt6631_debug("TurnOnDacPower\n");
++        printk("TurnOnDacPower\n");
+         audckbufEnable(true);
+         ClsqEnable(true);
+         Topck_Enable(true);
+@@ -5001,14 +4993,14 @@ static bool DAC_LOOP_DAC_HS_flag = false;
+ static int ADC_LOOP_DAC_HS_Get(struct snd_kcontrol *kcontrol,
+                                struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     ucontrol->value.integer.value[0] = DAC_LOOP_DAC_HS_flag;
+     return 0;
+ }
+ 
+ static int ADC_LOOP_DAC_HS_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.integer.value[0])
+     {
+         DAC_LOOP_DAC_HS_flag = ucontrol->value.integer.value[0];
+@@ -5026,7 +5018,7 @@ static bool DAC_LOOP_DAC_HP_flag = false;
+ static int ADC_LOOP_DAC_HP_Get(struct snd_kcontrol *kcontrol,
+                                struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     ucontrol->value.integer.value[0] = DAC_LOOP_DAC_HP_flag;
+     return 0;
+ }
+@@ -5034,7 +5026,7 @@ static int ADC_LOOP_DAC_HP_Get(struct snd_kcontrol *kcontrol,
+ static int ADC_LOOP_DAC_HP_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+ 
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.integer.value[0])
+     {
+         DAC_LOOP_DAC_HP_flag = ucontrol->value.integer.value[0];
+@@ -5052,14 +5044,14 @@ static bool Voice_Call_DAC_DAC_HS_flag = false;
+ static int Voice_Call_DAC_DAC_HS_Get(struct snd_kcontrol *kcontrol,
+                                      struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     ucontrol->value.integer.value[0] = Voice_Call_DAC_DAC_HS_flag;
+     return 0;
+ }
+ 
+ static int Voice_Call_DAC_DAC_HS_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (ucontrol->value.integer.value[0])
+     {
+         Voice_Call_DAC_DAC_HS_flag = ucontrol->value.integer.value[0];
+@@ -5177,7 +5169,7 @@ static int Voice_Call_DAC_DAC_HS_Set(struct snd_kcontrol *kcontrol, struct snd_c
+ 
+ static bool GetLoopbackStatus(void)
+ {
+-    mt6631_debug("%s DAC_LOOP_DAC_HP_flag = %d DAC_LOOP_DAC_HP_flag = %d \n", __func__, DAC_LOOP_DAC_HP_flag, DAC_LOOP_DAC_HP_flag);
++    printk("%s DAC_LOOP_DAC_HP_flag = %d DAC_LOOP_DAC_HP_flag = %d \n", __func__, DAC_LOOP_DAC_HP_flag, DAC_LOOP_DAC_HP_flag);
+     return (DAC_LOOP_DAC_HP_flag || DAC_LOOP_DAC_HP_flag);
+ }
+ 
+@@ -5240,24 +5232,24 @@ static const struct snd_kcontrol_new mt6331_UL_Codec_controls[] =
+ static void speaker_event(struct snd_soc_dapm_widget *w,
+                           struct snd_kcontrol *kcontrol, int event)
+ {
+-    mt6631_debug("speaker_event = %d\n", event);
++    printk("speaker_event = %d\n", event);
+     switch (event)
+     {
+         case SND_SOC_DAPM_PRE_PMU:
+-            mt6631_debug("%s SND_SOC_DAPM_PRE_PMU", __func__);
++            printk("%s SND_SOC_DAPM_PRE_PMU", __func__);
+             break;
+         case SND_SOC_DAPM_POST_PMU:
+-            mt6631_debug("%s SND_SOC_DAPM_POST_PMU", __func__);
++            printk("%s SND_SOC_DAPM_POST_PMU", __func__);
+             break;
+         case SND_SOC_DAPM_PRE_PMD:
+-            mt6631_debug("%s SND_SOC_DAPM_PRE_PMD", __func__);
++            printk("%s SND_SOC_DAPM_PRE_PMD", __func__);
+             break;
+         case SND_SOC_DAPM_POST_PMD:
+-            mt6631_debug("%s SND_SOC_DAPM_POST_PMD", __func__);
++            printk("%s SND_SOC_DAPM_POST_PMD", __func__);
+         case SND_SOC_DAPM_PRE_REG:
+-            mt6631_debug("%s SND_SOC_DAPM_PRE_REG", __func__);
++            printk("%s SND_SOC_DAPM_PRE_REG", __func__);
+         case SND_SOC_DAPM_POST_REG:
+-            mt6631_debug("%s SND_SOC_DAPM_POST_REG", __func__);
++            printk("%s SND_SOC_DAPM_POST_REG", __func__);
+             break;
+     }
+ }
+@@ -5267,24 +5259,24 @@ static void speaker_event(struct snd_soc_dapm_widget *w,
+ static int codec_enable_rx_bias(struct snd_soc_dapm_widget *w,
+                                 struct snd_kcontrol *kcontrol, int event)
+ {
+-    mt6631_debug("codec_enable_rx_bias = %d\n", event);
++    printk("codec_enable_rx_bias = %d\n", event);
+     switch (event)
+     {
+         case SND_SOC_DAPM_PRE_PMU:
+-            mt6631_debug("%s SND_SOC_DAPM_PRE_PMU", __func__);
++            printk("%s SND_SOC_DAPM_PRE_PMU", __func__);
+             break;
+         case SND_SOC_DAPM_POST_PMU:
+-            mt6631_debug("%s SND_SOC_DAPM_POST_PMU", __func__);
++            printk("%s SND_SOC_DAPM_POST_PMU", __func__);
+             break;
+         case SND_SOC_DAPM_PRE_PMD:
+-            mt6631_debug("%s SND_SOC_DAPM_PRE_PMD", __func__);
++            printk("%s SND_SOC_DAPM_PRE_PMD", __func__);
+             break;
+         case SND_SOC_DAPM_POST_PMD:
+-            mt6631_debug("%s SND_SOC_DAPM_POST_PMD", __func__);
++            printk("%s SND_SOC_DAPM_POST_PMD", __func__);
+         case SND_SOC_DAPM_PRE_REG:
+-            mt6631_debug("%s SND_SOC_DAPM_PRE_REG", __func__);
++            printk("%s SND_SOC_DAPM_PRE_REG", __func__);
+         case SND_SOC_DAPM_POST_REG:
+-            mt6631_debug("%s SND_SOC_DAPM_POST_REG", __func__);
++            printk("%s SND_SOC_DAPM_POST_REG", __func__);
+             break;
+     }
+     return 0;
+@@ -5311,7 +5303,7 @@ static const struct snd_soc_dapm_route mtk_audio_map[] =
+ 
+ static void mt6331_codec_init_reg(struct snd_soc_codec *codec)
+ {
+-    mt6631_debug("%s  \n", __func__);
++    printk("%s  \n", __func__);
+     Ana_Set_Reg(TOP_CLKSQ, 0x0 , 0xffff);
+     Ana_Set_Reg(AUDNVREGGLB_CFG0, 0x0001, 0xffff);
+     Ana_Set_Reg(TOP_CKPDN_CON0_SET, 0x3000, 0x3000);
+@@ -5325,7 +5317,7 @@ static void mt6331_codec_init_reg(struct snd_soc_codec *codec)
+ 
+ void InitCodecDefault(void)
+ {
+-    mt6631_debug("%s\n", __func__);
++    printk("%s\n", __func__);
+     mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP1] = 3;
+     mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP2] = 3;
+     mCodec_data->mAudio_Ana_Volume[AUDIO_ANALOG_VOLUME_MICAMP3] = 3;
+@@ -5342,7 +5334,7 @@ void InitCodecDefault(void)
+ static int mt6331_codec_probe(struct snd_soc_codec *codec)
+ {
+     struct snd_soc_dapm_context *dapm = &codec->dapm;
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     if (mInitCodec == true)
+     {
+         return 0;
+@@ -5375,7 +5367,7 @@ static int mt6331_codec_probe(struct snd_soc_codec *codec)
+     mCodec_data = kzalloc(sizeof(mt6331_Codec_Data_Priv), GFP_KERNEL);
+     if (!mCodec_data)
+     {
+-        mt6631_debug("Failed to allocate private data\n");
++        printk("Failed to allocate private data\n");
+         return -ENOMEM;
+     }
+     snd_soc_codec_set_drvdata(codec, mCodec_data);
+@@ -5390,14 +5382,14 @@ static int mt6331_codec_probe(struct snd_soc_codec *codec)
+ 
+ static int mt6331_codec_remove(struct snd_soc_codec *codec)
+ {
+-    mt6631_debug("%s()\n", __func__);
++    printk("%s()\n", __func__);
+     return 0;
+ }
+ 
+ static unsigned int mt6331_read(struct snd_soc_codec *codec,
+                                 unsigned int reg)
+ {
+-    mt6631_debug("mt6331_read reg = 0x%x", reg);
++    printk("mt6331_read reg = 0x%x", reg);
+     Ana_Get_Reg(reg);
+     return 0;
+ }
+@@ -5405,7 +5397,7 @@ static unsigned int mt6331_read(struct snd_soc_codec *codec,
+ static int mt6331_write(struct snd_soc_codec *codec, unsigned int reg,
+                         unsigned int value)
+ {
+-    mt6631_debug("mt6331_write reg = 0x%x  value= 0x%x\n", reg, value);
++    printk("mt6331_write reg = 0x%x  value= 0x%x\n", reg, value);
+     Ana_Set_Reg(reg , value , 0xffffffff);
+     return 0;
+ }
+@@ -5459,7 +5451,7 @@ static int mtk_mt6331_codec_dev_probe(struct platform_device *pdev)
+ 
+ static int mtk_mt6331_codec_dev_remove(struct platform_device *pdev)
+ {
+-    mt6631_debug("%s:\n", __func__);
++    printk("%s:\n", __func__);
+ 
+     snd_soc_unregister_codec(&pdev->dev);
+     return 0;
+@@ -5481,7 +5473,7 @@ static struct platform_device *soc_mtk_codec6331_dev;
+ static int __init mtk_mt6331_codec_init(void)
+ {
+     int ret = 0;
+-    mt6631_debug("%s:\n", __func__);
++    printk("%s:\n", __func__);
+ 
+     soc_mtk_codec6331_dev = platform_device_alloc(MT_SOC_CODEC_NAME, -1);
+     if (!soc_mtk_codec6331_dev)
+@@ -5502,7 +5494,7 @@ module_init(mtk_mt6331_codec_init);
+ 
+ static void __exit mtk_mt6331_codec_exit(void)
+ {
+-    mt6631_debug("%s:\n", __func__);
++    printk("%s:\n", __func__);
+ 
+     platform_driver_unregister(&mtk_codec_6331_driver);
+ }
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c
+index e40b18a..5bbca25 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c
+@@ -59,15 +59,6 @@
+ #include "mt_soc_pcm_common.h"
+ 
+ //information about
+-static int pcm_debug = 0;
+-module_param(pcm_debug, int, 0644);
+-#define pcm_debug(fmt, args...) \
+-       do \
+-		{ \
+-			if(pcm_debug){ \
+-				printk(fmt, ##args); \
+-			} \
+-		}while(0);
+ AFE_MEM_CONTROL_T  *VUL2_Control_context;
+ static struct snd_dma_buffer *Capture_dma_buf  = NULL;
+ static AudioDigtalI2S *mAudioDigitalI2S = NULL;
+@@ -107,7 +98,7 @@ static struct snd_pcm_hardware mtk_capture2_hardware =
+ 
+ static void StopAudioCaptureHardware(struct snd_pcm_substream *substream)
+ {
+-    pcm_debug("StopAudioCaptureHardware \n");
++    printk("StopAudioCaptureHardware \n");
+ 
+     // here to set interrupt
+     SetIrqEnable(Soc_Aud_IRQ_MCU_MODE_IRQ2_MCU_MODE, false);
+@@ -142,7 +133,7 @@ static void ConfigAdcI2S(struct snd_pcm_substream *substream)
+ 
+ static void StartAudioCaptureHardware(struct snd_pcm_substream *substream)
+ {
+-    pcm_debug("StartAudioCaptureHardware \n");
++    printk("StartAudioCaptureHardware \n");
+ 
+     ConfigAdcI2S(substream);
+     Set2ndI2SAdcIn(mAudioDigitalI2S);//To do, JY
+@@ -177,14 +168,14 @@ static void StartAudioCaptureHardware(struct snd_pcm_substream *substream)
+ 
+ static int mtk_capture2_pcm_prepare(struct snd_pcm_substream *substream)
+ {
+-    pcm_debug("mtk_capture2_pcm_prepare substream->rate = %d  substream->channels = %d \n", substream->runtime->rate, substream->runtime->channels);
++    printk("mtk_capture2_pcm_prepare substream->rate = %d  substream->channels = %d \n", substream->runtime->rate, substream->runtime->channels);
+     return 0;
+ }
+ 
+ static int mtk_capture2_alsa_stop(struct snd_pcm_substream *substream)
+ {
+     AFE_BLOCK_T *Vul_Block = &(VUL2_Control_context->rBlock);
+-    pcm_debug("mtk_capture2_alsa_stop \n");
++    printk("mtk_capture2_alsa_stop \n");
+     StopAudioCaptureHardware(substream);
+     Vul_Block->u4DMAReadIdx  = 0;
+     Vul_Block->u4WriteIdx  = 0;
+@@ -228,7 +219,7 @@ static void SetVULBuffer(struct snd_pcm_substream *substream,
+ {
+     struct snd_pcm_runtime *runtime = substream->runtime;
+     AFE_BLOCK_T *pblock = &VUL2_Control_context->rBlock;
+-    pcm_debug("SetVULBuffer\n");
++    printk("SetVULBuffer\n");
+     pblock->pucPhysBufAddr =  runtime->dma_addr;
+     pblock->pucVirtBufAddr =  runtime->dma_area;
+     pblock->u4BufferSize = runtime->dma_bytes;
+@@ -238,7 +229,7 @@ static void SetVULBuffer(struct snd_pcm_substream *substream,
+     pblock->u4DataRemained  = 0;
+     pblock->u4fsyncflag     = false;
+     pblock->uResetFlag      = true;
+-    pcm_debug("u4BufferSize = %d pucVirtBufAddr = %p pucPhysBufAddr = 0x%x\n",
++    printk("u4BufferSize = %d pucVirtBufAddr = %p pucPhysBufAddr = 0x%x\n",
+            pblock->u4BufferSize, pblock->pucVirtBufAddr, pblock->pucPhysBufAddr);
+     // set dram address top hardware
+     Afe_Set_Reg(AFE_VUL_D2_BASE , pblock->pucPhysBufAddr , 0xffffffff);
+@@ -252,23 +243,23 @@ static int mtk_capture2_pcm_hw_params(struct snd_pcm_substream *substream,
+     struct snd_pcm_runtime *runtime = substream->runtime;
+     struct snd_dma_buffer *dma_buf = &substream->dma_buffer;
+     int ret = 0;
+-    pcm_debug("mtk_capture2_pcm_hw_params \n");
++    printk("mtk_capture2_pcm_hw_params \n");
+ 
+     dma_buf->dev.type = SNDRV_DMA_TYPE_DEV;
+     dma_buf->dev.dev = substream->pcm->card->dev;
+     dma_buf->private_data = NULL;
+-    pcm_debug("Capture2_dma_buf = %p Capture2_dma_buf->area = %p\n", Capture_dma_buf, Capture_dma_buf->area);
++    printk("Capture2_dma_buf = %p Capture2_dma_buf->area = %p\n", Capture_dma_buf, Capture_dma_buf->area);
+ 
+     if (mUL2UseSram == true)
+     {
+         runtime->dma_bytes = params_buffer_bytes(hw_params);
+-        pcm_debug("mtk_capture2_pcm_hw_params mUL2UseSram dma_bytes = %d \n", runtime->dma_bytes);
++        printk("mtk_capture2_pcm_hw_params mUL2UseSram dma_bytes = %d \n", runtime->dma_bytes);
+         substream->runtime->dma_area = (unsigned char *)Get_Afe_SramSphUL2Base_Pointer();
+         substream->runtime->dma_addr = Get_Afe_Sram_SphUL2_Phys_Addr();
+     }
+     else if (Capture_dma_buf->area)
+     {
+-        pcm_debug("mtk_capture2_pcm_hw_params Capture_dma_buf->area\n");
++        printk("mtk_capture2_pcm_hw_params Capture_dma_buf->area\n");
+         runtime->dma_bytes = Capture_dma_buf->bytes;
+         runtime->dma_area = Capture_dma_buf->area;
+         runtime->dma_addr = Capture_dma_buf->addr;
+@@ -276,23 +267,23 @@ static int mtk_capture2_pcm_hw_params(struct snd_pcm_substream *substream,
+     }
+     else
+     {
+-        pcm_debug("mtk_capture2_pcm_hw_params snd_pcm_lib_malloc_pages\n");
++        printk("mtk_capture2_pcm_hw_params snd_pcm_lib_malloc_pages\n");
+         ret =  snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
+     }
+-    pcm_debug("mtk_capture2_pcm_hw_params dma_bytes = %d dma_area = %p dma_addr = 0x%x\n",
++    printk("mtk_capture2_pcm_hw_params dma_bytes = %d dma_area = %p dma_addr = 0x%x\n",
+            runtime->dma_bytes, runtime->dma_area, runtime->dma_addr);
+ 
+-    pcm_debug("runtime->hw.buffer_bytes_max = 0x%x \n", runtime->hw.buffer_bytes_max);
++    printk("runtime->hw.buffer_bytes_max = 0x%x \n", runtime->hw.buffer_bytes_max);
+     SetVULBuffer(substream, hw_params);
+ 
+-    pcm_debug("dma_bytes = %d dma_area = %p dma_addr = 0x%x\n",
++    printk("dma_bytes = %d dma_area = %p dma_addr = 0x%x\n",
+            substream->runtime->dma_bytes, substream->runtime->dma_area, substream->runtime->dma_addr);
+     return ret;
+ }
+ 
+ static int mtk_capture2_pcm_hw_free(struct snd_pcm_substream *substream)
+ {
+-    pcm_debug("mtk_capture2_pcm_hw_free \n");
++    printk("mtk_capture2_pcm_hw_free \n");
+     if (Capture_dma_buf->area)
+     {
+         return 0;
+@@ -316,7 +307,7 @@ static int mtk_capture2_pcm_open(struct snd_pcm_substream *substream)
+     AudDrv_Clk_On();
+     AudDrv_ADC2_Clk_On();
+ 
+-    pcm_debug("%s \n", __func__);
++    printk("%s \n", __func__);
+     VUL2_Control_context = Get_Mem_ControlT(Soc_Aud_Digital_Block_MEM_VUL_DATA2);
+ 
+     // can allocate sram_dbg
+@@ -324,32 +315,32 @@ static int mtk_capture2_pcm_open(struct snd_pcm_substream *substream)
+     if ((GetAudioSpeakerProtectSram() == true) && ((GetSramState() & SRAM_STATE_CAPTURE) == 0))
+     {
+         mtk_capture2_hardware.buffer_bytes_max = UL2_MAX_BUFFER_SIZE;
+-        pcm_debug("mtk_capture2_pcm_open use sram %d\n", mtk_capture2_hardware.buffer_bytes_max);
++        printk("mtk_capture2_pcm_open use sram %d\n", mtk_capture2_hardware.buffer_bytes_max);
+         SetSramState(SRAM_STATE_SPH_SPK_MNTR_SENSE_IV);
+         mUL2UseSram = true;
+     }
+     else
+     {
+-        pcm_debug("mtk_capture2_pcm_open use dram \n");
++        printk("mtk_capture2_pcm_open use dram \n");
+         mtk_capture2_hardware.buffer_bytes_max = UL2_MAX_BUFFER_SIZE;
+     }
+     AfeControlSramUnLock();
+     runtime->hw = mtk_capture2_hardware;
+     memcpy((void *)(&(runtime->hw)), (void *)&mtk_capture2_hardware , sizeof(struct snd_pcm_hardware));
+-    pcm_debug("runtime->hw->rates = 0x%x \n ", runtime->hw.rates);
++    printk("runtime->hw->rates = 0x%x \n ", runtime->hw.rates);
+ 
+     ret = snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_RATE,
+                                      &constraints_sample_rates);
+     ret = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+     if (ret < 0)
+     {
+-        pcm_debug("snd_pcm_hw_constraint_integer failed\n");
++        printk("snd_pcm_hw_constraint_integer failed\n");
+     }
+ 
+-    pcm_debug("mtk_capture2_pcm_open runtime rate = %d channels = %d \n", runtime->rate, runtime->channels);
++    printk("mtk_capture2_pcm_open runtime rate = %d channels = %d \n", runtime->rate, runtime->channels);
+     if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
+     {
+-        pcm_debug("SNDRV_PCM_STREAM_CAPTURE mtkalsa_capture_constraints\n");
++        printk("SNDRV_PCM_STREAM_CAPTURE mtkalsa_capture_constraints\n");
+     }
+     else
+     {
+@@ -358,7 +349,7 @@ static int mtk_capture2_pcm_open(struct snd_pcm_substream *substream)
+ 
+     if (ret < 0)
+     {
+-        pcm_debug("mtk_capture2_pcm_close\n");
++        printk("mtk_capture2_pcm_close\n");
+         mtk_capture2_pcm_close(substream);
+         return ret;
+     }
+@@ -366,7 +357,7 @@ static int mtk_capture2_pcm_open(struct snd_pcm_substream *substream)
+     {
+         AudDrv_Emi_Clk_On();
+     }
+-    pcm_debug("mtk_capture2_pcm_open return\n");
++    printk("mtk_capture2_pcm_open return\n");
+     return 0;
+ }
+ 
+@@ -390,7 +381,7 @@ static int mtk_capture2_pcm_close(struct snd_pcm_substream *substream)
+ 
+ static int mtk_capture2_alsa_start(struct snd_pcm_substream *substream)
+ {
+-    pcm_debug("mtk_capture2_alsa_start \n");
++    printk("mtk_capture2_alsa_start \n");
+     SetMemifSubStream(Soc_Aud_Digital_Block_MEM_VUL_DATA2, substream);
+     StartAudioCaptureHardware(substream);
+     return 0;
+@@ -398,7 +389,7 @@ static int mtk_capture2_alsa_start(struct snd_pcm_substream *substream)
+ 
+ static int mtk_capture2_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
+ {
+-    pcm_debug("mtk_capture2_pcm_trigger cmd = %d\n", cmd);
++    printk("mtk_capture2_pcm_trigger cmd = %d\n", cmd);
+ 
+     switch (cmd)
+     {
+@@ -416,7 +407,7 @@ static bool CheckNullPointer(void *pointer)
+ {
+     if (pointer == NULL)
+     {
+-        pcm_debug("CheckNullPointer pointer = NULL");
++        printk("CheckNullPointer pointer = NULL");
+         return true;
+     }
+     return false;
+@@ -443,7 +434,7 @@ static int mtk_capture2_pcm_copy(struct snd_pcm_substream *substream,
+ 
+     if (pVUL_MEM_ConTrol == NULL)
+     {
+-        pcm_debug("cannot find MEM control !!!!!!!\n");
++        printk("cannot find MEM control !!!!!!!\n");
+         msleep(50);
+         return 0;
+     }
+@@ -451,13 +442,13 @@ static int mtk_capture2_pcm_copy(struct snd_pcm_substream *substream,
+     if (Vul_Block->u4BufferSize <= 0)
+     {
+         msleep(50);
+-        pcm_debug("Vul_Block->u4BufferSize <= 0  =%d\n", Vul_Block->u4BufferSize);
++        printk("Vul_Block->u4BufferSize <= 0  =%d\n", Vul_Block->u4BufferSize);
+         return 0;
+     }
+ 
+     if (CheckNullPointer((void *)Vul_Block->pucVirtBufAddr))
+     {
+-        pcm_debug("CheckNullPointer  pucVirtBufAddr = %p\n", Vul_Block->pucVirtBufAddr);
++        printk("CheckNullPointer  pucVirtBufAddr = %p\n", Vul_Block->pucVirtBufAddr);
+         return 0;
+     }
+ 
+@@ -487,14 +478,14 @@ static int mtk_capture2_pcm_copy(struct snd_pcm_substream *substream,
+     {
+         if (DMA_Read_Ptr != Vul_Block->u4DMAReadIdx)
+         {
+-            pcm_debug("mtk_capture2_pcm_copy 1, read_size:%x, DataRemained:%x, DMA_Read_Ptr:0x%x, DMAReadIdx:%x \r\n",
++            printk("mtk_capture2_pcm_copy 1, read_size:%x, DataRemained:%x, DMA_Read_Ptr:0x%x, DMAReadIdx:%x \r\n",
+                    read_size, Vul_Block->u4DataRemained, DMA_Read_Ptr, Vul_Block->u4DMAReadIdx);
+         }
+ 
+         if (copy_to_user((void __user *)Read_Data_Ptr, (Vul_Block->pucVirtBufAddr + DMA_Read_Ptr), read_size))
+         {
+ 
+-            pcm_debug("mtk_capture2_pcm_copy Fail 1 copy to user Read_Data_Ptr:%p, pucVirtBufAddr:%p, u4DMAReadIdx:0x%x, DMA_Read_Ptr:0x%x,read_size:%x", Read_Data_Ptr, Vul_Block->pucVirtBufAddr, Vul_Block->u4DMAReadIdx, DMA_Read_Ptr, read_size);
++            printk("mtk_capture2_pcm_copy Fail 1 copy to user Read_Data_Ptr:%p, pucVirtBufAddr:%p, u4DMAReadIdx:0x%x, DMA_Read_Ptr:0x%x,read_size:%x", Read_Data_Ptr, Vul_Block->pucVirtBufAddr, Vul_Block->u4DMAReadIdx, DMA_Read_Ptr, read_size);
+             return 0;
+         }
+ 
+@@ -521,13 +512,13 @@ static int mtk_capture2_pcm_copy(struct snd_pcm_substream *substream,
+         if (DMA_Read_Ptr != Vul_Block->u4DMAReadIdx)
+         {
+ 
+-            pcm_debug("mtk_capture2_pcm_copy 2, read_size1:%x, DataRemained:%x, DMA_Read_Ptr:0x%x, DMAReadIdx:%x \r\n",
++            printk("mtk_capture2_pcm_copy 2, read_size1:%x, DataRemained:%x, DMA_Read_Ptr:0x%x, DMAReadIdx:%x \r\n",
+                    size_1, Vul_Block->u4DataRemained, DMA_Read_Ptr, Vul_Block->u4DMAReadIdx);
+         }
+         if (copy_to_user((void __user *)Read_Data_Ptr, (Vul_Block->pucVirtBufAddr + DMA_Read_Ptr), size_1))
+         {
+ 
+-            pcm_debug("mtk_capture2_pcm_copy Fail 2 copy to user Read_Data_Ptr:%p, pucVirtBufAddr:%p, u4DMAReadIdx:0x%x, DMA_Read_Ptr:0x%x,read_size:%x",
++            printk("mtk_capture2_pcm_copy Fail 2 copy to user Read_Data_Ptr:%p, pucVirtBufAddr:%p, u4DMAReadIdx:0x%x, DMA_Read_Ptr:0x%x,read_size:%x",
+                    Read_Data_Ptr, Vul_Block->pucVirtBufAddr, Vul_Block->u4DMAReadIdx, DMA_Read_Ptr, read_size);
+             return 0;
+         }
+@@ -547,13 +538,13 @@ static int mtk_capture2_pcm_copy(struct snd_pcm_substream *substream,
+         if (DMA_Read_Ptr != Vul_Block->u4DMAReadIdx)
+         {
+ 
+-            pcm_debug("mtk_capture2_pcm_copy 3, read_size2:%x, DataRemained:%x, DMA_Read_Ptr:0x%x, DMAReadIdx:%x \r\n",
++            printk("mtk_capture2_pcm_copy 3, read_size2:%x, DataRemained:%x, DMA_Read_Ptr:0x%x, DMAReadIdx:%x \r\n",
+                    size_2, Vul_Block->u4DataRemained, DMA_Read_Ptr, Vul_Block->u4DMAReadIdx);
+         }
+         if (copy_to_user((void __user *)(Read_Data_Ptr + size_1), (Vul_Block->pucVirtBufAddr + DMA_Read_Ptr), size_2))
+         {
+ 
+-            pcm_debug("mtk_capture2_pcm_copy Fail 3 copy to user Read_Data_Ptr:%p, pucVirtBufAddr:%p, u4DMAReadIdx:0x%x , DMA_Read_Ptr:0x%x, read_size:%x", Read_Data_Ptr, Vul_Block->pucVirtBufAddr, Vul_Block->u4DMAReadIdx, DMA_Read_Ptr, read_size);
++            printk("mtk_capture2_pcm_copy Fail 3 copy to user Read_Data_Ptr:%p, pucVirtBufAddr:%p, u4DMAReadIdx:0x%x , DMA_Read_Ptr:0x%x, read_size:%x", Read_Data_Ptr, Vul_Block->pucVirtBufAddr, Vul_Block->u4DMAReadIdx, DMA_Read_Ptr, read_size);
+             return read_count << 2;
+         }
+ 
+@@ -578,7 +569,7 @@ static int mtk_capture2_pcm_silence(struct snd_pcm_substream *substream,
+                                    int channel, snd_pcm_uframes_t pos,
+                                    snd_pcm_uframes_t count)
+ {
+-    pcm_debug("dummy_pcm_silence \n");
++    printk("dummy_pcm_silence \n");
+     return 0; /* do nothing */
+ }
+ 
+@@ -588,7 +579,7 @@ static void *dummy_page[2];
+ static struct page *mtk_capture2_pcm_page(struct snd_pcm_substream *substream,
+                                          unsigned long offset)
+ {
+-    pcm_debug("%s \n", __func__);
++    printk("%s \n", __func__);
+     return virt_to_page(dummy_page[substream->stream]); /* the same page */
+ }
+ 
+@@ -617,13 +608,13 @@ static struct snd_soc_platform_driver mtk_soc_platform =
+ 
+ static int mtk_capture2_probe(struct platform_device *pdev)
+ {
+-    pcm_debug("mtk_capture2_probe\n");
++    printk("mtk_capture2_probe\n");
+     if (pdev->dev.of_node)
+     {
+         dev_set_name(&pdev->dev, "%s", MT_SOC_UL2_PCM);
+     }
+ 
+-    pcm_debug("%s: dev name %s\n", __func__, dev_name(&pdev->dev));
++    printk("%s: dev name %s\n", __func__, dev_name(&pdev->dev));
+     return snd_soc_register_platform(&pdev->dev,
+                                      &mtk_soc_platform);
+ }
+@@ -641,14 +632,14 @@ static int mtk_asoc_capture2_pcm_new(struct snd_soc_pcm_runtime *rtd)
+     {
+         card->dev->coherent_dma_mask = DMA_BIT_MASK(32);
+     }
+-    pcm_debug("mtk_asoc_capture2_pcm_new \n");
++    printk("mtk_asoc_capture2_pcm_new \n");
+     return ret;
+ }
+ 
+ 
+ static int mtk_afe_capture2_probe(struct snd_soc_platform *platform)
+ {
+-    pcm_debug("mtk_afe_capture2_probe\n");
++    printk("mtk_afe_capture2_probe\n");
+     AudDrv_Allocate_mem_Buffer(Soc_Aud_Digital_Block_MEM_VUL_DATA2, UL2_MAX_BUFFER_SIZE);
+     Capture_dma_buf =  Get_Mem_Buffer(Soc_Aud_Digital_Block_MEM_VUL_DATA2);
+     mAudioDigitalI2S =  kzalloc(sizeof(AudioDigtalI2S), GFP_KERNEL);
+@@ -678,7 +669,7 @@ static struct platform_device *soc_mtkafe_capture2_dev;
+ static int __init mtk_soc_capture2_platform_init(void)
+ {
+     int ret = 0;
+-    pcm_debug("%s\n", __func__);
++    printk("%s\n", __func__);
+     soc_mtkafe_capture2_dev = platform_device_alloc(MT_SOC_UL2_PCM, -1);
+     if (!soc_mtkafe_capture2_dev)
+     {
+@@ -700,7 +691,7 @@ module_init(mtk_soc_capture2_platform_init);
+ static void __exit mtk_soc_capture2_platform_exit(void)
+ {
+ 
+-    pcm_debug("%s\n", __func__);
++    printk("%s\n", __func__);
+     platform_driver_unregister(&mtk_afe_capture2_driver);
+ }
+ 
+diff --git a/mediatek/custom/common/kernel/cam_cal/ar1820otp/ar1820otp.c b/mediatek/custom/common/kernel/cam_cal/ar1820otp/ar1820otp.c
+index 4bb85d4..5efe1b8 100755
+--- a/mediatek/custom/common/kernel/cam_cal/ar1820otp/ar1820otp.c
++++ b/mediatek/custom/common/kernel/cam_cal/ar1820otp/ar1820otp.c
+@@ -18,7 +18,7 @@
+ #include <asm/system.h>  // for SMP
+ 
+ //#define CAM_CALGETDLT_DEBUG
+-//#define CAM_CAL_DEBUG
++#define CAM_CAL_DEBUG
+ #ifdef CAM_CAL_DEBUG
+ #define CAM_CALDB printk
+ #else
+diff --git a/mediatek/custom/common/kernel/imgsensor/ar1820_mipi_raw/ar1820mipi_Sensor.c b/mediatek/custom/common/kernel/imgsensor/ar1820_mipi_raw/ar1820mipi_Sensor.c
+index b352364..6aceb7b 100755
+--- a/mediatek/custom/common/kernel/imgsensor/ar1820_mipi_raw/ar1820mipi_Sensor.c
++++ b/mediatek/custom/common/kernel/imgsensor/ar1820_mipi_raw/ar1820mipi_Sensor.c
+@@ -42,7 +42,7 @@
+ #define LOG_2 LOG_INF("preview 2456*1842@30fps,533.33Mbps/lane; video 3840*2160@30fps,533.33Mbps/lane; capture 18M@15fps,533.33Mbps/lane\n")
+ /****************************   Modify end    *******************************************/
+ 
+-#define LOG_INF(format, args...)
++#define LOG_INF(format, args...)    xlog_printk(ANDROID_LOG_INFO   , PFX, "[%s] " format, __FUNCTION__, ##args)
+ 
+ static DEFINE_SPINLOCK(imgsensor_drv_lock);
+ 
+diff --git a/mediatek/custom/common/kernel/imgsensor/src/kd_sensorlist.c b/mediatek/custom/common/kernel/imgsensor/src/kd_sensorlist.c
+index 90ffa3c..1afb2b4 100755
+--- a/mediatek/custom/common/kernel/imgsensor/src/kd_sensorlist.c
++++ b/mediatek/custom/common/kernel/imgsensor/src/kd_sensorlist.c
+@@ -44,7 +44,7 @@ static struct i2c_board_info __initdata i2c_devs1={I2C_BOARD_INFO(CAMERA_HW_DRVN
+ #define PK_DBG_FUNC(fmt, arg...)    xlog_printk(ANDROID_LOG_DEBUG , PFX, fmt, ##arg)
+ 
+ 
+-//#define DEBUG_CAMERA_HW_K
++#define DEBUG_CAMERA_HW_K
+ #ifdef DEBUG_CAMERA_HW_K
+ #define PK_DBG PK_DBG_FUNC
+ #define PK_ERR(fmt, arg...)         xlog_printk(ANDROID_LOG_ERROR , PFX , fmt, ##arg)
+diff --git a/mediatek/custom/mt6595/kernel/imgsensor/src/kd_sensorlist.c b/mediatek/custom/mt6595/kernel/imgsensor/src/kd_sensorlist.c
+index b538f3e..5b6d745 100755
+--- a/mediatek/custom/mt6595/kernel/imgsensor/src/kd_sensorlist.c
++++ b/mediatek/custom/mt6595/kernel/imgsensor/src/kd_sensorlist.c
+@@ -60,7 +60,7 @@ static struct i2c_board_info __initdata i2c_devs2={I2C_BOARD_INFO(CAMERA_HW_DRVN
+ #define PK_DBG_FUNC(fmt, arg...)    xlog_printk(ANDROID_LOG_DEBUG , PFX, fmt, ##arg)
+ 
+ 
+-//#define DEBUG_CAMERA_HW_K
++#define DEBUG_CAMERA_HW_K
+ #ifdef DEBUG_CAMERA_HW_K
+ #define PK_DBG PK_DBG_FUNC
+ #define PK_ERR(fmt, arg...)         xlog_printk(ANDROID_LOG_ERROR , PFX , fmt, ##arg)
+diff --git a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/include/debug.h b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/include/debug.h
+index caf374f..098ce81 100644
+--- a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/include/debug.h
++++ b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/include/debug.h
+@@ -131,7 +131,7 @@
+ #define BUILD_QA_DBG 0
+ #endif
+ 
+-#define DBG_DISABLE_ALL_LOG             1
++#define DBG_DISABLE_ALL_LOG             0
+ 
+ /*******************************************************************************
+ *                    E X T E R N A L   R E F E R E N C E S
+diff --git a/mediatek/kernel/drivers/power/battery_common.c b/mediatek/kernel/drivers/power/battery_common.c
+index 2b3ee91..357772b 100755
+--- a/mediatek/kernel/drivers/power/battery_common.c
++++ b/mediatek/kernel/drivers/power/battery_common.c
+@@ -78,7 +78,7 @@
+ ////////////////////////////////////////////////////////////////////////////////
+ // Battery Logging Entry
+ ////////////////////////////////////////////////////////////////////////////////
+-int Enable_BATDRV_LOG = 0;
++int Enable_BATDRV_LOG = BAT_LOG_CRTI;
+ //static struct proc_dir_entry *proc_entry;
+ char proc_bat_data[32];  
+ 
+@@ -95,7 +95,7 @@ int g_battery_thermal_throttling_flag=3; // 0:nothing, 1:enable batTT&chrTimer,
+ int battery_cmd_thermal_test_mode=0;
+ int battery_cmd_thermal_test_mode_value=0;
+ int g_battery_tt_check_flag=0; // 0:default enable check batteryTT, 1:default disable check batteryTT
+-int g_MAX_CHARGE_TEMPERATURE = 60;
++int g_MAX_CHARGE_TEMPERATURE = 200;
+ 
+ 
+ ///////////////////////////////////////////////////////////////////////////////////////////
+diff --git a/mediatek/kernel/drivers/power/battery_meter.c b/mediatek/kernel/drivers/power/battery_meter.c
+index 8379a5a..1d6bf7a 100755
+--- a/mediatek/kernel/drivers/power/battery_meter.c
++++ b/mediatek/kernel/drivers/power/battery_meter.c
+@@ -39,7 +39,7 @@
+ 
+ static DEFINE_MUTEX(FGADC_mutex);
+ 
+-int Enable_FGADC_LOG = 0;
++int Enable_FGADC_LOG = 1;
+ 
+ // ============================================================ //
+ // global variable
+diff --git a/mediatek/kernel/drivers/vibrator/vibrator_drv.c b/mediatek/kernel/drivers/vibrator/vibrator_drv.c
+index fc3f371..c1cea41 100755
+--- a/mediatek/kernel/drivers/vibrator/vibrator_drv.c
++++ b/mediatek/kernel/drivers/vibrator/vibrator_drv.c
+@@ -129,22 +129,22 @@ static void vibrator_enable(struct timed_output_dev *dev, int value)
+ 		struct vibrator_hw* hw = mt_get_cust_vibrator_hw();
+ 
+ #endif
+-		//printk("[vibrator]vibrator_enable: vibrator first in value = %d\n", value);
++		printk("[vibrator]vibrator_enable: vibrator first in value = %d\n", value);
+ 
+ 		spin_lock_irqsave(&vibe_lock, flags);
+ 		while(hrtimer_cancel(&vibe_timer))
+                 {
+-          //            printk("[vibrator]vibrator_enable: try to cancel hrtimer \n");
++                      printk("[vibrator]vibrator_enable: try to cancel hrtimer \n");
+                 }
+ 
+ 		if (value == 0 || shutdown_flag == 1) {
+-		//	printk("[vibrator]vibrator_enable: shutdown_flag = %d\n", shutdown_flag);
++			printk("[vibrator]vibrator_enable: shutdown_flag = %d\n", shutdown_flag);
+ 			vibe_state = 0;
+ 		}
+ 		else 
+ 		{
+ #if 1
+-		//	printk("[vibrator]vibrator_enable: vibrator cust timer: %d \n", hw->vib_timer);
++			printk("[vibrator]vibrator_enable: vibrator cust timer: %d \n", hw->vib_timer);
+ #ifdef CUST_VIBR_LIMIT
+ 			if(value > hw->vib_limit && value < hw->vib_timer)
+ 				
+@@ -161,7 +161,7 @@ static void vibrator_enable(struct timed_output_dev *dev, int value)
+ 							HRTIMER_MODE_REL);
+ 		}
+ 		spin_unlock_irqrestore(&vibe_lock, flags);
+-//        printk("[vibrator]vibrator_enable: vibrator start: %d \n", value); 
++        printk("[vibrator]vibrator_enable: vibrator start: %d \n", value); 
+ 		queue_work(vibrator_queue, &vibrator_work);
+ }
+ 
+diff --git a/mediatek/kernel/include/linux/hwmsen_helper.h b/mediatek/kernel/include/linux/hwmsen_helper.h
+index 2ffd7fa..575a3c6 100755
+--- a/mediatek/kernel/include/linux/hwmsen_helper.h
++++ b/mediatek/kernel/include/linux/hwmsen_helper.h
+@@ -27,20 +27,12 @@
+ /******************************************************************************
+  * MACRO & DEFINITION
+ ******************************************************************************/ 
+-#define HWM_LOG_SWITCH 0
+ #define C_I2C_FIFO_SIZE         8       /*according i2c_mt6516.c*/
+ #define HWM_TAG					"<HWMSEN> "
+-#if HWM_LOG_SWITCH
+ #define HWM_FUN(f)				printk(HWM_TAG"%s\n", __func__)
+ #define HWM_ERR(fmt, args...)	printk(HWM_TAG"%s %d : "fmt, __func__, __LINE__, ##args)
+ #define HWM_LOG(fmt, args...)	printk(HWM_TAG fmt, ##args)
+ #define HWM_VER(fmt, args...)   printk(HWM_TAG"%s: "fmt, __func__, ##args) //((void)0)
+-#else
+-#define HWM_FUN(f)				
+-#define HWM_ERR(fmt, args...)	
+-#define HWM_LOG(fmt, args...)	
+-#define HWM_VER(fmt, args...)   
+-#endif
+ /******************************************************************************
+  * STRUCTURE & ENUMERATION
+ ******************************************************************************/ 
+diff --git a/mediatek/platform/mt6595/hardware/mtkcam/core/drv/isp/isp_drv.cpp b/mediatek/platform/mt6595/hardware/mtkcam/core/drv/isp/isp_drv.cpp
+index 1f61e91..53d695b 100755
+--- a/mediatek/platform/mt6595/hardware/mtkcam/core/drv/isp/isp_drv.cpp
++++ b/mediatek/platform/mt6595/hardware/mtkcam/core/drv/isp/isp_drv.cpp
+@@ -56,22 +56,12 @@ DECLARE_DBG_LOG_VARIABLE(isp_drv);
+ #undef LOG_WRN
+ #undef LOG_ERR
+ #undef LOG_AST
+-#define isp_log_switch 0
+-#if isp_log_switch
+ #define LOG_VRB(fmt, arg...)        do { if (isp_drv_DbgLogEnable_VERBOSE) { BASE_LOG_VRB(fmt, ##arg); } } while(0)
+ #define LOG_DBG(fmt, arg...)        do { if (isp_drv_DbgLogEnable_DEBUG  ) { BASE_LOG_DBG(fmt, ##arg); } } while(0)
+ #define LOG_INF(fmt, arg...)        do { if (isp_drv_DbgLogEnable_INFO   ) { BASE_LOG_INF(fmt, ##arg); } } while(0)
+ #define LOG_WRN(fmt, arg...)        do { if (isp_drv_DbgLogEnable_WARN   ) { BASE_LOG_WRN(fmt, ##arg); } } while(0)
+ #define LOG_ERR(fmt, arg...)        do { if (isp_drv_DbgLogEnable_ERROR  ) { BASE_LOG_ERR(fmt, ##arg); } } while(0)
+ #define LOG_AST(cond, fmt, arg...)  do { if (isp_drv_DbgLogEnable_ASSERT ) { BASE_LOG_AST(cond, fmt, ##arg); } } while(0)
+-#else
+-#define LOG_VRB(fmt, arg...)        
+-#define LOG_DBG(fmt, arg...)        
+-#define LOG_INF(fmt, arg...)        
+-#define LOG_WRN(fmt, arg...)        
+-#define LOG_ERR(fmt, arg...)        
+-#define LOG_AST(cond, fmt, arg...)  
+-#endif
+ 
+ 
+ // for debug CQ virtual table
+diff --git a/mediatek/platform/mt6595/kernel/core/camera_isp.c b/mediatek/platform/mt6595/kernel/core/camera_isp.c
+index b1f0943..b5d1810 100755
+--- a/mediatek/platform/mt6595/kernel/core/camera_isp.c
++++ b/mediatek/platform/mt6595/kernel/core/camera_isp.c
+@@ -71,8 +71,7 @@ typedef bool                    MBOOL;
+ //#define LOG_WRN(fmt, arg...)    printk(KERN_ERR "[ISP][%s]Warning" fmt,__FUNCTION__, ##arg)
+ //#define LOG_ERR(fmt, arg...)    printk(KERN_ERR   "[ISP][%s]Err(%5d):" fmt, __FUNCTION__,__LINE__, ##arg)
+ 
+-#define ISP_LOG_SWITCH 0
+-#if ISP_LOG_SWITCH
++
+ #define LOG_VRB(format, args...)    xlog_printk(ANDROID_LOG_VERBOSE, "ISP", "[%s] " format, __FUNCTION__, ##args)
+ #define LOG_DBG(format, args...)    xlog_printk(ANDROID_LOG_DEBUG  , "ISP", "[%s] " format, __FUNCTION__, ##args)
+ //Both ANDROID_LOG_DEBUG and ANDROID_LOG_VERBOSE can be logged only to mobile log,
+@@ -81,14 +80,7 @@ typedef bool                    MBOOL;
+ #define LOG_WRN(format, args...)    xlog_printk(ANDROID_LOG_WARN   , "ISP", "[%s] WARNING: " format, __FUNCTION__, ##args)
+ #define LOG_ERR(format, args...)    xlog_printk(ANDROID_LOG_ERROR  , "ISP", "[%s, line%04d] ERROR: " format, __FUNCTION__, __LINE__, ##args)
+ #define LOG_AST(format, args...)    xlog_printk(ANDROID_LOG_ASSERT , "ISP", "[%s, line%04d] ASSERT: " format, __FUNCTION__, __LINE__, ##args)
+-#else
+-#define LOG_VRB(format, args...)
+-#define LOG_DBG(format, args...)
+-#define LOG_INF(format, args...)
+-#define LOG_WRN(format, args...)
+-#define LOG_ERR(format, args...)
+-#define LOG_AST(format, args...)
+-#endif
++
+ /*******************************************************************************
+ *
+ ********************************************************************************/
+@@ -831,7 +823,7 @@ static MUINT32 g_DmaErr_p1[nDMA_ERR] = {0};
+         do_div( sec, 1000 );    \
+         usec = do_div( sec, 1000000);\
+ }
+-#if 0
++#if 1
+ #define IRQ_LOG_KEEPER(irq,ppb,logT,fmt,...) do{\
+     char* ptr; \
+     char* pDes;\
+@@ -856,7 +848,7 @@ static MUINT32 g_DmaErr_p1[nDMA_ERR] = {0};
+     }     \
+ }while(0);
+ #else
+-#define IRQ_LOG_KEEPER(irq,ppb,logT,fmt,...)
++#define IRQ_LOG_KEEPER(irq,ppb,logT,fmt,...)  xlog_printk(ANDROID_LOG_DEBUG  , "KEEPER", "[%s] " fmt, __FUNCTION__, ##__VA_ARGS__)
+ #endif
+ 
+ #if 1
+diff --git a/mediatek/platform/mt6595/kernel/core/include/mach/hotplug.h b/mediatek/platform/mt6595/kernel/core/include/mach/hotplug.h
+index 7fcd788..6270bd5 100644
+--- a/mediatek/platform/mt6595/kernel/core/include/mach/hotplug.h
++++ b/mediatek/platform/mt6595/kernel/core/include/mach/hotplug.h
+@@ -14,7 +14,7 @@
+ #define HOTPLUG_LOG_WITH_XLOG                           1
+ #define HOTPLUG_LOG_WITH_PRINTK                         2
+ 
+-#define HOTPLUG_LOG_PRINT  HOTPLUG_LOG_NONE
++#define HOTPLUG_LOG_PRINT                               HOTPLUG_LOG_WITH_PRINTK
+ 
+ #if (HOTPLUG_LOG_PRINT == HOTPLUG_LOG_NONE)
+ #define HOTPLUG_INFO(fmt, args...)                    
+diff --git a/mediatek/platform/mt6595/kernel/core/include/mach/mt_freqhopping.h b/mediatek/platform/mt6595/kernel/core/include/mach/mt_freqhopping.h
+index 326f33b..85e7d50 100755
+--- a/mediatek/platform/mt6595/kernel/core/include/mach/mt_freqhopping.h
++++ b/mediatek/platform/mt6595/kernel/core/include/mach/mt_freqhopping.h
+@@ -33,8 +33,24 @@
+ 
+     #define FH_MSG_DEBUG   FH_MSG
+ #else
+-    #define FH_MSG(fmt, args...)
+-    #define FH_MSG_DEBUG   FH_MSG
++    #if 1 //log level is 6 xlog
++        #define FH_MSG(fmt, args...) \
++        do {    \
++        		xlog_printk(ANDROID_LOG_DEBUG, FHTAG, fmt, \
++                    	##args ); \
++        } while(0);
++    #else //log level is 4 (printk)
++        #define FH_MSG(fmt, args...) \
++        do {    \
++        		printk( FHTAG""fmt" \n", \
++                    	##args ); \
++        } while(0);
++    #endif
++
++    #define FH_MSG_DEBUG(fmt, args...)\
++        do {    \
++        		printk( FHTAG""fmt" \n", ##args ); \
++        } while(0);
+ #endif
+ 
+ 
+diff --git a/mediatek/platform/mt6595/kernel/core/mt_clkmgr.c b/mediatek/platform/mt6595/kernel/core/mt_clkmgr.c
+index 8111321..537b1af 100644
+--- a/mediatek/platform/mt6595/kernel/core/mt_clkmgr.c
++++ b/mediatek/platform/mt6595/kernel/core/mt_clkmgr.c
+@@ -37,7 +37,7 @@
+ //#define DISP_CLK_LOG
+ //#define SYS_LOG
+ //#define MUX_LOG_TOP
+-//#define MUX_LOG
++#define MUX_LOG
+ //#define PLL_LOG_TOP
+ //#define PLL_LOG
+ 
+@@ -46,7 +46,7 @@
+ /************************************************
+  **********         log debug          **********
+  ************************************************/
+-#define clk_debug_switch 0 //1
++
+ #define USING_XLOG
+ 
+ #ifdef USING_XLOG 
+@@ -75,18 +75,12 @@
+ #define clk_warn(fmt, args...)      \
+     printk(KERN_WARNING TAG);       \
+     printk(KERN_CONT fmt, ##args)
+-#if clk_debug_switch
+ #define clk_info(fmt, args...)      \
+     printk(KERN_NOTICE TAG);        \
+     printk(KERN_CONT fmt, ##args)
+ #define clk_dbg(fmt, args...)       \
+     printk(KERN_INFO TAG);          \
+     printk(KERN_CONT fmt, ##args)
+-#else
+-#define clk_info(fmt, args...)      
+-#define clk_dbg(fmt, args...)       
+-#endif
+-
+ #define clk_ver(fmt, args...)       \
+     printk(KERN_DEBUG TAG);         \
+     printk(KERN_CONT fmt, ##args)
+diff --git a/mediatek/platform/mt6595/kernel/core/mt_ptp.c b/mediatek/platform/mt6595/kernel/core/mt_ptp.c
+index 560ec91..ac272c4 100755
+--- a/mediatek/platform/mt6595/kernel/core/mt_ptp.c
++++ b/mediatek/platform/mt6595/kernel/core/mt_ptp.c
+@@ -2388,19 +2388,11 @@ static void ptp_init01_finish(struct ptp_det *det);
+ #define ptp_notice(fmt, args...)    printk(KERN_NOTICE "[PTP] " fmt, ##args)
+ #define ptp_info(fmt, args...)      printk(KERN_INFO "[PTP] " fmt, ##args)
+ #define ptp_debug(fmt, args...)     printk(KERN_DEBUG "[PTP] " fmt, ##args)
+-#define ptp_log_switch 0//1
++
+ #if EN_ISR_LOG
+-#if ptp_log_switch
+ #define ptp_isr_info(fmt, args...)  ptp_notice(fmt, ##args)
+ #else
+-#define ptp_isr_info(fmt, args...)
+-#endif
+-#else
+-#if ptp_log_switch
+ #define ptp_isr_info(fmt, args...)  ptp_debug(fmt, ##args)
+-#else
+-#define ptp_isr_info(fmt, args...)
+-#endif
+ #endif
+ 
+ #define FUNC_LV_MODULE          BIT(0)  /* module, platform driver interface */
+diff --git a/mediatek/platform/mt6595/kernel/drivers/dispsys/ddp_color.c b/mediatek/platform/mt6595/kernel/drivers/dispsys/ddp_color.c
+index 63beb7c..7c33459 100644
+--- a/mediatek/platform/mt6595/kernel/drivers/dispsys/ddp_color.c
++++ b/mediatek/platform/mt6595/kernel/drivers/dispsys/ddp_color.c
+@@ -805,7 +805,7 @@ SKY_TONE_H:
+ 
+ };
+ 
+-int color_dbg_en = 0;
++int color_dbg_en = 1;
+ #define COLOR_ERR(fmt, arg...) printk(KERN_ERR "[COLOR] " fmt "\n", ##arg)
+ #define COLOR_DBG(fmt, arg...) \
+     do { if (color_dbg_en) printk(KERN_DEBUG "[COLOR] " fmt "\n", ##arg); } while (0)
+@@ -1246,7 +1246,7 @@ static int _color_io(DISP_MODULE_ENUM module, int msg, unsigned long arg, void *
+     DISPLAY_PQ_T * pq_index;
+     DISPLAY_TDSHP_T * tdshp_index;
+ 
+-    COLOR_DBG("_color_io: msg %x\n", msg);
++    COLOR_ERR("_color_io: msg %x\n", msg);
+ 
+     switch (msg) {
+         case DISP_IOCTL_SET_PQPARAM:
+diff --git a/mediatek/platform/mt6595/kernel/drivers/dispsys/ddp_log.h b/mediatek/platform/mt6595/kernel/drivers/dispsys/ddp_log.h
+index 222b3e7..bcd3ef0 100644
+--- a/mediatek/platform/mt6595/kernel/drivers/dispsys/ddp_log.h
++++ b/mediatek/platform/mt6595/kernel/drivers/dispsys/ddp_log.h
+@@ -36,12 +36,11 @@
+         DISP_LOG_D(fmt,##args);                \
+     }while (0)
+ 
+-#define DDPMSG(fmt, args...)                   
+-//#define DDPMSG(fmt, args...)                   \
+-//	do {                                       \
+-//		DISP_LOG_I(fmt,##args);                \
+-//	}while (0)
+-//
++#define DDPMSG(fmt, args...)                   \
++	do {                                       \
++		DISP_LOG_I(fmt,##args);                \
++	}while (0)
++
+ #define DDPERR(fmt, args...)                   \
+     do {                                       \
+         DISP_LOG_E(fmt,##args);                \
+diff --git a/mediatek/platform/mt6595/kernel/drivers/m4u/m4u.c b/mediatek/platform/mt6595/kernel/drivers/m4u/m4u.c
+index 57d1980..6ae1f99 100755
+--- a/mediatek/platform/mt6595/kernel/drivers/m4u/m4u.c
++++ b/mediatek/platform/mt6595/kernel/drivers/m4u/m4u.c
+@@ -819,8 +819,8 @@ int m4u_dealloc_mva(m4u_client_t *client, M4U_PORT_ID port, unsigned int mva)
+     }
+ 	pMvaInfo->flags |= M4U_FLAGS_MVA_IN_FREE;
+ 	
+-    //M4ULOG_HIGH("m4u_dealloc_mva: larb=%d,module=%s,mva=0x%x, size=%d\n", 
+-      //      m4u_port_2_larb_id(port), m4u_get_port_name(port), mva, pMvaInfo->size);
++    M4ULOG_HIGH("m4u_dealloc_mva: larb=%d,module=%s,mva=0x%x, size=%d\n", 
++            m4u_port_2_larb_id(port), m4u_get_port_name(port), mva, pMvaInfo->size);
+ 
+     if(!gM4U_debug_trigger_translation_fault)
+     {
+diff --git a/mediatek/platform/mt6595/kernel/drivers/m4u/m4u_debug.c b/mediatek/platform/mt6595/kernel/drivers/m4u/m4u_debug.c
+index 6ceaae2..2e84dc6 100644
+--- a/mediatek/platform/mt6595/kernel/drivers/m4u/m4u_debug.c
++++ b/mediatek/platform/mt6595/kernel/drivers/m4u/m4u_debug.c
+@@ -9,7 +9,7 @@
+ 
+ //global variables
+ int gM4U_log_to_uart = 0;
+-int gM4U_log_level = 3;
++int gM4U_log_level = 2;
+ int gM4U_debug_trigger_translation_fault = 0;
+ 
+ 
+diff --git a/mediatek/platform/mt6595/kernel/drivers/thermal/mtk_ts_cpu.c b/mediatek/platform/mt6595/kernel/drivers/thermal/mtk_ts_cpu.c
+index db92b94..9028f58 100644
+--- a/mediatek/platform/mt6595/kernel/drivers/thermal/mtk_ts_cpu.c
++++ b/mediatek/platform/mt6595/kernel/drivers/thermal/mtk_ts_cpu.c
+@@ -413,8 +413,8 @@ static void set_adaptive_cpu_power_limit(unsigned int limit)
+ 
+     if (prv_adp_cpu_pwr_lim != adaptive_cpu_power_limit)
+     {
+-      //  tscpu_printk("set_adaptive_cpu_power_limit %d, T=%d,%d,%d,%d,%d,%d,%d,%d,%d\n", (final_limit != 0x7FFFFFFF) ? final_limit : 0,
+-      //               CA7_TS1_T, CA15_TS1_T, CA7_TS2_T, CORE_TS2_T, CA15_TS3_T, GPU_TS3_T, GPU_TS4_T, CORE_TS4_T, CORE_TSABB_T);
++        tscpu_printk("set_adaptive_cpu_power_limit %d, T=%d,%d,%d,%d,%d,%d,%d,%d,%d\n", (final_limit != 0x7FFFFFFF) ? final_limit : 0,
++                     CA7_TS1_T, CA15_TS1_T, CA7_TS2_T, CORE_TS2_T, CA15_TS3_T, GPU_TS3_T, GPU_TS4_T, CORE_TS4_T, CORE_TSABB_T);
+ 
+         mt_cpufreq_thermal_protect((final_limit != 0x7FFFFFFF) ? final_limit : 0);
+     }
+diff --git a/mediatek/platform/mt6595/kernel/drivers/videox/disp_drv_log.h b/mediatek/platform/mt6595/kernel/drivers/videox/disp_drv_log.h
+index e42e8b8..f23de05 100644
+--- a/mediatek/platform/mt6595/kernel/drivers/videox/disp_drv_log.h
++++ b/mediatek/platform/mt6595/kernel/drivers/videox/disp_drv_log.h
+@@ -19,8 +19,7 @@ extern unsigned int dprec_error_log_id;
+ extern unsigned int dprec_error_log_buflen;
+ extern char dprec_error_log_buffer[];
+ 		
+-//#define DISPMSG(string, args...) printk("[DISP]"string, ##args)  // default on, important msg, not err
+-#define DISPMSG(string, args...) 
++#define DISPMSG(string, args...) printk("[DISP]"string, ##args)  // default on, important msg, not err
+ #define DISPDBG(string, args...) xlog_printk(ANDROID_LOG_DEBUG,   "disp/",  string, ##args);
+ #define DISPERR  	DISPPR_ERROR
+ #if 0
+@@ -42,10 +41,6 @@ extern char dprec_error_log_buffer[];
+ 	
+ #define DISPPR_HWOP(string, args...)  //dprec_logger_pr(DPREC_LOGGER_HWOP, string, ##args);
+ #define DISPPR_ERROR(string, args...)  do{dprec_logger_pr(DPREC_LOGGER_ERROR, string, ##args);printk("[DISP][%s #%d]ERROR:"string,__func__, __LINE__, ##args); }while(0)
+-#if 0
+ #define DISPPR_FENCE(string, args...)  do{dprec_logger_pr(DPREC_LOGGER_FENCE, string, ##args);xlog_printk(ANDROID_LOG_DEBUG,   "fence/",  string, ##args); }while(0)
+-#else
+-#define DISPPR_FENCE(string, args...)
+-#endif
+ 
+ #endif // __DISP_DRV_LOG_H__
+diff --git a/mediatek/platform/mt6595/kernel/drivers/videox/primary_display.c b/mediatek/platform/mt6595/kernel/drivers/videox/primary_display.c
+index 246b0ae..edc1dc0 100755
+--- a/mediatek/platform/mt6595/kernel/drivers/videox/primary_display.c
++++ b/mediatek/platform/mt6595/kernel/drivers/videox/primary_display.c
+@@ -1127,7 +1127,7 @@ int primary_display_esd_check(void)
+ 
+ 	dprec_logger_start(DPREC_LOGGER_ESD_CHECK, 0, 0);
+ 	MMProfileLogEx(ddp_mmp_get_events()->esd_check_t, MMProfileFlagStart, 0, 0);
+-	//DISPCHECK("[ESD]ESD check begin\n");
++	DISPCHECK("[ESD]ESD check begin\n");
+ 
+         _primary_path_lock(__func__);
+ 	if(pgc->state == DISP_SLEEPED)
+@@ -1293,7 +1293,7 @@ destory_cmdq:
+ 	MMProfileLogEx(ddp_mmp_get_events()->esd_rdlcm, MMProfileFlagEnd, 0, ret);
+ 
+ done:
+-//	DISPCHECK("[ESD]ESD check end\n");
++	DISPCHECK("[ESD]ESD check end\n");
+ 	MMProfileLogEx(ddp_mmp_get_events()->esd_check_t, MMProfileFlagEnd, 0, ret);	
+ 	dprec_logger_done(DPREC_LOGGER_ESD_CHECK, 0, 0);
+ 	return ret;
+@@ -3985,7 +3985,7 @@ int fbconfig_get_esd_check_test(UINT32 dsi_id,UINT32 cmd,UINT8*buffer,UINT32 num
+ 
+ 	if(pgc->state == DISP_SLEEPED)
+ 	{
+-		//DISPCHECK("[ESD]primary display path is sleeped?? -- skip esd check\n");
++		DISPCHECK("[ESD]primary display path is sleeped?? -- skip esd check\n");
+                 _primary_path_unlock(__func__);
+ 		goto done;
+ 	}
+-- 
+1.9.1
+

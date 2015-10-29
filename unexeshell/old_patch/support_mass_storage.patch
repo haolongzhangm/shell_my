@@ -1,0 +1,33 @@
+diff --git a/mediatek/config/ckt95_lw_kk/ProjectConfig.mk b/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
+index aef51f5..fe9e821 100755
+--- a/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
++++ b/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
+@@ -1114,7 +1114,7 @@ MTK_SEND_RR_SUPPORT=yes
+ MTK_SENSOR_SUPPORT=yes
+ 
+ # sdcard will be a folder of /data
+-MTK_SHARED_SDCARD=yes
++MTK_SHARED_SDCARD=no
+ 
+ # this feature is used for notification when Msensor accuracy is not good in the situation that user is using a m-sensor related APK. a toast will be showen when m-sensor accuracy is not good once.
+ MTK_SHOW_MSENSOR_TOAST_SUPPORT=yes
+diff --git a/mediatek/config/mt6595/ProjectConfig.mk b/mediatek/config/mt6595/ProjectConfig.mk
+index 0883f04..d570f52 100755
+--- a/mediatek/config/mt6595/ProjectConfig.mk
++++ b/mediatek/config/mt6595/ProjectConfig.mk
+@@ -141,7 +141,7 @@ MTK_BESLOUDNESS_SUPPORT = yes
+ MTK_CAM_HDR_SUPPORT=yes
+ 
+ MTK_HIGH_RESOLUTION_AUDIO_SUPPORT = yes
+-MTK_SHARED_SDCARD = yes
++MTK_SHARED_SDCARD = no
+ 
+ MTK_LTE_SUPPORT = yes
+ 
+@@ -191,4 +191,4 @@ MTK_APPENDED_DTB_SUPPORT = yes
+ 
+ MTK_CAM_VHDR_SUPPORT = yes
+ 
+-MTK_UART_USB_SWITCH = no
+\ No newline at end of file
++MTK_UART_USB_SWITCH = no

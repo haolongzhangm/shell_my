@@ -1,0 +1,37 @@
+diff --git a/mediatek/kernel/drivers/power/battery_common.c b/mediatek/kernel/drivers/power/battery_common.c
+index 2b3ee91..335aace 100755
+--- a/mediatek/kernel/drivers/power/battery_common.c
++++ b/mediatek/kernel/drivers/power/battery_common.c
+@@ -95,7 +95,7 @@ int g_battery_thermal_throttling_flag=3; // 0:nothing, 1:enable batTT&chrTimer,
+ int battery_cmd_thermal_test_mode=0;
+ int battery_cmd_thermal_test_mode_value=0;
+ int g_battery_tt_check_flag=0; // 0:default enable check batteryTT, 1:default disable check batteryTT
+-int g_MAX_CHARGE_TEMPERATURE = 60;
++int g_MAX_CHARGE_TEMPERATURE = 200;
+ 
+ 
+ ///////////////////////////////////////////////////////////////////////////////////////////
+@@ -1730,6 +1730,7 @@ PMU_STATUS do_batt_temp_state_machine(void)
+ 	if (BMT_status.temperature >= g_MAX_CHARGE_TEMPERATURE) 
+ 	{
+ 		battery_xlog_printk(BAT_LOG_CRTI, "[BATTERY] Battery Over Temperature !!\n\r"); 
++		printk(KERN_ERR "Battery over Tem %s:[%d]...\n", __func__, __LINE__);
+ 		g_batt_temp_status =TEMP_POS_HIGH;
+ 		return PMU_STATUS_FAIL; 
+ 	}
+@@ -1975,6 +1976,7 @@ static PMU_STATUS mt_battery_CheckBatteryTemp(void)
+     if (BMT_status.temperature >= g_MAX_CHARGE_TEMPERATURE)
+     {
+         battery_xlog_printk(BAT_LOG_CRTI, "[BATTERY] Battery Over Temperature !!\n\r");                
++		printk(KERN_ERR "Battery over Tem %s:[%d]...\n", __func__, __LINE__);
+         status = PMU_STATUS_FAIL;       
+     }    
+ #endif
+@@ -2165,6 +2167,7 @@ static void mt_battery_notify_VBatTemp_check(void)
+ 	if(BMT_status.temperature >= g_MAX_CHARGE_TEMPERATURE)
+     {
+         g_BatteryNotifyCode |= 0x0002;
++		printk(KERN_ERR "Battery over Tem %s:[%d]...\n", __func__, __LINE__);
+         battery_xlog_printk(BAT_LOG_CRTI, "[BATTERY] bat_temp(%d) out of range(too high)\n", BMT_status.temperature);		
+     }
+ #if defined(MTK_JEITA_STANDARD_SUPPORT)

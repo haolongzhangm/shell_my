@@ -1,0 +1,38 @@
+diff --git a/mediatek/config/ckt95_lw_kk/ProjectConfig.mk b/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
+index c2bbbd3..dfe1856 100755
+--- a/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
++++ b/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
+@@ -1483,7 +1483,7 @@ MTK_WIFI_HOTSPOT_SUPPORT=yes
+ MTK_WLAN_SUPPORT=yes
+ 
+ #CREATE_PROJECT_INFO=20140815185038
+-MTK_BUILD_VERNO = ALPS.KK1.MP11.V1.14
++#MTK_BUILD_VERNO = ALPS.KK1.MP11.V1.14
+ 
+ #ckt zhangping 20140924 for open usb acm (feature66550)
+ CKT_OPEN_USB_ACM = yes
+diff --git a/mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk b/mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk
+index bf0ad9e..fd396b2 100755
+--- a/mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk
++++ b/mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk
+@@ -121,6 +121,7 @@ DATA_FOR_VERO=$(shell date +%y%m%d)
+ DATA_FOR_INTERNAL_VERO=$(shell date +%y%m%d%H%M%S)
+ 
+ CKT_BUILD_VERNO  ?= $(call uc, $(_CKT_BUILD_VERNO)_$(strip $(DATA_FOR_VERO)))
++MTK_BUILD_VERNO  ?= $(call uc, $(_CKT_BUILD_VERNO)_$(strip $(DATA_FOR_VERO)))
+ CKT_BUILD_INTERNAL_VERNO  ?= $(call uc, $(_CKT_BUILD_VERNO)_$(strip $(DATA_FOR_INTERNAL_VERO)))
+ #############################
+ 
+diff --git a/mediatek/config/common/ProjectConfig.mk b/mediatek/config/common/ProjectConfig.mk
+index 5356984..a4a55f8 100755
+--- a/mediatek/config/common/ProjectConfig.mk
++++ b/mediatek/config/common/ProjectConfig.mk
+@@ -4,7 +4,7 @@
+ MTK_BRANCH = KK1.MP11
+ 	# Depend on branch
+ 
+-MTK_BUILD_VERNO = ALPS.KK1.MP11.V1.14
++#MTK_BUILD_VERNO = ALPS.KK1.MP11.V1.14
+ 	# Depend on release week
+ 
+ MTK_WEEK_NO =  

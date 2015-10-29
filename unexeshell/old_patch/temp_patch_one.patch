@@ -1,0 +1,13 @@
+diff --git a/mediatek/custom/common/kernel/barometer/lps331ap/lps331ap_prs.c b/mediatek/custom/common/kernel/barometer/lps331ap/lps331ap_prs.c
+index c20c7b4..7c6b391 100755
+--- a/mediatek/custom/common/kernel/barometer/lps331ap/lps331ap_prs.c
++++ b/mediatek/custom/common/kernel/barometer/lps331ap/lps331ap_prs.c
+@@ -1699,7 +1699,7 @@ static int lps331_ReadTempData(struct i2c_client *client, s32 *tempdata, int buf
+ //	printk("positive :%d",*tempdata);
+ 	}
+ //	*buf16 = (s16)( temp | ((u16) bit_valuesL ));
+-
++	*tempdata = (*tempdata +  bit_valuesL) / 480.0 + 42.5;
+ 
+ //	sprintf(buf, "%04x",temp);
+ 

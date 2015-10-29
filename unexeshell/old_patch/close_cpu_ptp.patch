@@ -1,0 +1,65 @@
+diff --git a/mediatek/kernel/drivers/wdk/wd_common_drv.c b/mediatek/kernel/drivers/wdk/wd_common_drv.c
+index ef93159..253cdd8 100755
+--- a/mediatek/kernel/drivers/wdk/wd_common_drv.c
++++ b/mediatek/kernel/drivers/wdk/wd_common_drv.c
+@@ -384,16 +384,16 @@ static int kwdt_thread(void *arg)
+ 		
+ 		msleep((g_kinterval) * 1000);
+ 
+-		#ifdef CONFIG_MTK_AEE_POWERKEY_HANG_DETECT
+-		if( (cpu==0)&&(wk_tsk[cpu]->pid == current->pid))//only effect at cpu0
+-		{
+-			if(aee_kernel_wdt_kick_api(g_kinterval)==WDT_PWK_HANG_FORCE_HWT)
+-			{
+-				printk_sched("power key trigger HWT\n");
+-				cpus_kick_bit=0xFFFF; //Try to force to HWT
+-			}
+-		}
+-		#endif
++//		#ifdef CONFIG_MTK_AEE_POWERKEY_HANG_DETECT
++//		if( (cpu==0)&&(wk_tsk[cpu]->pid == current->pid))//only effect at cpu0
++//		{
++//			if(aee_kernel_wdt_kick_api(g_kinterval)==WDT_PWK_HANG_FORCE_HWT)
++//			{
++//				printk_sched("power key trigger HWT\n");
++//				cpus_kick_bit=0xFFFF; //Try to force to HWT
++//			}
++//		}
++//		#endif
+ 	}
+ 	printk("[WDK] WDT kicker thread stop, cpu:%d, pid:%d\n", cpu, current->pid);
+ 	return 0;
+diff --git a/mediatek/platform/mt6595/kernel/core/mt_ptp.c b/mediatek/platform/mt6595/kernel/core/mt_ptp.c
+index 560ec91..6d47398 100755
+--- a/mediatek/platform/mt6595/kernel/core/mt_ptp.c
++++ b/mediatek/platform/mt6595/kernel/core/mt_ptp.c
+@@ -2785,14 +2785,14 @@ static struct ptp_det_ops vcore_pdn_det_ops = {
+ 
+ static struct ptp_det_ops big_det_ops = {
+ 	.get_volt		= get_volt_cpu,
+-	.set_volt		= set_volt_cpu,
++	.set_volt		= NULL, //set_volt_cpu,
+ 	.restore_default_volt	= restore_default_volt_cpu,
+ 	.get_freq_table		= get_freq_table_cpu,
+ };
+ 
+ static struct ptp_det_ops little_det_ops = {
+ 	.get_volt		= get_volt_cpu,
+-	.set_volt		= set_volt_cpu,
++	.set_volt		= NULL, //set_volt_cpu,
+ 	.restore_default_volt	= restore_default_volt_cpu,
+ 	.get_freq_table		= get_freq_table_cpu,
+ };
+diff --git a/mediatek/platform/mt6595/preloader/src/drivers/mt_ptp.c b/mediatek/platform/mt6595/preloader/src/drivers/mt_ptp.c
+index 33606a9..a64bf70 100755
+--- a/mediatek/platform/mt6595/preloader/src/drivers/mt_ptp.c
++++ b/mediatek/platform/mt6595/preloader/src/drivers/mt_ptp.c
+@@ -917,6 +917,8 @@ void ptp_init(void)
+ 
+ 	get_devinfo(&ptp_devinfo);
+ 
++	return;
++
+ 	if (0 == ptp_devinfo.PTPINITEN) {
+ 		ptp_notice("PTPINITEN = 0x%x\n", ptp_devinfo.PTPINITEN);
+ 

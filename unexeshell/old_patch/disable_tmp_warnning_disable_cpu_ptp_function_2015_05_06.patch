@@ -1,0 +1,43 @@
+diff --git a/mediatek/kernel/drivers/power/battery_common.c b/mediatek/kernel/drivers/power/battery_common.c
+index 2b3ee91..bd27655 100755
+--- a/mediatek/kernel/drivers/power/battery_common.c
++++ b/mediatek/kernel/drivers/power/battery_common.c
+@@ -95,7 +95,7 @@ int g_battery_thermal_throttling_flag=3; // 0:nothing, 1:enable batTT&chrTimer,
+ int battery_cmd_thermal_test_mode=0;
+ int battery_cmd_thermal_test_mode_value=0;
+ int g_battery_tt_check_flag=0; // 0:default enable check batteryTT, 1:default disable check batteryTT
+-int g_MAX_CHARGE_TEMPERATURE = 60;
++int g_MAX_CHARGE_TEMPERATURE = 200;
+ 
+ 
+ ///////////////////////////////////////////////////////////////////////////////////////////
+@@ -1749,6 +1749,8 @@ PMU_STATUS do_batt_temp_state_machine(void)
+ 	{
+ 		g_batt_temp_status = TEMP_POS_NORMAL;
+ 	}
++	
++	battery_xlog_printk(BAT_LOG_CRTI, "haolong test 20150506\n\r"); 
+ 	return PMU_STATUS_OK;
+ }
+ #endif
+diff --git a/mediatek/platform/mt6595/kernel/core/mt_ptp.c b/mediatek/platform/mt6595/kernel/core/mt_ptp.c
+index ac272c4..d6cf47c 100755
+--- a/mediatek/platform/mt6595/kernel/core/mt_ptp.c
++++ b/mediatek/platform/mt6595/kernel/core/mt_ptp.c
+@@ -2777,14 +2777,14 @@ static struct ptp_det_ops vcore_pdn_det_ops = {
+ 
+ static struct ptp_det_ops big_det_ops = {
+ 	.get_volt		= get_volt_cpu,
+-	.set_volt		= set_volt_cpu,
++	.set_volt		= NULL,
+ 	.restore_default_volt	= restore_default_volt_cpu,
+ 	.get_freq_table		= get_freq_table_cpu,
+ };
+ 
+ static struct ptp_det_ops little_det_ops = {
+ 	.get_volt		= get_volt_cpu,
+-	.set_volt		= set_volt_cpu,
++	.set_volt		= NULL,
+ 	.restore_default_volt	= restore_default_volt_cpu,
+ 	.get_freq_table		= get_freq_table_cpu,
+ };

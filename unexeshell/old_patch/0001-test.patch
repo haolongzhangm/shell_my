@@ -1,0 +1,164 @@
+From 7b2882244e2cf0c054fbef3d09ea6edbee0765e1 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Thu, 4 Sep 2014 16:19:26 +0800
+Subject: [PATCH] test
+
+Change-Id: I1b306ddb52c82a0249639925c26e2ca4567d88f7
+---
+ .../packages/apps/EngineerMode/AndroidManifest.xml |  5 ++
+ .../apps/EngineerMode/res/layout/tp_fw_info.xml    | 13 ++++
+ .../apps/EngineerMode/res/values/strings.xml       |  3 +
+ .../packages/apps/EngineerMode/res/xml/others.xml  |  7 +++
+ .../src/com/mediatek/engineermode/TpFwInfo.java    | 71 ++++++++++++++++++++++
+ 5 files changed, 99 insertions(+)
+ create mode 100644 mediatek/packages/apps/EngineerMode/res/layout/tp_fw_info.xml
+ create mode 100644 mediatek/packages/apps/EngineerMode/src/com/mediatek/engineermode/TpFwInfo.java
+
+diff --git a/mediatek/packages/apps/EngineerMode/AndroidManifest.xml b/mediatek/packages/apps/EngineerMode/AndroidManifest.xml
+index dd7cfc9..106690e 100755
+--- a/mediatek/packages/apps/EngineerMode/AndroidManifest.xml
++++ b/mediatek/packages/apps/EngineerMode/AndroidManifest.xml
+@@ -792,6 +792,11 @@
+ 	    android:screenOrientation="portrait"
+             android:theme="@android:style/Theme.Dialog">
+ 	</activity>
++	<activity
++		android:name=".touchpanel.TpFwInfo"
++		android:label="@string/tp_wf_info"
++		android:screenOrientation="portrait">
++	</activity>
+         <activity android:name=".hspainfo.HspaInfo"
+             android:label="@string/hspa_info_title" android:process="com.android.phone"
+             android:screenOrientation="portrait">
+diff --git a/mediatek/packages/apps/EngineerMode/res/layout/tp_fw_info.xml b/mediatek/packages/apps/EngineerMode/res/layout/tp_fw_info.xml
+new file mode 100644
+index 0000000..85a6f6b
+--- /dev/null
++++ b/mediatek/packages/apps/EngineerMode/res/layout/tp_fw_info.xml
+@@ -0,0 +1,13 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="vertical" >
++
++    <TextView
++        android:id="@+id/info"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_centerHorizontal="true" />
++
++</RelativeLayout>
+\ No newline at end of file
+diff --git a/mediatek/packages/apps/EngineerMode/res/values/strings.xml b/mediatek/packages/apps/EngineerMode/res/values/strings.xml
+index 525d5d8..4960a6b 100755
+--- a/mediatek/packages/apps/EngineerMode/res/values/strings.xml
++++ b/mediatek/packages/apps/EngineerMode/res/values/strings.xml
+@@ -2187,6 +2187,9 @@
+     <!-- CMAS Settings Start -->
+     <string name="cmas">CMAS</string>
+     <!-- CMAS Settings End -->
++    <!-- TP WF Info start -->
++    <string name="tp_wf_info">TP FW Info</string>
++    <!-- TP WF Info end -->
+     <!--BT RX ADC Clock selection start-->
+ 	<string name="clock_select_turn_on">Turn on the feature</string>
+ 	<string name="clock_select_turn_off">Trun off the feature</string>
+diff --git a/mediatek/packages/apps/EngineerMode/res/xml/others.xml b/mediatek/packages/apps/EngineerMode/res/xml/others.xml
+index 5580aef..6445466 100644
+--- a/mediatek/packages/apps/EngineerMode/res/xml/others.xml
++++ b/mediatek/packages/apps/EngineerMode/res/xml/others.xml
+@@ -61,6 +61,13 @@
+ 			android:targetPackage="com.mediatek.engineermode"
+ 			android:targetClass="com.mediatek.engineermode.usbacm.UsbAcm" />
+ 	</Preference>
++	<Preference android:key="tp_fw_info" android:title="@string/tp_wf_info"
++		android:persistent="false">
++		<intent android:action="android.intent.action.MAIN"
++			android:targetPackage="com.mediatek.engineermode"
++			android:targetClass="com.mediatek.engineermode.touchpanel.TpFwInfo" />
++		</Preference>
++
+ 
+ 	<Preference android:key="dfo" android:title="@string/dfo"
+ 		android:persistent="false">
+diff --git a/mediatek/packages/apps/EngineerMode/src/com/mediatek/engineermode/TpFwInfo.java b/mediatek/packages/apps/EngineerMode/src/com/mediatek/engineermode/TpFwInfo.java
+new file mode 100644
+index 0000000..88a0284
+--- /dev/null
++++ b/mediatek/packages/apps/EngineerMode/src/com/mediatek/engineermode/TpFwInfo.java
+@@ -0,0 +1,71 @@
++/*
++ * Copyright (C) 2013 CK Telecom Inc. All rights reserved.
++ *
++ * @File TpFwInfo.java
++ * @Author tao.pei jypeitao@163.com
++ * @Data 2013-9-9
++ */
++
++package com.mediatek.engineermode.touchpanel;
++
++import android.app.Activity;
++import android.os.Bundle;
++import android.widget.TextView;
++import android.widget.Toast;
++
++import com.mediatek.engineermode.R;
++
++import java.io.BufferedReader;
++import java.io.ByteArrayOutputStream;
++import java.io.FileInputStream;
++import java.io.IOException;
++import java.io.InputStreamReader;
++
++public class TpFwInfo extends Activity {
++
++    private static final String TAG = "TpFwInfo";
++
++    private static final String PROC_TP_CONFIG = "/sys/devices/platform/mt-i2c.2/i2c-2/2-0015/ektf2k_version";
++
++    private TextView info;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.tp_fw_info);
++        info = (TextView) findViewById(R.id.info);
++    }
++
++    protected void onResume() {
++        super.onResume();
++        FileInputStream fis = null;
++        try {
++            fis = new FileInputStream(PROC_TP_CONFIG);
++
++            byte[] b = new byte[1024];
++
++            int n = 0;
++
++            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
++
++            while ((n = fis.read(b)) != -1)
++            {
++                byteArrayOutputStream.write(b);
++            }
++
++            byte content[] = byteArrayOutputStream.toByteArray();
++
++            info.setText(new String(content));
++
++        } catch (Exception e) {
++            // TODO: handle exception
++        } finally {
++            try {
++                fis.close();
++            } catch (IOException e) {
++                // ignor
++            }
++        }
++    }
++
++}
+-- 
+1.9.1
+

@@ -1,0 +1,2737 @@
+From ec1a3de7dbcf6e82efdd2cd288923f32775c3437 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Wed, 11 Feb 2015 10:25:48 +0800
+Subject: [PATCH 2/4] p53
+
+Change-Id: I702b7e3a65a8ad438fd506707046eeaed8bd91d7
+---
+ .../soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.c      |  36 ++++
+ .../soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.h      |   6 +
+ .../soc/mediatek/mt_soc_audio_v1/AudDrv_Def.h      |  14 +-
+ kernel/sound/soc/mediatek/mt_soc_audio_v1/Makefile |   2 +-
+ .../mediatek/mt_soc_audio_v1/mt_soc_afe_control.c  |  89 ++++++++-
+ .../mediatek/mt_soc_audio_v1/mt_soc_afe_control.h  |   4 +
+ .../mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c   |  11 ++
+ .../soc/mediatek/mt_soc_audio_v1/mt_soc_dai_stub.c |  13 ++
+ .../mediatek/mt_soc_audio_v1/mt_soc_digital_type.h |   3 +
+ .../soc/mediatek/mt_soc_audio_v1/mt_soc_machine.c  |  10 +
+ .../mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c |  42 ++++-
+ .../mediatek/mt_soc_audio_v1/mt_soc_pcm_common.c   |  16 ++
+ .../mediatek/mt_soc_audio_v1/mt_soc_pcm_common.h   |   6 +-
+ .../mediatek/mt_soc_audio_v1/mt_soc_pcm_dl1_bt.c   |  68 +++++--
+ .../mt_soc_audio_v1/mt_soc_pcm_dl1_i2s0Dl1.c       |  95 +++++++++-
+ .../mediatek/mt_soc_audio_v1/mt_soc_pcm_voice.c    | 127 +++++++------
+ .../mt_soc_audio_v1/mt_soc_pcm_voice_extint.c      | 156 +++++++++-------
+ .../audio/mt6595_phone_v1_2/sph_coeff_default.h    |  72 +++++++-
+ .../custom/common/cgen/inc/sph_coeff_default.h     |  72 +++++++-
+ mediatek/factory/src/test/ftm_audio.cpp            |   2 +-
+ .../common/hardware/audio/V3/include/AudioType.h   |   8 +-
+ .../audio/V3/speech_driver/SpeechDriverLAD.cpp     |  17 +-
+ .../hardware/audio/aud_drv/WCNChipController.cpp   |  36 +++-
+ .../common/hardware/audio/include/AudioDef.h       |   6 +-
+ .../hardware/audio/include/WCNChipController.h     |  18 +-
+ mediatek/platform/mt6595/hardware/audio/Android.mk |   5 +
+ .../aud_drv/AudioALSACaptureDataProviderBTSCO.cpp  |   4 +-
+ .../aud_drv/AudioALSACaptureDataProviderBase.cpp   |  42 ++++-
+ .../AudioALSACaptureDataProviderEchoRefBTSCO.cpp   |  30 +--
+ .../AudioALSACaptureDataProviderSpkFeed.cpp        |  27 ++-
+ .../hardware/audio/aud_drv/AudioALSAHardware.cpp   |  26 ++-
+ .../aud_drv/AudioALSAHardwareResourceManager.cpp   |  15 +-
+ .../aud_drv/AudioALSAPlaybackHandlerBTSCO.cpp      |  13 +-
+ .../audio/aud_drv/AudioALSASpeakerMonitor.cpp      |  11 +-
+ .../hardware/audio/aud_drv/AudioALSAStreamIn.cpp   |  14 ++
+ .../audio/aud_drv/AudioALSAStreamManager.cpp       | 202 ++++++++++++++++++++-
+ .../hardware/audio/aud_drv/AudioALSAStreamOut.cpp  |  39 +++-
+ .../include/AudioALSACaptureDataProviderBase.h     |   7 +-
+ .../hardware/audio/include/AudioALSADeviceString.h |   1 +
+ .../include/AudioALSAHardwareResourceManager.h     |   1 +
+ .../audio/include/AudioALSAStreamManager.h         |  17 +-
+ .../AudioALSASpeechPhoneCallController.cpp         | 130 +++++++++++--
+ .../product/ckt95_lw_kk/obj/lib/libMtkOmxAacDec.so | Bin 394796 -> 394796 bytes
+ .../product/ckt95_lw_kk/obj/lib/libMtkOmxAacEnc.so | Bin 439468 -> 439468 bytes
+ .../ckt95_lw_kk/system/lib/libMtkOmxAacDec.so      | Bin 394796 -> 394796 bytes
+ .../ckt95_lw_kk/system/lib/libMtkOmxAacEnc.so      | Bin 439468 -> 439468 bytes
+ 46 files changed, 1285 insertions(+), 228 deletions(-)
+
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.c
+index 93f3341..a68e71d 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.c
+@@ -87,6 +87,9 @@ static bool CheckOffset(uint32 offset)
+  *    global variable control
+  */
+ static const unsigned  int SramCaptureOffSet = (16 * 1024);
++static const unsigned  int SramModDaiOffSet = (0);
++static const unsigned  int SramSphDLOffSet = (8*1024);
++static const unsigned  int SramSphModeUL2OffSet = (16*1024);
+ 
+ // address for ioremap audio hardware register
+ void *AFE_BASE_ADDRESS = 0;
+@@ -116,6 +119,21 @@ dma_addr_t  Get_Afe_Sram_Capture_Phys_Addr(void)
+     return (dma_addr_t)(AFE_INTERNAL_SRAM_PHY_BASE + SramCaptureOffSet);
+ }
+ 
++dma_addr_t  Get_Afe_Sram_ModDai_Phys_Addr(void)
++{
++    return (dma_addr_t)(AFE_INTERNAL_SRAM_PHY_BASE + SramModDaiOffSet);
++}
++
++dma_addr_t  Get_Afe_Sram_SphDL_Phys_Addr(void)
++{
++    return (dma_addr_t)(AFE_INTERNAL_SRAM_PHY_BASE + SramSphDLOffSet);
++}
++
++dma_addr_t  Get_Afe_Sram_SphUL2_Phys_Addr(void)
++{
++    return (dma_addr_t)(AFE_INTERNAL_SRAM_PHY_BASE + SramSphModeUL2OffSet);
++}
++
+ void *Get_Afe_SramBase_Pointer()
+ {
+     return AFE_SRAM_ADDRESS;
+@@ -127,6 +145,24 @@ void *Get_Afe_SramCaptureBase_Pointer()
+     return (void *)CaptureSramPointer;
+ }
+ 
++void *Get_Afe_SramModDaiBase_Pointer()
++{
++    char * CaptureSramPointer= (char*)(AFE_SRAM_ADDRESS) + SramModDaiOffSet;
++    return (void*)CaptureSramPointer;
++}
++
++void *Get_Afe_SramSphDLBase_Pointer()
++{
++    char * CaptureSramPointer= (char*)(AFE_SRAM_ADDRESS) + SramSphDLOffSet;
++    return (void*)CaptureSramPointer;
++}
++
++void *Get_Afe_SramSphUL2Base_Pointer()
++{
++    char *CaptureSramPointer= (char*)(AFE_SRAM_ADDRESS) + SramSphModeUL2OffSet;
++    return (void*)CaptureSramPointer;
++}
++
+ void *Get_Afe_Powertop_Pointer()
+ {
+     return AFE_TOP_ADDRESS;
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.h b/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.h
+index 1d47f23..3a0aea4 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.h
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Afe.h
+@@ -829,8 +829,14 @@ void Afe_Log_Print(void);
+ // function to get pointer
+ dma_addr_t  Get_Afe_Sram_Phys_Addr(void);
+ dma_addr_t  Get_Afe_Sram_Capture_Phys_Addr(void);
++dma_addr_t  Get_Afe_Sram_ModDai_Phys_Addr(void);
++dma_addr_t  Get_Afe_Sram_SphDL_Phys_Addr(void);
++dma_addr_t  Get_Afe_Sram_SphUL2_Phys_Addr(void);
+ void* Get_Afe_SramBase_Pointer(void);
+ void* Get_Afe_SramCaptureBase_Pointer(void);
++void* Get_Afe_SramModDaiBase_Pointer(void);
++void* Get_Afe_SramSphDLBase_Pointer(void);
++void* Get_Afe_SramSphUL2Base_Pointer(void);
+ 
+ void* Get_Afe_Powertop_Pointer(void);
+ void* Get_AudClk_Pointer(void);
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Def.h b/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Def.h
+index 6727c4e..36abf02 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Def.h
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/AudDrv_Def.h
+@@ -139,13 +139,6 @@
+ #define PRINTK_AUD_MODDAI(format, args...)
+ #endif
+ 
+-#ifdef DEBUG_AUD_DAI
+-#define PRINTK_AUD_DAI(format, args...)  printk(format, ##args )
+-#else
+-#define PRINTK_AUD_DAI(format, args...)
+-#endif
+-
+-
+ #define PRINTK_AUD_ERROR(format, args...)  printk(format, ##args )
+ 
+ // if need assert , use AUDIO_ASSERT(true)
+@@ -218,7 +211,7 @@
+ #define MT_SOC_MODADCI2SDAI_NAME "mt-soc-mod2adci2s-driver"
+ #define MT_SOC_ADC2AWBDAI_NAME "mt-soc-adc2awb-driver"
+ #define MT_SOC_IO2DAIDAI_NAME "mt-soc-io2dai-driver"
+-
++#define MT_SOC_MOD_DAI_NAME "mt-soc-moddai-driver"
+ 
+ // platform name
+ #define MT_SOC_DL1_PCM   "mt-soc-dl1-pcm"
+@@ -236,7 +229,7 @@
+ #define MT_SOC_I2S0_PCM  "mt-soc-i2s0-pcm"
+ #define MT_SOC_MRGRX_PCM  "mt-soc-mrgrx-pcm"
+ #define MT_SOC_I2S0DL1_PCM  "mt-soc-i2s0dl1-pcm"
+-#define MT_SOC_MODDAI_PCM   "mt-soc-MODDAI-pcm"
++#define MT_SOC_MOD_DAI_PCM   "mt-soc-MODDAI-pcm"
+ #define MT_SOC_VOICE  "mt-soc-voice"
+ #define MT_SOC_VOICE_EXT  "mt-soc-voice-ext"
+ #define MT_SOC_VOICE_EXTINT  "mt-soc-voice-extint"
+@@ -291,6 +284,7 @@
+ #define MT_SOC_CODEC_MODADCI2S_DUMMY_DAI_NAME "mt-soc-mod2adci2s-dummy-dai-codec"
+ #define MT_SOC_CODEC_ADC2AWB_DUMMY_DAI_NAME "mt-soc-adc2awb-dummy-dai-codec"
+ #define MT_SOC_CODEC_IO2DAI_DUMMY_DAI_NAME "mt-soc-io2dai-dummy-dai-codec"
++#define MT_SOC_CODEC_MOD_DAI_NAME "mt-soc-mod-dai-codec"
+ 
+ // stream name
+ #define MT_SOC_DL1_STREAM_NAME "MultiMedia1_PLayback"
+@@ -318,7 +312,7 @@
+ #define MT_SOC_I2S0AWB_STREAM_NAME "I2S0AWB_Capture"
+ #define MT_SOC_AWB_STREAM_NAME "MultiMedia_awb_Capture"
+ #define MT_SOC_DAI_STREAM_NAME "MultiMedia_dai_Capture"
+-#define MT_SOC_MODDAI_STREAM_NAME "MultiMedia_Moddai_Capture"
++#define MT_SOC_MODDAI_STREAM_NAME "Moddai_Capture"
+ #define MT_SOC_ROUTING_STREAM_NAME "MultiMedia_Routing"
+ #define MT_SOC_HP_IMPEDANCE_STREAM_NAME "HP_IMPEDANCE_Playback"
+ #define MT_SOC_FM_MRGTX_STREAM_NAME "FM_MRGTX_Playback"
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/Makefile b/kernel/sound/soc/mediatek/mt_soc_audio_v1/Makefile
+index 7f958ad..5206aa8 100755
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/Makefile
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/Makefile
+@@ -6,7 +6,7 @@ obj-$(CONFIG_MT_SND_SOC_V1) += mt_soc_pcm_voice.o mt_soc_pcm_voice_ext.o mt_soc_
+ obj-$(CONFIG_MT_SND_SOC_V1) += mt_soc_pcm_hdmi.o mt_soc_pcm_dl1_i2s0.o mt_soc_pcm_dl1_i2s0Dl1.o mt_soc_pcm_i2s0_awb.o 
+ obj-$(CONFIG_MT_SND_SOC_V1) += mt_soc_pcm_uldlloopback.o 
+ obj-$(CONFIG_MT_SND_SOC_V1) += mt_soc_pcm_mrgrx.o mt_soc_pcm_mrgrx_awb.o 
+-obj-$(CONFIG_MT_SND_SOC_V1) += mt_soc_pcm_dl1_awb.o mt_soc_pcm_dl1_bt.o mt_soc_pcm_bt_dai.o
++obj-$(CONFIG_MT_SND_SOC_V1) += mt_soc_pcm_dl1_awb.o mt_soc_pcm_dl1_bt.o mt_soc_pcm_bt_dai.o mt_soc_pcm_mod_dai.o 
+ obj-$(CONFIG_MT_SND_SOC_V1) += mt_soc_dai_stub.o mt_soc_dai_routing.o mt_soc_codec_dummy.o mt_soc_codec_63xx.o mt_soc_pcm_fmtx.o mt_soc_tdm_capture.o
+ obj-$(CONFIG_MT_SND_SOC_V1) += mt_soc_pcm_hp_impedance.o
+ obj-$(CONFIG_MT_SND_SOC_V1) += mt_soc_machine.o
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_afe_control.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_afe_control.c
+index 4a46b4d..7fa384a 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_afe_control.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_afe_control.c
+@@ -128,6 +128,7 @@ static bool Audio2ndAdcI2SStatus = false;
+ static bool AudioMrgStatus = false;
+ static bool mAudioInit = false;
+ static bool mPcm2AsyncFifoSel = true;
++static AudioSpeakerProtectUsingSram = false;
+ 
+ static AudioDigtalI2S *AudioAdcI2S = NULL;
+ static AudioDigtalI2S *m2ndI2S = NULL; // input
+@@ -238,19 +239,22 @@ unsigned int GetSramState(void)
+ 
+ void SetSramState(unsigned int State)
+ {
+-    printk("%s state= %d\n", __func__, State);
++    printk("%s state= %d, %d\n", __func__, mAudioSramManager.mMemoryState, State);
+     mAudioSramManager.mMemoryState |= State;
+ }
+ 
+ void ClearSramState(unsigned int State)
+ {
+-    printk("%s state= %d\n", __func__, State);
++    printk("%s state= %d, %d\n", __func__, mAudioSramManager.mMemoryState, State);
+     mAudioSramManager.mMemoryState &= (~State);
+ }
+ 
+ unsigned int GetPLaybackSramFullSize(void)
+ {
+-    return AudioSramPlaybackFullSize;
++    if(AudioSpeakerProtectUsingSram)
++        return AudioSramPlaybackPartialSize;
++    else
++        return AudioSramPlaybackFullSize;
+ }
+ 
+ unsigned int GetPLaybackSramPartial(void)
+@@ -273,11 +277,21 @@ size_t GetCaptureDramSize(void)
+     return AudioDramCaptureSize;
+ }
+ 
++void SetAudioSpeakerProtectSram(bool enable)
++{
++    AudioSpeakerProtectUsingSram = enable;
++}
++
++bool GetAudioSpeakerProtectSram(void)
++{
++    return AudioSpeakerProtectUsingSram;
++}
++
+ // function get internal mode status.
+ bool get_internalmd_status(void)
+ {
+     bool ret = (get_voice_bt_status() || get_voice_status());
+-    return (mExternalModemStatus == true) ? false : ret;
++    return ret;
+ }
+ 
+ void DumpMemifSubStream(void)
+@@ -371,6 +385,10 @@ void SetExternalModemStatus(const bool bEnable)
+     mExternalModemStatus = bEnable;
+ }
+ 
++bool GetExternalModemStatus()
++{
++     return mExternalModemStatus ;
++}
+ 
+ /*****************************************************************************
+  * FUNCTION
+@@ -558,6 +576,10 @@ irqreturn_t AudDrv_IRQ_handler(int irq, void *dev_id)
+         {
+             Auddrv_UL2_Interrupt_Handler();
+         }
++        if (mAudioMEMIF[Soc_Aud_Digital_Block_MEM_MOD_DAI]->mState == true)
++        {
++            Auddrv_MOD_DAI_Interrupt_Handler();
++        }
+     }
+     if (u4RegValue & INTERRUPT_IRQ3_MCU)
+     {
+@@ -3031,6 +3053,65 @@ void Auddrv_DAI_Interrupt_Handler(void)
+     }
+ }
+ 
++void Auddrv_MOD_DAI_Interrupt_Handler(void)
++{
++    AFE_MEM_CONTROL_T *Mem_Block = AFE_Mem_Control_context[Soc_Aud_Digital_Block_MEM_MOD_DAI];
++    kal_uint32 HW_Cur_ReadIdx = 0;
++    kal_int32 Hw_Get_bytes = 0;
++    AFE_BLOCK_T  *mBlock = NULL;
++    substreamList *Temp = NULL;
++
++    if (Mem_Block == NULL)
++    {
++        return;
++    }
++    mBlock = &Mem_Block->rBlock;
++    HW_Cur_ReadIdx = Afe_Get_Reg(AFE_MOD_DAI_CUR);
++
++    if (CheckSize(HW_Cur_ReadIdx))
++    {
++        return;
++    }
++    if (mBlock->pucVirtBufAddr  == NULL)
++    {
++        return;
++    }
++
++    // HW already fill in
++    Hw_Get_bytes = (HW_Cur_ReadIdx - mBlock->pucPhysBufAddr) - mBlock->u4WriteIdx;
++    if (Hw_Get_bytes < 0)
++    {
++        Hw_Get_bytes += mBlock->u4BufferSize;
++    }
++
++    PRINTK_AUD_MODDAI("Auddrv_MOD_DAI_Interrupt_Handler Hw_Get_bytes:0x%x, HW_Cur_ReadIdx:0x%x, u4DMAReadIdx:0x%x, u4WriteIdx:0x%x, pucPhysBufAddr:0x%x Mem_Block->MemIfNum = %d \n",
++                   Hw_Get_bytes, HW_Cur_ReadIdx, mBlock->u4DMAReadIdx, mBlock->u4WriteIdx, mBlock->pucPhysBufAddr, Mem_Block->MemIfNum);
++
++    mBlock->u4WriteIdx  += Hw_Get_bytes;
++    mBlock->u4WriteIdx  %= mBlock->u4BufferSize;
++    mBlock->u4DataRemained += Hw_Get_bytes;
++
++    // buffer overflow
++    if (mBlock->u4DataRemained > mBlock->u4BufferSize)
++    {
++        PRINTK_AUD_MODDAI("Auddrv_MOD_DAI_Interrupt_Handler buffer overflow u4DMAReadIdx:%x, u4WriteIdx:%x, u4DataRemained:%x, u4BufferSize:%x \n",
++                       mBlock->u4DMAReadIdx, mBlock->u4WriteIdx, mBlock->u4DataRemained, mBlock->u4BufferSize);
++        /*
++        mBlock->u4DataRemained = mBlock->u4BufferSize / 2;
++        mBlock->u4DMAReadIdx = mBlock->u4WriteIdx - mBlock->u4BufferSize / 2;
++        if (mBlock->u4DMAReadIdx < 0)
++        {
++            mBlock->u4DMAReadIdx += mBlock->u4BufferSize;
++        }*/
++    }
++    Mem_Block->interruptTrigger = 1;
++    Temp = AFE_Mem_Control_context[Soc_Aud_Digital_Block_MEM_MOD_DAI]->substreamL;
++    if(Temp != NULL)
++    {
++        snd_pcm_period_elapsed(Temp->substream);
++    }
++}
++
+ void Auddrv_DL1_Interrupt_Handler(void)  // irq1 ISR handler
+ {
+     kal_int32 Afe_consumed_bytes = 0;
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_afe_control.h b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_afe_control.h
+index 1b9b43e..a3643a7 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_afe_control.h
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_afe_control.h
+@@ -174,6 +174,7 @@ void Auddrv_AWB_Interrupt_Handler(void);
+ void Auddrv_DAI_Interrupt_Handler(void);
+ void Auddrv_HDMI_Interrupt_Handler(void);
+ void Auddrv_UL2_Interrupt_Handler(void);
++void Auddrv_MOD_DAI_Interrupt_Handler(void);
+ void Clear_Mem_CopySize(Soc_Aud_Digital_Block MemBlock);
+ kal_uint32 Get_Mem_CopySizeByStream(Soc_Aud_Digital_Block MemBlock,struct snd_pcm_substream *substream);
+ kal_uint32 Get_Mem_MaxCopySize(Soc_Aud_Digital_Block MemBlock);
+@@ -200,11 +201,14 @@ unsigned int GetPLaybackSramFullSize(void);
+ unsigned int GetPLaybackSramPartial(void);
+ unsigned int GetPLaybackDramSize(void);
+ size_t GetCaptureDramSize(void);
++void SetAudioSpeakerProtectSram(bool enable);
++bool GetAudioSpeakerProtectSram(void);
+ 
+ //offsetTrimming
+ void OpenAfeDigitaldl1(bool bEnable);
+ 
+ void SetExternalModemStatus(const bool bEnable);
++bool GetExternalModemStatus();
+ 
+ 
+ #endif
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c
+index fb97945..2860b0e 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_codec_63xx.c
+@@ -1330,6 +1330,17 @@ static struct snd_soc_dai_driver mtk_6331_dai_codecs[] =
+             .formats = SND_SOC_ADV_MT_FMTS,
+         },
+     },
++   {
++        .name = MT_SOC_CODEC_MOD_DAI_NAME,
++        .ops = &mt6323_aif1_dai_ops,
++        .capture = {
++            .stream_name = MT_SOC_MODDAI_STREAM_NAME,
++            .channels_min = 1,
++            .channels_max = 2,
++            .rates = SNDRV_PCM_RATE_8000_48000,
++            .formats = SND_SOC_ADV_MT_FMTS,
++        },
++    },
+ };
+ 
+ 
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_dai_stub.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_dai_stub.c
+index c020a5e..da9bd69 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_dai_stub.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_dai_stub.c
+@@ -521,6 +521,19 @@ static struct snd_soc_dai_driver mtk_dai_stub_dai[] =
+         .name = MT_SOC_HP_IMPEDANCE_NAME,
+         .ops = &mtk_dai_stub_ops,
+     },
++    {
++        .capture = {
++            .stream_name = MT_SOC_MODDAI_STREAM_NAME,
++            .rates = SNDRV_PCM_RATE_8000_48000,
++            .formats = SNDRV_PCM_FMTBIT_S16_LE,
++            .channels_min = 1,
++            .channels_max = 2,
++            .rate_min = 8000,
++            .rate_max = 32000,
++        },
++        .name = MT_SOC_MOD_DAI_NAME,
++        .ops = &mtk_dai_stub_ops,
++    },
+ };
+ 
+ 
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_digital_type.h b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_digital_type.h
+index 77190cf..c490399 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_digital_type.h
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_digital_type.h
+@@ -627,6 +627,9 @@ typedef enum
+     SRAM_STATE_PLAYBACKPARTIAL =0x2 ,
+     SRAM_STATE_CAPTURE  =0x4,
+     SRAM_STATE_PLAYBACKDRAM  =0x8,
++    SRAM_STATE_SPH_SPK_MNTR_CAPTURE_DL = 0x10,
++    SRAM_STATE_SPH_SPK_MNTR_PROCESS_DL = 0x20,
++    SRAM_STATE_SPH_SPK_MNTR_SENSE_IV = 0x40,
+ } AUDIO_SRAM_STATE;
+ 
+ typedef struct
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_machine.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_machine.c
+index 8202d5c..99037a7 100755
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_machine.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_machine.c
+@@ -966,6 +966,16 @@ static struct snd_soc_dai_link mt_soc_dai_common[] =
+         .ops = &mt_machine_audio_ops,
+     },
+ 
++    {
++        .name = "MOD_DAI_CAPTURE",
++        .stream_name = MT_SOC_MODDAI_STREAM_NAME,
++        .cpu_dai_name   = MT_SOC_MOD_DAI_NAME,
++        .platform_name  = MT_SOC_MOD_DAI_PCM,
++        .codec_dai_name = MT_SOC_CODEC_MOD_DAI_NAME,
++        .codec_name = MT_SOC_CODEC_NAME,
++        .init = mt_soc_audio_init,
++        .ops = &mt_machine_audio_ops,
++    },
+ };
+ 
+ static const char *I2S_low_jittermode[] = {"Off", "On"};
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c
+index 70cf50b..5eb5f11 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_capture2.c
+@@ -63,6 +63,7 @@ AFE_MEM_CONTROL_T  *VUL2_Control_context;
+ static struct snd_dma_buffer *Capture_dma_buf  = NULL;
+ static AudioDigtalI2S *mAudioDigitalI2S = NULL;
+ static DEFINE_SPINLOCK(auddrv_ULInCtl_lock);
++static bool mUL2UseSram = false;
+ 
+ /*
+  *    function implementation
+@@ -249,7 +250,14 @@ static int mtk_capture2_pcm_hw_params(struct snd_pcm_substream *substream,
+     dma_buf->private_data = NULL;
+     printk("Capture2_dma_buf = %p Capture2_dma_buf->area = %p\n", Capture_dma_buf, Capture_dma_buf->area);
+ 
+-    if (Capture_dma_buf->area)
++    if (mUL2UseSram == true)
++    {
++        runtime->dma_bytes = params_buffer_bytes(hw_params);
++        printk("mtk_capture2_pcm_hw_params mUL2UseSram dma_bytes = %d \n", runtime->dma_bytes);
++        substream->runtime->dma_area = (unsigned char *)Get_Afe_SramSphUL2Base_Pointer();
++        substream->runtime->dma_addr = Get_Afe_Sram_SphUL2_Phys_Addr();
++    }
++    else if (Capture_dma_buf->area)
+     {
+         printk("mtk_capture2_pcm_hw_params Capture_dma_buf->area\n");
+         runtime->dma_bytes = Capture_dma_buf->bytes;
+@@ -302,6 +310,22 @@ static int mtk_capture2_pcm_open(struct snd_pcm_substream *substream)
+     printk("%s \n", __func__);
+     VUL2_Control_context = Get_Mem_ControlT(Soc_Aud_Digital_Block_MEM_VUL_DATA2);
+ 
++    // can allocate sram_dbg
++    AfeControlSramLock();
++    if ((GetAudioSpeakerProtectSram() == true) && ((GetSramState() & SRAM_STATE_CAPTURE) == 0))
++    {
++        mtk_capture2_hardware.buffer_bytes_max = UL2_MAX_BUFFER_SIZE;
++        printk("mtk_capture2_pcm_open use sram %d\n", mtk_capture2_hardware.buffer_bytes_max);
++        SetSramState(SRAM_STATE_SPH_SPK_MNTR_SENSE_IV);
++        mUL2UseSram = true;
++    }
++    else
++    {
++        printk("mtk_capture2_pcm_open use dram \n");
++        mtk_capture2_hardware.buffer_bytes_max = UL2_MAX_BUFFER_SIZE;
++    }
++    AfeControlSramUnLock();
++    
+     runtime->hw = mtk_capture2_hardware;
+     memcpy((void *)(&(runtime->hw)), (void *)&mtk_capture2_hardware , sizeof(struct snd_pcm_hardware));
+     printk("runtime->hw->rates = 0x%x \n ", runtime->hw.rates);
+@@ -330,8 +354,8 @@ static int mtk_capture2_pcm_open(struct snd_pcm_substream *substream)
+         mtk_capture2_pcm_close(substream);
+         return ret;
+     }
+-    //if(mCaptureUseSram == false)
+-    {//Currently capture2 always use DRAM
++    if(mUL2UseSram == false)
++    {
+         AudDrv_Emi_Clk_On();
+     }
+     printk("mtk_capture2_pcm_open return\n");
+@@ -340,9 +364,15 @@ static int mtk_capture2_pcm_open(struct snd_pcm_substream *substream)
+ 
+ static int mtk_capture2_pcm_close(struct snd_pcm_substream *substream)
+ {
+-    printk("%s \n", __func__);
+-    //if(mCaptureUseSram == false)
+-    {//Currently capture2 always use DRAM
++    if (mUL2UseSram == true)
++    {
++        AfeControlSramLock();
++        ClearSramState(SRAM_STATE_SPH_SPK_MNTR_SENSE_IV);
++        mUL2UseSram = false;
++        AfeControlSramUnLock();
++    }
++    else
++    {
+         AudDrv_Emi_Clk_Off();
+     }
+     AudDrv_ADC2_Clk_Off();
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_common.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_common.c
+index 99647d0..45e9524 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_common.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_common.c
+@@ -46,6 +46,14 @@ unsigned long audio_frame_to_bytes(struct snd_pcm_substream *substream,unsigned
+     {
+         bytes = bytes << 1;
+     }
++    else if (runtime->channels == 4)
++    {
++        bytes = bytes << 2;
++    }   
++    else if (runtime->channels != 1)
++    {
++        bytes = bytes << 3;
++    }      
+     //printk("%s bytes = %d count = %d\n",__func__,bytes,count);
+     return bytes;
+ }
+@@ -67,6 +75,14 @@ unsigned long audio_bytes_to_frame(struct snd_pcm_substream *substream,unsigned
+     {
+         count = count >>1;
+     }
++    else if (runtime->channels == 4)
++    {
++        count = count >> 2;
++    }   
++    else if (runtime->channels != 1)
++    {
++        count = count >> 3;
++    }    
+     //printk("%s bytes = %d count = %d\n",__func__,bytes,count);
+     return count;
+ }
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_common.h b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_common.h
+index f616bd9..4e29da2 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_common.h
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_common.h
+@@ -117,10 +117,14 @@ define for PCM settings
+ #define UL1_MIN_PERIOD_SIZE       1
+ #define UL1_MAX_PERIOD_SIZE     UL1_MAX_BUFFER_SIZE
+ 
+-#define UL2_MAX_BUFFER_SIZE     (64*1024)
++#define UL2_MAX_BUFFER_SIZE     (8*1024)
+ #define UL2_MIN_PERIOD_SIZE       1
+ #define UL2_MAX_PERIOD_SIZE     UL2_MAX_BUFFER_SIZE
+ 
++#define MOD_DAI_MAX_BUFFER_SIZE     (8*1024)
++#define MOD_DAI_MIN_PERIOD_SIZE       1
++#define MOD_DAI_MAX_PERIOD_SIZE     MOD_DAI_MAX_BUFFER_SIZE
++
+ #define AWB_MAX_BUFFER_SIZE     (64*1024)
+ #define AWB_MIN_PERIOD_SIZE       1
+ #define AWB_MAX_PERIOD_SIZE     AWB_MAX_BUFFER_SIZE
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_dl1_bt.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_dl1_bt.c
+index 98de45d..f43069f 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_dl1_bt.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_dl1_bt.c
+@@ -60,6 +60,8 @@
+ #include "mt_soc_pcm_common.h"
+ 
+ static AFE_MEM_CONTROL_T *pdl1btMemControl = NULL;
++static int mPlaybackSramState =0;
++static struct snd_dma_buffer *Dl1_Playback_dma_buf  = NULL;
+ 
+ static DEFINE_SPINLOCK(auddrv_DL1BTCtl_lock);
+ 
+@@ -153,24 +155,53 @@ static snd_pcm_uframes_t mtk_dl1bt_pcm_pointer(struct snd_pcm_substream *substre
+ }
+ 
+ 
++static void SetDL1Buffer(struct snd_pcm_substream *substream,
++                         struct snd_pcm_hw_params *hw_params)
++{
++    struct snd_pcm_runtime *runtime = substream->runtime;
++    AFE_BLOCK_T *pblock = &pdl1btMemControl->rBlock;
++    pblock->pucPhysBufAddr =  runtime->dma_addr;
++    pblock->pucVirtBufAddr =  runtime->dma_area;
++    pblock->u4BufferSize = runtime->dma_bytes;
++    pblock->u4SampleNumMask = 0x001f;  // 32 byte align
++    pblock->u4WriteIdx     = 0;
++    pblock->u4DMAReadIdx    = 0;
++    pblock->u4DataRemained  = 0;
++    pblock->u4fsyncflag     = false;
++    pblock->uResetFlag      = true;
++    printk("SetDL1Buffer u4BufferSize = %d pucVirtBufAddr = %p pucPhysBufAddr = 0x%x\n",
++           pblock->u4BufferSize, pblock->pucVirtBufAddr, pblock->pucPhysBufAddr);
++    // set dram address top hardware
++    Afe_Set_Reg(AFE_DL1_BASE , pblock->pucPhysBufAddr , 0xffffffff);
++    Afe_Set_Reg(AFE_DL1_END  , pblock->pucPhysBufAddr + (pblock->u4BufferSize - 1), 0xffffffff);
++    memset((void*)pblock->pucVirtBufAddr,0,pblock->u4BufferSize);
++
++}
++
++
+ static int mtk_pcm_dl1bt_hw_params(struct snd_pcm_substream *substream,
+                                    struct snd_pcm_hw_params *hw_params)
+ {
+-    struct snd_dma_buffer *dma_buf = &substream->dma_buffer;
+     int ret = 0;
+-    PRINTK_AUDDRV("mtk_pcm_dl1bt_hw_params \n");
+-
+-    /* runtime->dma_bytes has to be set manually to allow mmap */
+     substream->runtime->dma_bytes = params_buffer_bytes(hw_params);
+-
+-    // here to allcoate sram to hardware ---------------------------
+-    AudDrv_Allocate_mem_Buffer(Soc_Aud_Digital_Block_MEM_DL1, substream->runtime->dma_bytes);
+-    //substream->runtime->dma_bytes = AFE_INTERNAL_SRAM_SIZE;
+-    substream->runtime->dma_area = (unsigned char *)Get_Afe_SramBase_Pointer();
+-    substream->runtime->dma_addr = AFE_INTERNAL_SRAM_PHY_BASE;
+-
+-    PRINTK_AUDDRV(" dma_bytes = %d dma_area = %p dma_addr = 0x%x\n",
++    if(mPlaybackSramState == SRAM_STATE_PLAYBACKFULL)
++    {
++        //substream->runtime->dma_bytes = AFE_INTERNAL_SRAM_SIZE;
++        substream->runtime->dma_area = (unsigned char *)Get_Afe_SramBase_Pointer();
++        substream->runtime->dma_addr = AFE_INTERNAL_SRAM_PHY_BASE;
++        AudDrv_Allocate_DL1_Buffer( substream->runtime->dma_bytes);
++    }
++    else
++    {
++        substream->runtime->dma_bytes = params_buffer_bytes(hw_params);
++        substream->runtime->dma_area = Dl1_Playback_dma_buf->area;
++        substream->runtime->dma_addr = Dl1_Playback_dma_buf->addr;
++        SetDL1Buffer(substream, hw_params);
++    }
++    // -------------------------------------------------------
++    printk("%s dma_bytes = %d dma_area = %p dma_addr = 0x%x\n",__func__,
+                   substream->runtime->dma_bytes, substream->runtime->dma_area, substream->runtime->dma_addr);
++
+     return ret;
+ }
+ 
+@@ -187,7 +218,6 @@ static struct snd_pcm_hw_constraint_list constraints_dl1_sample_rates =
+     .mask = 0,
+ };
+ 
+-static int mPlaybackSramState =0;
+ static int mtk_dl1bt_pcm_open(struct snd_pcm_substream *substream)
+ {
+     int ret = 0;
+@@ -207,6 +237,11 @@ static int mtk_dl1bt_pcm_open(struct snd_pcm_substream *substream)
+     }
+     AfeControlSramUnLock();
+ 
++    if(mPlaybackSramState == SRAM_STATE_PLAYBACKDRAM)
++    {
++        AudDrv_Emi_Clk_On();
++    }
++
+     PRINTK_AUDDRV("mtk_dl1bt_pcm_open\n");
+     AudDrv_Clk_On();
+ 
+@@ -252,6 +287,10 @@ static int mtk_dl1bt_pcm_open(struct snd_pcm_substream *substream)
+ static int mtk_Dl1Bt_close(struct snd_pcm_substream *substream)
+ {
+     PRINTK_AUDDRV("%s \n", __func__);
++    if(mPlaybackSramState == SRAM_STATE_PLAYBACKDRAM)
++    {
++        AudDrv_Emi_Clk_Off();
++    }
+     AfeControlSramLock();
+     ClearSramState(mPlaybackSramState);
+     mPlaybackSramState = GetSramState();
+@@ -560,6 +599,9 @@ static int mtk_asoc_Dl1Bt_pcm_new(struct snd_soc_pcm_runtime *rtd)
+ static int mtk_asoc_dl1bt_probe(struct snd_soc_platform *platform)
+ {
+     PRINTK_AUDDRV("mtk_asoc_dl1bt_probe\n");
++    // allocate dram
++    AudDrv_Allocate_mem_Buffer(Soc_Aud_Digital_Block_MEM_DL1, Dl1_MAX_BUFFER_SIZE);
++    Dl1_Playback_dma_buf =  Get_Mem_Buffer(Soc_Aud_Digital_Block_MEM_DL1);
+     return 0;
+ }
+ 
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_dl1_i2s0Dl1.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_dl1_i2s0Dl1.c
+index a3eda0b..66fe284 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_dl1_i2s0Dl1.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_dl1_i2s0Dl1.c
+@@ -74,13 +74,18 @@ static int mtk_asoc_pcm_I2S0dl1_new(struct snd_soc_pcm_runtime *rtd);
+ static int mtk_afe_I2S0dl1_probe(struct snd_soc_platform *platform);
+ 
+ static int mI2S0dl1_hdoutput_control = false;
++static int mDl1_md_echo_ref_control = false;
+ static bool mPrepareDone = false;
+ 
+ static const char *I2S0dl1_HD_output[] = {"Off", "On"};
++static const char *Audio_D11_MD_Echo_Ref[] = {"Off", "On"};
++static const char *Audio_Speaker_Protection_SRAM[] = {"Off", "On"};
+ 
+ static const struct soc_enum Audio_I2S0dl1_Enum[] =
+ {
+     SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(I2S0dl1_HD_output), I2S0dl1_HD_output),
++    SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(Audio_D11_MD_Echo_Ref), Audio_D11_MD_Echo_Ref),
++    SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(Audio_Speaker_Protection_SRAM), Audio_Speaker_Protection_SRAM),
+ };
+ 
+ 
+@@ -124,10 +129,85 @@ static int Audio_I2S0dl1_hdoutput_Set(struct snd_kcontrol *kcontrol, struct snd_
+     return 0;
+ }
+ 
++static int Audio_Speaker_Protection_SRAM_Get(struct snd_kcontrol *kcontrol,
++                                      struct snd_ctl_elem_value *ucontrol)
++{
++    bool useSram;
++    useSram = GetAudioSpeakerProtectSram();
++    //printk("%s() = %d\n", __func__, useSram);
++    ucontrol->value.integer.value[0] = (int)useSram;
++    return 0;
++}
++
++static int Audio_Speaker_Protection_SRAM_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
++{
++    int useSram;
++    printk("%s() %d\n", __func__, (int)ucontrol->value.integer.value[0]);
++    if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Audio_Speaker_Protection_SRAM))
++    {
++        printk("return -EINVAL\n");
++        return -EINVAL;
++    }
++    useSram = ucontrol->value.integer.value[0];
++    if(useSram)
++    {
++        SetAudioSpeakerProtectSram(true);
++    }
++    else
++    {
++        SetAudioSpeakerProtectSram(false);
++    }
++    return 0;
++}
++
++static int Audio_Dl1_MD_Echo_Ref_Get(struct snd_kcontrol *kcontrol,
++                                      struct snd_ctl_elem_value *ucontrol)
++{
++    printk("Audio_Dl1_MD_Echo_Ref_Get = %d\n", mDl1_md_echo_ref_control);
++    ucontrol->value.integer.value[0] = mDl1_md_echo_ref_control;
++    return 0;
++}
++
++static int Audio_Dl1_MD_Echo_Ref_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
++{
++    printk("%s() %d\n", __func__, ucontrol->value.integer.value[0]);
++    if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(Audio_D11_MD_Echo_Ref))
++    {
++        printk("return -EINVAL\n");
++        return -EINVAL;
++    }
++    mDl1_md_echo_ref_control = ucontrol->value.integer.value[0];
++    if (mDl1_md_echo_ref_control)
++    {
++        uint16 samplerate;
++        samplerate = 16000;
++        // here start digital part
++        //printk("%s() Soc_Aud_InterCon_Connection  I0  O14\n",  __func__);
++        //phone call echo reference connection: I0/I1->O13/O14(HW Gain1)->I11 ->O24
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I06, Soc_Aud_InterConnectionOutput_O14);//0x448
++        //printk("%s() Soc_Aud_InterCon_Connection  I11  O24\n",  __func__);
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I11, Soc_Aud_InterConnectionOutput_O24);//0x44c, 0x8
++        // Set HW_GAIN1
++        SetHwDigitalGainMode(Soc_Aud_Hw_Digital_Gain_HW_DIGITAL_GAIN1, samplerate, 0x80);
++        SetHwDigitalGainEnable(Soc_Aud_Hw_Digital_Gain_HW_DIGITAL_GAIN1, true);
++        SetHwDigitalGain(0x80000, Soc_Aud_Hw_Digital_Gain_HW_DIGITAL_GAIN1);
++        AudDrv_Clk_On();
++    }
++    else
++    {
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I11, Soc_Aud_InterConnectionOutput_O24);//0x44c, 0x8
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I06, Soc_Aud_InterConnectionOutput_O14);//0x448
++        SetHwDigitalGainEnable(Soc_Aud_Hw_Digital_Gain_HW_DIGITAL_GAIN1, false);
++        AudDrv_Clk_Off();
++    }
++    return 0;
++}
+ 
+ static const struct snd_kcontrol_new Audio_snd_I2S0dl1_controls[] =
+ {
+     SOC_ENUM_EXT("Audio_I2S0dl1_hd_Switch", Audio_I2S0dl1_Enum[0], Audio_I2S0dl1_hdoutput_Get, Audio_I2S0dl1_hdoutput_Set),
++    SOC_ENUM_EXT("Audio_Dl1_MD_Echo_Ref_Switch", Audio_I2S0dl1_Enum[1], Audio_Dl1_MD_Echo_Ref_Get, Audio_Dl1_MD_Echo_Ref_Set),
++    SOC_ENUM_EXT("Audio_Speaker_Protection_SRAM_Switch", Audio_I2S0dl1_Enum[2], Audio_Speaker_Protection_SRAM_Get, Audio_Speaker_Protection_SRAM_Set),
+ };
+ 
+ static struct snd_pcm_hardware mtk_I2S0dl1_hardware =
+@@ -259,6 +339,12 @@ static int mtk_pcm_I2S0dl1_hw_params(struct snd_pcm_substream *substream,
+         substream->runtime->dma_addr = AFE_INTERNAL_SRAM_PHY_BASE;
+         AudDrv_Allocate_DL1_Buffer( substream->runtime->dma_bytes);
+     }
++    else if(mPlaybackSramState == SRAM_STATE_SPH_SPK_MNTR_PROCESS_DL)
++    {
++        substream->runtime->dma_area = (unsigned char *)Get_Afe_SramSphDLBase_Pointer();
++        substream->runtime->dma_addr = Get_Afe_Sram_SphDL_Phys_Addr();
++        SetDL1Buffer(substream, hw_params);
++    }
+     else
+     {
+         substream->runtime->dma_bytes = params_buffer_bytes(hw_params);
+@@ -290,7 +376,14 @@ static int mtk_pcm_I2S0dl1_open(struct snd_pcm_substream *substream)
+     int ret = 0;
+     struct snd_pcm_runtime *runtime = substream->runtime;
+     AfeControlSramLock();
+-    if (GetSramState() == SRAM_STATE_FREE)
++    
++    if ((GetSramState() & SRAM_STATE_SPH_SPK_MNTR_CAPTURE_DL) != 0 || mDl1_md_echo_ref_control == true)
++    {
++        mtk_I2S0dl1_hardware.buffer_bytes_max = 0x2000;
++        mPlaybackSramState = SRAM_STATE_SPH_SPK_MNTR_PROCESS_DL;
++        SetSramState(SRAM_STATE_SPH_SPK_MNTR_PROCESS_DL);
++    }
++    else if (GetSramState() == SRAM_STATE_FREE || GetSramState() == SRAM_STATE_SPH_SPK_MNTR_SENSE_IV)
+     {
+         mtk_I2S0dl1_hardware.buffer_bytes_max = GetPLaybackSramFullSize();
+         mPlaybackSramState = SRAM_STATE_PLAYBACKFULL;
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_voice.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_voice.c
+index f0d1fd3..8becb52 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_voice.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_voice.c
+@@ -68,13 +68,14 @@ static int mtk_voice_close(struct snd_pcm_substream *substream);
+ static int mtk_soc_voice_new(struct snd_soc_pcm_runtime *rtd);
+ static int mtk_voice_platform_probe(struct snd_soc_platform *platform);
+ 
+-static bool Voice_Status = false;
++static uint16 Voice_Status = 0;
+ static bool mPreparestate = false;
+ static AudioDigtalI2S mAudioDigitalI2S;
+-
++#define VOICE_UL_ON (1<<0)
++#define VOICE_DL_ON (1<<1)
+ bool get_voice_status(void)
+ {
+-    return Voice_Status;
++    return (Voice_Status != 0) | GetExternalModemStatus();
+ }
+ EXPORT_SYMBOL(get_voice_status);
+ static AudioDigitalPCM  Voice1Pcm =
+@@ -133,7 +134,10 @@ static int mtk_voice_pcm_open(struct snd_pcm_substream *substream)
+     {
+         printk("%s  with SNDRV_PCM_STREAM_CAPTURE \n",__func__);
+         runtime->rate = 16000;
+-        return 0;
++        if(Voice_Status != 0)
++        {
++            return 0;
++        }
+     }
+     runtime->hw = mtk_pcm_hardware;
+     memcpy((void *)(&(runtime->hw)), (void *)&mtk_pcm_hardware , sizeof(struct snd_pcm_hardware));
+@@ -190,33 +194,40 @@ static int mtk_voice_close(struct snd_pcm_substream *substream)
+ {
+     printk("mtk_voice_close \n");
+ 
+-    if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
++    if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
++    {
++        printk("%s  with SNDRV_PCM_STREAM_PLAYBACK \n",__func__);
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O03);
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O04);
++        SetI2SDacEnable(false);
++        SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_OUT_DAC, false);
++        Voice_Status &= ~VOICE_DL_ON;
++        if(Voice_Status == 0)
++        {
++            SetModemPcmEnable(MODEM_1, false);
++        }
++        EnableAfe(false);
++        AudDrv_Clk_Off();
++        AudDrv_ADC_Clk_Off();
++    }
++    else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
+     {
+         printk("%s  with SNDRV_PCM_STREAM_CAPTURE \n",__func__);
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I03, Soc_Aud_InterConnectionOutput_O17);
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I04, Soc_Aud_InterConnectionOutput_O18);
++        SetI2SAdcEnable(false);
++        SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_IN_ADC, false);
++        
++        Voice_Status &= ~VOICE_UL_ON;
++        if(Voice_Status == 0)
++        {
++            SetModemPcmEnable(MODEM_1, false);
++        }
++        EnableAfe(false);
+         AudDrv_Clk_Off();
+         AudDrv_ADC_Clk_Off();
+-        return 0;
+     }
+-
+-    //  todo : enable sidetone
+-    // here start digital part
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I03, Soc_Aud_InterConnectionOutput_O17);
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I04, Soc_Aud_InterConnectionOutput_O18);
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O03);
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O04);
+-
+-    SetI2SAdcEnable(false);
+-    SetI2SDacEnable(false);
+-    SetModemPcmEnable(MODEM_1, false);
+-    SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_OUT_DAC, false);
+-    SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_IN_ADC, false);
+-
+-    EnableAfe(false);
+-    AudDrv_Clk_Off();
+-    AudDrv_ADC_Clk_Off();
+-
+-    Voice_Status = false;
+-
++    
+     return 0;
+ }
+ 
+@@ -259,38 +270,48 @@ static struct page *mtk_pcm_page(struct snd_pcm_substream *substream,
+ static int mtk_voice1_prepare(struct snd_pcm_substream *substream)
+ {
+     struct snd_pcm_runtime *runtimeStream = substream->runtime;
+-    printk("mtk_alsa_prepare rate = %d  channels = %d period_size = %lu\n",
++    printk("mtk_voice1_prepare rate = %d  channels = %d period_size = %lu\n",
+            runtimeStream->rate, runtimeStream->channels, runtimeStream->period_size);
+ 
+-    if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
++    if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
++    {
++        printk("%s  with SNDRV_PCM_STREAM_PLAYBACK \n",__func__);
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O03);
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O04);
++        // start I2S DAC out
++        SetI2SDacOut(substream->runtime->rate);
++        SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_OUT_DAC, true);
++        SetI2SDacEnable(true);
++        EnableAfe(true);
++    }
++    else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
+     {
+         printk("%s  with SNDRV_PCM_STREAM_CAPTURE \n",__func__);
+-        return 0;
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I03, Soc_Aud_InterConnectionOutput_O17);
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I04, Soc_Aud_InterConnectionOutput_O18);
++        ConfigAdcI2S(substream);
++        SetI2SAdcIn(&mAudioDigitalI2S);
++        SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_IN_ADC, true);
++        SetI2SAdcEnable(true);
++        EnableAfe(true);
++        
+     }
+-    // here start digital part
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I03, Soc_Aud_InterConnectionOutput_O17);
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I04, Soc_Aud_InterConnectionOutput_O18);
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O03);
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O04);
+-
+-    // start I2S DAC out
+-    SetI2SDacOut(substream->runtime->rate);
+-    SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_OUT_DAC, true);
+-
+-    ConfigAdcI2S(substream);
+-    SetI2SAdcIn(&mAudioDigitalI2S);
+-    SetI2SDacEnable(true);
+-
+-    SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_IN_ADC, true);
+-    SetI2SAdcEnable(true);
+-    EnableAfe(true);
+-    Voice1Pcm.mPcmModeWidebandSel = (runtimeStream->rate == 8000) ? Soc_Aud_PCM_MODE_PCM_MODE_8K : Soc_Aud_PCM_MODE_PCM_MODE_16K;
+-    Voice1Pcm.mAsyncFifoSel = Soc_Aud_BYPASS_SRC_SLAVE_USE_ASYNC_FIFO;
+-    SetModemPcmConfig(MODEM_1, Voice1Pcm);
+-    SetModemPcmEnable(MODEM_1, true);
+-
+-    Voice_Status = true;
+-
++    if(Voice_Status == 0)
++    {
++        Voice1Pcm.mPcmModeWidebandSel = (runtimeStream->rate == 8000) ? Soc_Aud_PCM_MODE_PCM_MODE_8K : Soc_Aud_PCM_MODE_PCM_MODE_16K;
++        Voice1Pcm.mAsyncFifoSel = Soc_Aud_BYPASS_SRC_SLAVE_USE_ASYNC_FIFO;
++        SetModemPcmConfig(MODEM_1, Voice1Pcm);
++        SetModemPcmEnable(MODEM_1, true);
++    }
++    if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
++    {
++        Voice_Status |= VOICE_DL_ON;
++    }
++    else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
++    {
++        Voice_Status |= VOICE_UL_ON;
++    }
++    
+     return 0;
+ }
+ 
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_voice_extint.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_voice_extint.c
+index 64c30be..71d86e6 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_voice_extint.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_voice_extint.c
+@@ -68,13 +68,21 @@ static int mtk_voice_extint_close(struct snd_pcm_substream *substream);
+ static int mtk_soc_voice_extint_new(struct snd_soc_pcm_runtime *rtd);
+ static int mtk_voice_extint_platform_probe(struct snd_soc_platform *platform);
+ 
+-static bool Voice_ExtInt_Status = false;
+-static bool mPreparestate = false;
++static uint16 Voice_ExtInt_Status = 0;
+ static AudioDigtalI2S mAudioDigitalI2S;
++#define VOICE_UL_ON (1<<0)
++#define VOICE_DL_ON (1<<1)
+ 
+ bool get_voice_extint_status(void)
+ {
+-    return Voice_ExtInt_Status;
++    if(Voice_ExtInt_Status == 0)
++    {
++        return false;
++    }
++    else
++    {
++        return true;
++    }
+ }
+ EXPORT_SYMBOL(get_voice_extint_status);
+ static AudioDigitalPCM  VoiceExtIntPcm_Ext =
+@@ -149,7 +157,10 @@ static int mtk_voice_extint_pcm_open(struct snd_pcm_substream *substream)
+     {
+         printk("%s  with SNDRV_PCM_STREAM_CAPTURE \n",__func__);
+         runtime->rate = 16000;
+-        return 0;
++        if(Voice_ExtInt_Status != 0)
++        {
++            return 0;
++        }
+     }
+     runtime->hw = mtk_pcm_hardware;
+     memcpy((void *)(&(runtime->hw)), (void *)&mtk_pcm_hardware , sizeof(struct snd_pcm_hardware));
+@@ -206,37 +217,48 @@ static int mtk_voice_extint_close(struct snd_pcm_substream *substream)
+ {
+     printk("mtk_voice_extint_close \n");
+ 
+-    if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
++    if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+     {
+         printk("%s  with SNDRV_PCM_STREAM_CAPTURE \n",__func__);
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O03);
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O04);
++        SetI2SDacEnable(false);
++        SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_OUT_DAC, false);
++        Voice_ExtInt_Status &= ~VOICE_DL_ON;
++        if(Voice_ExtInt_Status == 0)
++        {
++            SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O07);
++            SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O08);
++            SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I09, Soc_Aud_InterConnectionOutput_O25);
++            SetModemPcmEnable(MODEM_EXTERNAL, false);
++            SetModemPcmEnable(MODEM_1, false);
++            SetExternalModemStatus(false);
++        }
++        EnableAfe(false);
++        AudDrv_Clk_Off();
++        AudDrv_ADC_Clk_Off();
++    }
++    else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
++    {
++        printk("%s  with SNDRV_PCM_STREAM_CAPTURE \n",__func__);
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I03, Soc_Aud_InterConnectionOutput_O17);
++        SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I04, Soc_Aud_InterConnectionOutput_O18);
++        SetI2SAdcEnable(false);
++        SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_IN_ADC, false);
++        Voice_ExtInt_Status &= ~VOICE_UL_ON;
++        if(Voice_ExtInt_Status == 0)
++        {
++            SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O07);
++            SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O08);
++            SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I09, Soc_Aud_InterConnectionOutput_O25);
++            SetModemPcmEnable(MODEM_EXTERNAL, false);
++            SetModemPcmEnable(MODEM_1, false);
++            SetExternalModemStatus(false);
++        }
++        EnableAfe(false);
+         AudDrv_Clk_Off();
+         AudDrv_ADC_Clk_Off();
+-        return 0;
+     }
+-
+-    //  todo : enable sidetone
+-    // here start digital part
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I03, Soc_Aud_InterConnectionOutput_O17);
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I04, Soc_Aud_InterConnectionOutput_O18);
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O07);
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O08);
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I09, Soc_Aud_InterConnectionOutput_O25);
+-    SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O03);
+-	SetConnection(Soc_Aud_InterCon_DisConnect, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O04);
+-
+-    SetI2SAdcEnable(false);
+-    SetI2SDacEnable(false);
+-    SetModemPcmEnable(MODEM_EXTERNAL, false);
+-	SetModemPcmEnable(MODEM_1, false);
+-    SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_OUT_DAC, false);
+-    SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_IN_ADC, false);
+-
+-    EnableAfe(false);
+-    AudDrv_Clk_Off();
+-    AudDrv_ADC_Clk_Off();
+-
+-    Voice_ExtInt_Status = false;
+-    SetExternalModemStatus(false);
+ 
+     return 0;
+ }
+@@ -280,45 +302,55 @@ static struct page *mtk_pcm_page(struct snd_pcm_substream *substream,
+ static int mtk_voice1_extint_prepare(struct snd_pcm_substream *substream)
+ {
+     struct snd_pcm_runtime *runtimeStream = substream->runtime;
+-    printk("mtk_alsa_prepare rate = %d  channels = %d period_size = %lu\n",
++    printk("%s rate = %d  channels = %d period_size = %lu\n", __func__,
+            runtimeStream->rate, runtimeStream->channels, runtimeStream->period_size);
+ 
+-    if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
++    if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+     {
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O03);
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O04);
++        // start I2S DAC out
++        SetI2SDacOut(substream->runtime->rate);
++        SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_OUT_DAC, true);
++        SetI2SDacEnable(true);
++        EnableAfe(true);
++        printk("%s  with SNDRV_PCM_STREAM_PLAYBACK \n",__func__);
++    }
++    else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
++    {
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I03, Soc_Aud_InterConnectionOutput_O17);
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I04, Soc_Aud_InterConnectionOutput_O18);
++        ConfigAdcI2S(substream);
++        SetI2SAdcIn(&mAudioDigitalI2S);
++        SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_IN_ADC, true);
++        SetI2SAdcEnable(true);
++        EnableAfe(true);
+         printk("%s  with SNDRV_PCM_STREAM_CAPTURE \n",__func__);
+-        return 0;
+     }
+     // here start digital part
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I03, Soc_Aud_InterConnectionOutput_O17);
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I04, Soc_Aud_InterConnectionOutput_O18);
+-	SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O07);
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O08);
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I09, Soc_Aud_InterConnectionOutput_O25);
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O03);
+-    SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I14, Soc_Aud_InterConnectionOutput_O04);
+-
+-    // start I2S DAC out
+-    SetI2SDacOut(substream->runtime->rate);
+-    SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_OUT_DAC, true);
+-
+-    ConfigAdcI2S(substream);
+-    SetI2SAdcIn(&mAudioDigitalI2S);
+-    SetI2SDacEnable(true);
+-
+-    SetMemoryPathEnable(Soc_Aud_Digital_Block_I2S_IN_ADC, true);
+-    SetI2SAdcEnable(true);
+-    EnableAfe(true);
+-    VoiceExtIntPcm_Ext.mPcmModeWidebandSel = (runtimeStream->rate == 8000) ? Soc_Aud_PCM_MODE_PCM_MODE_8K : Soc_Aud_PCM_MODE_PCM_MODE_16K;
+-	VoiceExtIntPcm_Int.mPcmModeWidebandSel = (runtimeStream->rate == 8000) ? Soc_Aud_PCM_MODE_PCM_MODE_8K : Soc_Aud_PCM_MODE_PCM_MODE_16K;
+-    //VoiceExtPcm.mAsyncFifoSel = Soc_Aud_BYPASS_SRC_SLAVE_USE_ASYNC_FIFO;
+-    SetModemPcmConfig(MODEM_EXTERNAL, VoiceExtIntPcm_Ext);
+-    SetModemPcmEnable(MODEM_EXTERNAL, true);
+-	SetModemPcmConfig(MODEM_1, VoiceExtIntPcm_Int);
+-    SetModemPcmEnable(MODEM_1, true);
+-
+-    Voice_ExtInt_Status = true;
+-    SetExternalModemStatus(true);
+ 
++    if(Voice_ExtInt_Status == 0)
++    {
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O07);
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I21, Soc_Aud_InterConnectionOutput_O08);
++        SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I09, Soc_Aud_InterConnectionOutput_O25);
++        VoiceExtIntPcm_Ext.mPcmModeWidebandSel = (runtimeStream->rate == 8000) ? Soc_Aud_PCM_MODE_PCM_MODE_8K : Soc_Aud_PCM_MODE_PCM_MODE_16K;
++        VoiceExtIntPcm_Int.mPcmModeWidebandSel = (runtimeStream->rate == 8000) ? Soc_Aud_PCM_MODE_PCM_MODE_8K : Soc_Aud_PCM_MODE_PCM_MODE_16K;
++        //VoiceExtPcm.mAsyncFifoSel = Soc_Aud_BYPASS_SRC_SLAVE_USE_ASYNC_FIFO;
++        SetModemPcmConfig(MODEM_EXTERNAL, VoiceExtIntPcm_Ext);
++        SetModemPcmEnable(MODEM_EXTERNAL, true);
++        SetModemPcmConfig(MODEM_1, VoiceExtIntPcm_Int);
++        SetModemPcmEnable(MODEM_1, true);
++    }
++    if(substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
++    {
++        Voice_ExtInt_Status |= VOICE_DL_ON;
++    }
++    else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
++    {
++        Voice_ExtInt_Status |= VOICE_UL_ON;
++    }
++    SetExternalModemStatus(true);
+     return 0;
+ }
+ 
+diff --git a/mediatek/custom/common/cgen/inc/audio/mt6595_phone_v1_2/sph_coeff_default.h b/mediatek/custom/common/cgen/inc/audio/mt6595_phone_v1_2/sph_coeff_default.h
+index 760df3f..6e82629 100755
+--- a/mediatek/custom/common/cgen/inc/audio/mt6595_phone_v1_2/sph_coeff_default.h
++++ b/mediatek/custom/common/cgen/inc/audio/mt6595_phone_v1_2/sph_coeff_default.h
+@@ -1,3 +1,73 @@
++/* Copyright Statement:
++ *
++ * This software/firmware and related documentation ("MediaTek Software") are
++ * protected under relevant copyright laws. The information contained herein
++ * is confidential and proprietary to MediaTek Inc. and/or its licensors.
++ * Without the prior written permission of MediaTek inc. and/or its licensors,
++ * any reproduction, modification, use or disclosure of MediaTek Software,
++ * and information contained herein, in whole or in part, shall be strictly prohibited.
++ */
++/* MediaTek Inc. (C) 2010. All rights reserved.
++ *
++ * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
++ * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
++ * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
++ * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
++ * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
++ * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
++ * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
++ * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
++ * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
++ * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
++ * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
++ * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
++ * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
++ * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
++ * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
++ * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
++ *
++ * The following software/firmware and/or related documentation ("MediaTek Software")
++ * have been modified by MediaTek Inc. All revisions are subject to any receiver's
++ * applicable license agreements with MediaTek Inc.
++ */
++
++/*****************************************************************************
++*  Copyright Statement:
++*  --------------------
++*  This software is protected by Copyright and the information contained
++*  herein is confidential. The software may not be copied and the information
++*  contained herein may not be used or disclosed except with the written
++*  permission of MediaTek Inc. (C) 2008
++*
++*  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
++*  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
++*  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
++*  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
++*  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
++*  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
++*  NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
++*  SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
++*  SUPPLIED WITH THE MEDIATEK SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH
++*  THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO
++*  NOT BE RESPONSIBLE FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S
++*  SPECIFICATION OR TO CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
++*
++*  BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
++*  LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
++*  AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
++*  OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY BUYER TO
++*  MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
++*
++*  THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
++*  WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT OF
++*  LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING THEREOF AND
++*  RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN FRANCISCO, CA, UNDER
++*  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
++*
++*****************************************************************************/
++
+ /*******************************************************************************
+  *
+  * Filename:
+@@ -85,7 +155,7 @@
+ 
+ #endif
+ 
+-#ifdef NXP_SMARTPA_SUPPORT
++#if (defined(NXP_SMARTPA_SUPPORT) || defined(MTK_SPEAKER_MONITOR_SUPPORT))
+ 	#define MANUAL_CLIPPING (1 << 15)
+ 	#define NXP_DELAY_REF   (1 << 6)
+ 	#define PRE_CLIPPING_LEVEL 32767
+diff --git a/mediatek/custom/common/cgen/inc/sph_coeff_default.h b/mediatek/custom/common/cgen/inc/sph_coeff_default.h
+index 4b9b80c..1e4f8b4 100755
+--- a/mediatek/custom/common/cgen/inc/sph_coeff_default.h
++++ b/mediatek/custom/common/cgen/inc/sph_coeff_default.h
+@@ -1,3 +1,73 @@
++/* Copyright Statement:
++ *
++ * This software/firmware and related documentation ("MediaTek Software") are
++ * protected under relevant copyright laws. The information contained herein
++ * is confidential and proprietary to MediaTek Inc. and/or its licensors.
++ * Without the prior written permission of MediaTek inc. and/or its licensors,
++ * any reproduction, modification, use or disclosure of MediaTek Software,
++ * and information contained herein, in whole or in part, shall be strictly prohibited.
++ */
++/* MediaTek Inc. (C) 2010. All rights reserved.
++ *
++ * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
++ * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
++ * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
++ * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
++ * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
++ * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
++ * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
++ * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
++ * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
++ * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
++ * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
++ * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
++ * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
++ * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
++ * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
++ * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
++ *
++ * The following software/firmware and/or related documentation ("MediaTek Software")
++ * have been modified by MediaTek Inc. All revisions are subject to any receiver's
++ * applicable license agreements with MediaTek Inc.
++ */
++
++/*****************************************************************************
++*  Copyright Statement:
++*  --------------------
++*  This software is protected by Copyright and the information contained
++*  herein is confidential. The software may not be copied and the information
++*  contained herein may not be used or disclosed except with the written
++*  permission of MediaTek Inc. (C) 2008
++*
++*  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
++*  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
++*  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
++*  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
++*  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
++*  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
++*  NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
++*  SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
++*  SUPPLIED WITH THE MEDIATEK SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH
++*  THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO
++*  NOT BE RESPONSIBLE FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S
++*  SPECIFICATION OR TO CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
++*
++*  BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
++*  LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
++*  AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
++*  OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY BUYER TO
++*  MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
++*
++*  THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
++*  WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT OF
++*  LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING THEREOF AND
++*  RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN FRANCISCO, CA, UNDER
++*  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
++*
++*****************************************************************************/
++
+ /*******************************************************************************
+  *
+  * Filename:
+@@ -85,7 +155,7 @@
+ 
+ #endif
+ 
+-#ifdef NXP_SMARTPA_SUPPORT
++#if (defined(NXP_SMARTPA_SUPPORT) || defined(MTK_SPEAKER_MONITOR_SUPPORT))
+ 	#define MANUAL_CLIPPING (1 << 15)
+ 	#define NXP_DELAY_REF   (1 << 6)
+ 	#define PRE_CLIPPING_LEVEL 32767
+diff --git a/mediatek/factory/src/test/ftm_audio.cpp b/mediatek/factory/src/test/ftm_audio.cpp
+index 7b5da99..6555304 100755
+--- a/mediatek/factory/src/test/ftm_audio.cpp
++++ b/mediatek/factory/src/test/ftm_audio.cpp
+@@ -1352,7 +1352,7 @@ int mAudio_loopback_phonemicspk_entry(struct ftm_param *param, void *priv)
+ #define FFT_SIZE 4096
+ #define R_CLUSTER_SHIFT_BITS 2
+ #define R_CLUSTER_NUMBER ( FFT_SIZE>>(1+R_CLUSTER_SHIFT_BITS) )
+-#define NUMBER_CONFIDENCE ( R_CLUSTER_NUMBER * 7 / 10 )
++#define NUMBER_CONFIDENCE ( R_CLUSTER_NUMBER * 85 / 100 )
+ //#define NUMBER_CONFIDENCE 466
+ #define INITIAL_CURRENT_SENSING_RESITOR 0.4f
+ #define MAX_F0_FREQ 1500
+diff --git a/mediatek/platform/common/hardware/audio/V3/include/AudioType.h b/mediatek/platform/common/hardware/audio/V3/include/AudioType.h
+index e435481..0f008fd 100644
+--- a/mediatek/platform/common/hardware/audio/V3/include/AudioType.h
++++ b/mediatek/platform/common/hardware/audio/V3/include/AudioType.h
+@@ -84,7 +84,8 @@ enum capture_provider_t
+     CAPTURE_PROVIDER_ECHOREF,
+     CAPTURE_PROVIDER_ECHOREF_BTSCO,
+     CAPTURE_PROVIDER_ECHOREF_EXT,
+-    CAPTURE_PROVIDER_TDM_RECORD,    
++    CAPTURE_PROVIDER_TDM_RECORD,
++    CAPTURE_PROVIDER_BT_SCO,
+     CAPTURE_PROVIDER_MAX
+ };
+ 
+@@ -166,7 +167,10 @@ struct stream_attribute_t
+     bool                 digital_mic_flag;
+     bool                 bBypassPostProcessDL;
+     bool                 micmute;
+-
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++    bool                 bFixedRouting;
++    bool                 bModemDai_Input;
++#endif
+     audio_mode_t         audio_mode;
+ 
+     uint32_t             mStreamOutIndex;  // AudioALSAStreamOut pass to AudioALSAStreamManager
+diff --git a/mediatek/platform/common/hardware/audio/V3/speech_driver/SpeechDriverLAD.cpp b/mediatek/platform/common/hardware/audio/V3/speech_driver/SpeechDriverLAD.cpp
+index 7f3241c..e7e93f9 100644
+--- a/mediatek/platform/common/hardware/audio/V3/speech_driver/SpeechDriverLAD.cpp
++++ b/mediatek/platform/common/hardware/audio/V3/speech_driver/SpeechDriverLAD.cpp
+@@ -1191,6 +1191,21 @@ status_t SpeechDriverLAD::GetNxpSmartpaParam(void *eParamNxpSmartpa)
+     pParamNxpSmartpa->isNxpFeatureOptOn = 1;
+     pParamNxpSmartpa->switch_and_delay = ((pParamNxpSmartpa->isNxpFeatureOptOn << NXP_SMARTPA_SUPPORT_BIT) | CHIP_DELAY);
+     pParamNxpSmartpa->mic_index = MIC_INDEX_O24;
++#elif defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++    char property_value[PROPERTY_VALUE_MAX];
++    property_get("streamout.speech_stream.enable", property_value, "1");
++    int speech_stream = atoi(property_value);
++    pParamNxpSmartpa->isNxpFeatureOptOn = 1;
++    if(speech_stream == 0)
++    {
++        pParamNxpSmartpa->switch_and_delay = (pParamNxpSmartpa->isNxpFeatureOptOn << NXP_SMARTPA_SUPPORT_BIT) ;
++        pParamNxpSmartpa->mic_index = MIC_INDEX_O17;
++    }
++    else 
++    {
++        pParamNxpSmartpa->switch_and_delay = ((pParamNxpSmartpa->isNxpFeatureOptOn << NXP_SMARTPA_SUPPORT_BIT) | CHIP_DELAY);
++        pParamNxpSmartpa->mic_index = MIC_INDEX_O24;
++    }
+ #else
+     pParamNxpSmartpa->isNxpFeatureOptOn = 0;
+     pParamNxpSmartpa->switch_and_delay = (pParamNxpSmartpa->isNxpFeatureOptOn << NXP_SMARTPA_SUPPORT_BIT) ;
+@@ -1271,7 +1286,7 @@ status_t SpeechDriverLAD::SetAllSpeechEnhancementInfoToModem()
+     }
+     //#endif
+ 
+-#if defined(NXP_SMARTPA_SUPPORT)
++#if defined(NXP_SMARTPA_SUPPORT) || defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
+     PARAM_NXP_SMARTPA eNxpSmartpaParam;
+     GetNxpSmartpaParam((void *)&eNxpSmartpaParam);
+     SetNxpSmartpaParam((void *)&eNxpSmartpaParam);
+diff --git a/mediatek/platform/common/hardware/audio/aud_drv/WCNChipController.cpp b/mediatek/platform/common/hardware/audio/aud_drv/WCNChipController.cpp
+index be36a44..5e3aea9 100644
+--- a/mediatek/platform/common/hardware/audio/aud_drv/WCNChipController.cpp
++++ b/mediatek/platform/common/hardware/audio/aud_drv/WCNChipController.cpp
+@@ -75,6 +75,8 @@ WCNChipController::WCNChipController()
+     mBTAudioInfo.sync_format = SHORT_FRAME;
+     mBTAudioInfo.bit_len = 0;
+     //mBTAudioInfo.security_hi_lo = 0;
++
++    mBTCurrentSamplingRateNumber = 8000;
+ }
+ 
+ WCNChipController::~WCNChipController()
+@@ -107,7 +109,7 @@ bool WCNChipController::GetFmChipPowerInfo()
+     if (ret != BUF_LEN)
+     {
+         ALOGE("-%s(), read(%s) fail!! ret = %d", __FUNCTION__, FM_POWER_STAUTS_PATH, ret);
+-        close(fd);		
++        close(fd);
+         return false;
+     }
+     close(fd);
+@@ -307,7 +309,12 @@ uint32_t WCNChipController::BTChipHWInterface()
+ #if defined(MTK_BT_SUPPORT)
+     return mBTAudioInfo.hw_if;
+ #else
+-    return CVSD_REMOVAL; //0: PCM, 1: I2S, 2: MERGE_INTERFACE, 3: CVSD_REMOVAL
++#ifdef(SW_BTCVSD_ENABLE)
++    return CVSD_REMOVAL; // 0: PCM, 1: I2S, 2: MERGE_INTERFACE, 3: CVSD_REMOVAL
++#else
++    return MERGE_INTERFACE; // 0: PCM, 1: I2S, 2: MERGE_INTERFACE, 3: CVSD_REMOVAL
++#endif
++
+ #endif
+ }
+ 
+@@ -315,11 +322,7 @@ bool WCNChipController::BTUseCVSDRemoval()
+ {
+     if (mInitAudioBTInfoFlag == false) { InitAudioBTInfo(); }
+ 
+-#if defined(MTK_BT_SUPPORT)
+     return (BTChipHWInterface() == CVSD_REMOVAL) ? true : false;
+-#else
+-    return true;
+-#endif
+ }
+ 
+ uint32_t WCNChipController::BTChipSamplingRate()
+@@ -328,10 +331,15 @@ uint32_t WCNChipController::BTChipSamplingRate()
+     if (mInitAudioBTInfoFlag == false) { InitAudioBTInfo(); }
+     return mBTAudioInfo.sample_rate; //0:SYNC_8K, 1: SYNC_16K
+ #else
+-    return 0; // default setting is NB 8k
++    return SYNC_8K; // default setting is NB 8k
+ #endif
+ }
+ 
++uint32_t WCNChipController::BTChipSamplingRateNumber()
++{
++    return (BTChipSamplingRate() == SYNC_8K) ? 8000 : 16000;
++}
++
+ uint32_t WCNChipController::BTChipSyncFormat()
+ {
+ #if defined(MTK_BT_SUPPORT)
+@@ -357,4 +365,18 @@ uint32_t WCNChipController::BTChipSecurityHiLo()
+     return 0; // WCN does not provide this property
+ }
+ 
++
++void WCNChipController::SetBTCurrentSamplingRateNumber(const uint32_t sample_rate)
++{
++    ALOGD("%s(), mBTCurrentSamplingRateNumber: %d => %d", __FUNCTION__, mBTCurrentSamplingRateNumber, sample_rate);
++    ASSERT(sample_rate == 8000 || sample_rate == 16000);
++    mBTCurrentSamplingRateNumber = sample_rate;
++}
++
++uint32_t WCNChipController::GetBTCurrentSamplingRateNumber()
++{
++    return mBTCurrentSamplingRateNumber;
++}
++
++
+ } // end of namespace android
+diff --git a/mediatek/platform/common/hardware/audio/include/AudioDef.h b/mediatek/platform/common/hardware/audio/include/AudioDef.h
+index 74c2561..4098862 100644
+--- a/mediatek/platform/common/hardware/audio/include/AudioDef.h
++++ b/mediatek/platform/common/hardware/audio/include/AudioDef.h
+@@ -26,8 +26,12 @@
+ 
+ 
+ // for MTK_DYNAMIC_CHANGE_HAL_BUFFER_SIZE
++#if defined(MTK_SPEAKER_MONITOR_SUPPORT)
++#define LOW_POWER_HAL_BUFFER_SIZE   (12288)
++#define LOW_LATENCY_HAL_BUFFER_SIZE (8192)
++#else
+ #define LOW_POWER_HAL_BUFFER_SIZE   (20480)
+ #define LOW_LATENCY_HAL_BUFFER_SIZE (12288)
+-
++#endif
+ 
+ #endif
+diff --git a/mediatek/platform/common/hardware/audio/include/WCNChipController.h b/mediatek/platform/common/hardware/audio/include/WCNChipController.h
+index fa96ed3..bf9a146 100644
+--- a/mediatek/platform/common/hardware/audio/include/WCNChipController.h
++++ b/mediatek/platform/common/hardware/audio/include/WCNChipController.h
+@@ -34,14 +34,25 @@ class WCNChipController
+         virtual bool     IsFmChipPadSelConnSys();
+         virtual bool     IsFmChipUseSlaveMode();
+         virtual uint32_t GetFmChipSamplingRate();
++
++
+         virtual uint32_t BTChipHWInterface();
+-        virtual bool BTUseCVSDRemoval();
++        virtual bool     BTUseCVSDRemoval();
++
+         virtual uint32_t BTChipSamplingRate();
++        virtual uint32_t BTChipSamplingRateNumber();
++
+         virtual uint32_t BTChipSyncFormat();
+         virtual uint32_t BTChipSyncLength();
+         virtual uint32_t BTChipSecurityHiLo();
+ 
+ 
++        // might be configured to 8k/16k according to bt device.
++        virtual void     SetBTCurrentSamplingRateNumber(const uint32_t sample_rate); 
++        virtual uint32_t GetBTCurrentSamplingRateNumber();
++
++
++
+     protected:
+         WCNChipController();
+ 
+@@ -50,7 +61,10 @@ class WCNChipController
+         bool             mInitAudioFMInfoFlag;
+         bool             mInitAudioBTInfoFlag;
+         fm_audio_info_t  mFmAudioInfo;
+-        AUDIO_CONFIG  mBTAudioInfo;
++        AUDIO_CONFIG     mBTAudioInfo;
++
++        uint32_t         mBTCurrentSamplingRateNumber;
++
+ 
+ 
+     private:
+diff --git a/mediatek/platform/mt6595/hardware/audio/Android.mk b/mediatek/platform/mt6595/hardware/audio/Android.mk
+index 7f57ed1..8163615 100755
+--- a/mediatek/platform/mt6595/hardware/audio/Android.mk
++++ b/mediatek/platform/mt6595/hardware/audio/Android.mk
+@@ -243,9 +243,14 @@ endif
+ 
+ ifeq ($(MTK_SPEAKER_MONITOR_SUPPORT),yes)  
+   LOCAL_CFLAGS += -DMTK_SPEAKER_MONITOR_SUPPORT
++  LOCAL_CFLAGS += -DMTK_SPEAKER_MONITOR_SPEECH_SUPPORT
+   LOCAL_SRC_FILES += aud_drv/AudioALSASpeakerMonitor.cpp
+   LOCAL_SRC_FILES += aud_drv/AudioALSACaptureHandlerSpkFeed.cpp
+   LOCAL_SRC_FILES += aud_drv/AudioALSACaptureDataProviderSpkFeed.cpp
++  LOCAL_SRC_FILES += speech_driver/AudioALSASpeechStreamController.cpp
++  LOCAL_SRC_FILES += aud_drv/AudioALSACaptureHandlerModemDai.cpp
++  LOCAL_SRC_FILES += aud_drv/AudioALSACaptureDataProviderModemDai.cpp
++  LOCAL_SRC_FILES += aud_drv/AudioALSAPlaybackHandlerSphDL.cpp
+   LOCAL_C_INCLUDES+= \
+     $(MTK_PATH_SOURCE)/external/fft
+ endif
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderBTSCO.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderBTSCO.cpp
+index cc6b556..fb415c3 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderBTSCO.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderBTSCO.cpp
+@@ -47,7 +47,7 @@ AudioALSACaptureDataProviderBTSCO::AudioALSACaptureDataProviderBTSCO() :
+ {
+     ALOGD("%s()", __FUNCTION__);
+ 
+-    mCaptureDataProviderType = CAPTURE_PROVIDER_FM_RADIO;
++    mCaptureDataProviderType = CAPTURE_PROVIDER_BT_SCO;
+ }
+ 
+ AudioALSACaptureDataProviderBTSCO::~AudioALSACaptureDataProviderBTSCO()
+@@ -68,7 +68,7 @@ status_t AudioALSACaptureDataProviderBTSCO::open()
+     mStreamAttributeSource.audio_format = AUDIO_FORMAT_PCM_16_BIT;
+     mStreamAttributeSource.audio_channel_mask = AUDIO_CHANNEL_IN_MONO;
+     mStreamAttributeSource.num_channels = android_audio_legacy::AudioSystem::popCount(mStreamAttributeSource.audio_channel_mask);
+-    mStreamAttributeSource.sample_rate = (mWCNChipController->BTChipSamplingRate() == 0) ? 8000 : 16000; // TODO(Harvey, Stephen): return sample rate directly...?
++    mStreamAttributeSource.sample_rate = mWCNChipController->GetBTCurrentSamplingRateNumber();
+ 
+ 
+     // pcm config
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderBase.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderBase.cpp
+index e7a7712..d488538 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderBase.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderBase.cpp
+@@ -13,7 +13,7 @@
+ 
+ namespace android
+ {
+-
++static const uint32_t kAudioSoundCardIndex = 0;
+ int AudioALSACaptureDataProviderBase::mDumpFileNum = 0;
+ 
+ AudioALSACaptureDataProviderBase::AudioALSACaptureDataProviderBase() :
+@@ -41,6 +41,46 @@ AudioALSACaptureDataProviderBase::~AudioALSACaptureDataProviderBase()
+     ALOGD("%s(), %p", __FUNCTION__, this);
+ }
+ 
++status_t AudioALSACaptureDataProviderBase::openPcmDriver(const unsigned int device)
++{
++    ALOGD("+%s(), pcm device = %d", __FUNCTION__, device);
++
++    ASSERT(mPcm == NULL);
++    mPcm = pcm_open(kAudioSoundCardIndex, device, PCM_IN, &mConfig);
++    if (mPcm == NULL)
++    {
++        ALOGE("%s(), mPcm == NULL!!", __FUNCTION__);
++    }
++    else if (pcm_is_ready(mPcm) == false)
++    {
++        ALOGE("%s(), pcm_is_ready(%p) == false due to %s, close pcm.", __FUNCTION__, mPcm, pcm_get_error(mPcm));
++        pcm_close(mPcm);
++        mPcm = NULL;
++    }
++    else
++    {
++        pcm_start(mPcm);
++    }
++
++    ALOGD("-%s(), mPcm = %p", __FUNCTION__, mPcm);
++    ASSERT(mPcm != NULL);
++    return NO_ERROR;
++}
++
++status_t AudioALSACaptureDataProviderBase::closePcmDriver()
++{
++    ALOGD("+%s(), mPcm = %p", __FUNCTION__, mPcm);
++
++    if (mPcm != NULL)
++    {
++        pcm_stop(mPcm);
++        pcm_close(mPcm);
++        mPcm = NULL;
++    }
++
++    ALOGD("-%s(), mPcm = %p", __FUNCTION__, mPcm);
++    return NO_ERROR;
++}
+ 
+ void AudioALSACaptureDataProviderBase::attach(AudioALSACaptureDataClient *pCaptureDataClient)
+ {
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderEchoRefBTSCO.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderEchoRefBTSCO.cpp
+index b68600a..b92141c 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderEchoRefBTSCO.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderEchoRefBTSCO.cpp
+@@ -48,20 +48,6 @@ AudioALSACaptureDataProviderEchoRefBTSCO::AudioALSACaptureDataProviderEchoRefBTS
+ {
+     ALOGD("%s()", __FUNCTION__);
+ 
+-    // TODO(Harvey): query this
+-    mConfig.channels = 2;
+-    //need the same as streamout (DL1)
+-    mConfig.rate = (mWCNChipController->BTChipSamplingRate() == 0) ? 8000 : 16000; // TODO(Harvey, Stephen): return sample rate directly...?;
+-
+-    // Buffer size: 2048(period_size) * 2(ch) * 2(byte) * 8(period_count) = 64 kb
+-    mConfig.period_size = 2048;
+-    mConfig.period_count = 8;
+-    mConfig.format = PCM_FORMAT_S16_LE;
+-
+-    mConfig.start_threshold = 0;
+-    mConfig.stop_threshold = 0;
+-    mConfig.silence_threshold = 0;
+-
+     mCaptureDataProviderType = CAPTURE_PROVIDER_ECHOREF_BTSCO;
+ }
+ 
+@@ -83,7 +69,21 @@ status_t AudioALSACaptureDataProviderEchoRefBTSCO::open()
+     mStreamAttributeSource.audio_format = AUDIO_FORMAT_PCM_16_BIT;
+     mStreamAttributeSource.audio_channel_mask = AUDIO_CHANNEL_IN_STEREO;
+     mStreamAttributeSource.num_channels = android_audio_legacy::AudioSystem::popCount(mStreamAttributeSource.audio_channel_mask);
+-    mStreamAttributeSource.sample_rate = (mWCNChipController->BTChipSamplingRate() == 0) ? 8000 : 16000;//need the same as streamout (DL1)
++    mStreamAttributeSource.sample_rate = mWCNChipController->GetBTCurrentSamplingRateNumber();
++
++
++    mConfig.channels = mStreamAttributeSource.num_channels;
++    mConfig.rate = mStreamAttributeSource.sample_rate;
++
++    // Buffer size: 2048(period_size) * 2(ch) * 2(byte) * 8(period_count) = 64 kb
++    mConfig.period_size = 2048;
++    mConfig.period_count = 8;
++    mConfig.format = PCM_FORMAT_S16_LE;
++
++    mConfig.start_threshold = 0;
++    mConfig.stop_threshold = 0;
++    mConfig.silence_threshold = 0;
++
+ 
+ #if 0
+     //latency time, set as DataProvider buffer size
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderSpkFeed.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderSpkFeed.cpp
+index 92f39bd..3cada5d 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderSpkFeed.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSACaptureDataProviderSpkFeed.cpp
+@@ -6,8 +6,8 @@
+ #include <sys/prctl.h>
+ 
+ #include "AudioType.h"
+-
+-
++#include "AudioALSAHardwareResourceManager.h"
++#include "AudioALSADeviceString.h"
+ #define LOG_TAG "AudioALSACaptureDataProviderSpkFeed"
+ 
+ namespace android
+@@ -18,7 +18,7 @@ namespace android
+  *                     Constant
+  *============================================================================*/
+ 
+-static const uint32_t kReadBufferSize = 0x2000; // 8k
++static const uint32_t kReadBufferSize = 6144; // 6k
+ 
+ 
+ /*==============================================================================
+@@ -42,14 +42,27 @@ AudioALSACaptureDataProviderSpkFeed *AudioALSACaptureDataProviderSpkFeed::getIns
+ AudioALSACaptureDataProviderSpkFeed::AudioALSACaptureDataProviderSpkFeed()
+ {
+     ALOGD("%s()", __FUNCTION__);
++    int pcmindex = AudioALSADeviceParser::getInstance()->GetPcmIndexByString(keypcmUl2Capture);
++    int cardindex = AudioALSADeviceParser::getInstance()->GetCardIndexByString(keypcmUl2Capture);
++    ALOGD("%s cardindex = %d  pcmindex = %d", __FUNCTION__, cardindex, pcmindex);
++
++    struct pcm_params *params;
++    params = pcm_params_get(cardindex, pcmindex,  PCM_IN);
++    if (params == NULL)
++    {
++        ALOGD("Device does not exist.\n");
++    }
++    unsigned int buffersizemax = pcm_params_get_max(params, PCM_PARAM_BUFFER_BYTES);
++    ALOGD("%s() buffersizemax = %d", __FUNCTION__, buffersizemax);
++    pcm_params_free(params);
+ 
+     // TODO(Harvey): query this
+     mConfig.channels = 2;
+     mConfig.rate = 48000;
+ 
+     // Buffer size: 2048(period_size) * 2(ch) * 2(byte) * 8(period_count) = 64 kb
+-    mConfig.period_size = 2048;
+-    mConfig.period_count = 8;
++    mConfig.period_count = 2;
++    mConfig.period_size = (buffersizemax / mConfig.channels) / 2 / mConfig.period_count;
+     mConfig.format = PCM_FORMAT_S16_LE;
+ 
+     mConfig.start_threshold = 0;
+@@ -83,7 +96,7 @@ status_t AudioALSACaptureDataProviderSpkFeed::open()
+ 
+     // enable pcm
+     ASSERT(mPcm == NULL);
+-    mPcm = pcm_open(0, 15, PCM_IN, &mConfig);//To update, JY
++    mPcm = pcm_open(0, 15, PCM_IN, &mConfig);
+     ASSERT(mPcm != NULL && pcm_is_ready(mPcm) == true);
+     ALOGV("%s(), mPcm = %p", __FUNCTION__, mPcm);
+ 
+@@ -91,6 +104,8 @@ status_t AudioALSACaptureDataProviderSpkFeed::open()
+ 
+     // create reading thread
+     mEnable = true;
++    int rate = ((mConfig.period_size * mConfig.period_count * mConfig.channels * 2) - 2048) / (mConfig.channels * 2);
++    AudioALSAHardwareResourceManager::getInstance()->setInterruptRate2(rate);
+     int ret = pthread_create(&hReadThread, NULL, AudioALSACaptureDataProviderSpkFeed::readThread, (void *)this);
+     if (ret != 0)
+     {
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAHardware.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAHardware.cpp
+index 135bbbe..68c95c3 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAHardware.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAHardware.cpp
+@@ -30,6 +30,7 @@
+ 
+ #include "AudioALSAVoiceWakeUpController.h"
+ 
++#include "WCNChipController.h"
+ 
+ #include "AudioVUnlockDL.h"
+ #if defined(MTK_SPEAKER_MONITOR_SUPPORT)
+@@ -227,7 +228,23 @@ status_t AudioALSAHardware::setMasterVolume(float volume)
+ 
+ status_t AudioALSAHardware::setMode(int mode)
+ {
+-    return mStreamManager->setMode(static_cast<audio_mode_t>(mode));
++    status_t status;
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++    bool sph_stream_support = mStreamManager->IsSphStrmSupport();
++    status_t status_change;
++    if(sph_stream_support)
++    {
++        status_change = mStreamManager->DisableSphStrm(static_cast<audio_mode_t>(mode));
++    }
++#endif
++    status = mStreamManager->setMode(static_cast<audio_mode_t>(mode));
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++    if(sph_stream_support == true && status_change == NO_ERROR)
++    {
++        mStreamManager->EnableSphStrm(static_cast<audio_mode_t>(mode));
++    }
++#endif
++    return status;
+ }
+ 
+ status_t AudioALSAHardware::setMicMute(bool state)
+@@ -602,15 +619,18 @@ status_t AudioALSAHardware::setParameters(const String8 &keyValuePairs)
+         }
+     }
+ #endif
++
+     if (param.getInt(keySetBTMode, value) == NO_ERROR)
+     {
+-        ALOGD("setParameters setBTMode=%d", value);
+         param.remove(keySetBTMode);
++
++        ALOGD("%s(), setBTMode = %d", __FUNCTION__, value);
+         if ((0 != value) && (1 != value))
+         {
+-            ALOGD("setParameters BTMode error, no support mode %d !!", value);
++            ALOGE("%s(), BTMode error, no support mode %d !!", __FUNCTION__, value);
+             value = 0;
+         }
++        WCNChipController::GetInstance()->SetBTCurrentSamplingRateNumber((value == 0) ? 8000 : 16000);
+         mSpeechPhoneCallController->setBTMode(value);
+     }
+ 
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAHardwareResourceManager.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAHardwareResourceManager.cpp
+index 849e3e5..c3bfa12 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAHardwareResourceManager.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAHardwareResourceManager.cpp
+@@ -484,7 +484,6 @@ status_t AudioALSAHardwareResourceManager::setHWGain2DigitalGain(const uint32_t
+     return (retval == 0) ? NO_ERROR : UNKNOWN_ERROR;
+ }
+ 
+-
+ status_t AudioALSAHardwareResourceManager::setInterruptRate(const uint32_t rate)
+ {
+     if (rate <= 0 || rate >= 65535)
+@@ -499,6 +498,20 @@ status_t AudioALSAHardwareResourceManager::setInterruptRate(const uint32_t rate)
+     return (retval == 0) ? NO_ERROR : UNKNOWN_ERROR;
+ }
+ 
++status_t AudioALSAHardwareResourceManager::setInterruptRate2(const uint32_t rate)
++{
++    if (rate <= 0 || rate >= 65535)
++    {
++        ALOGE("%s, rate is not in range", __FUNCTION__);
++        return UNKNOWN_ERROR;
++    }
++
++    int retval = mixer_ctl_set_value(mixer_get_ctl_by_name(mMixer, "Audio IRQ2 CNT"), 0, rate);
++    ASSERT(retval == 0);
++
++    return (retval == 0) ? NO_ERROR : UNKNOWN_ERROR;
++}
++
+ 
+ status_t AudioALSAHardwareResourceManager::openAddaOutput(const uint32_t sample_rate)
+ {
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAPlaybackHandlerBTSCO.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAPlaybackHandlerBTSCO.cpp
+index c24233d..e078568 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAPlaybackHandlerBTSCO.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAPlaybackHandlerBTSCO.cpp
+@@ -30,23 +30,24 @@ status_t AudioALSAPlaybackHandlerBTSCO::open()
+     // debug pcm dump
+     OpenPCMDump(LOG_TAG);
+ 
+-    int pcmindex = AudioALSADeviceParser::getInstance ()->GetPcmIndexByString  (keypcmVOIPCallBTPlayback);
+-    int cardindex = AudioALSADeviceParser::getInstance ()->GetCardIndexByString  (keypcmVOIPCallBTPlayback);
++    int pcmindex = AudioALSADeviceParser::getInstance()->GetPcmIndexByString(keypcmVOIPCallBTPlayback);
++    int cardindex = AudioALSADeviceParser::getInstance()->GetCardIndexByString(keypcmVOIPCallBTPlayback);
+ 
+     struct pcm_params *params;
+     params = pcm_params_get(cardindex, pcmindex,  PCM_OUT);
+-    if (params == NULL) {
++    if (params == NULL)
++    {
+         ALOGD("Device does not exist.\n");
+     }
+     mStreamAttributeTarget.buffer_size = pcm_params_get_max(params, PCM_PARAM_BUFFER_BYTES);
+-    ALOGD("buffersizemax = %d",mStreamAttributeTarget.buffer_size);
++    ALOGD("buffersizemax = %d", mStreamAttributeTarget.buffer_size);
+     pcm_params_free(params);
+ 
+     // HW attribute config // TODO(Harvey): query this
+     mStreamAttributeTarget.audio_format = AUDIO_FORMAT_PCM_16_BIT;
+     mStreamAttributeTarget.audio_channel_mask = AUDIO_CHANNEL_IN_STEREO;
+     mStreamAttributeTarget.num_channels = android_audio_legacy::AudioSystem::popCount(mStreamAttributeTarget.audio_channel_mask);
+-    mStreamAttributeTarget.sample_rate = (mWCNChipController->BTChipSamplingRate() == 0) ? 8000 : 16000; // TODO(Harvey, Stephen): return sample rate directly...?
++    mStreamAttributeTarget.sample_rate = mWCNChipController->GetBTCurrentSamplingRateNumber();
+ 
+ 
+     // HW pcm config
+@@ -54,7 +55,7 @@ status_t AudioALSAPlaybackHandlerBTSCO::open()
+     mConfig.rate = mStreamAttributeTarget.sample_rate;
+ 
+     mConfig.period_count = 2;
+-    mConfig.period_size = (mStreamAttributeTarget.buffer_size/(mConfig.channels*mConfig.period_count))/((mStreamAttributeTarget.audio_format ==AUDIO_FORMAT_PCM_16_BIT) ? 2 : 4);
++    mConfig.period_size = (mStreamAttributeTarget.buffer_size / (mConfig.channels * mConfig.period_count)) / ((mStreamAttributeTarget.audio_format == AUDIO_FORMAT_PCM_16_BIT) ? 2 : 4);
+ 
+     mConfig.format = transferAudioFormatToPcmFormat(mStreamAttributeTarget.audio_format);
+ 
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSASpeakerMonitor.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSASpeakerMonitor.cpp
+index e9aa1ab..05b9feb 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSASpeakerMonitor.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSASpeakerMonitor.cpp
+@@ -17,7 +17,7 @@
+ 
+ #include "AudioALSASpeechPhoneCallController.h"
+ #include "AudioALSAVolumeController.h"
+-
++#include "AudioALSADriverUtility.h"
+ #include "AudioALSAHardwareResourceManager.h" 
+ #include "AudioALSASpeakerMonitor.h"
+ #include "AudioCustParam.h"
+@@ -867,6 +867,11 @@ status_t AudioALSASpeakerMonitor::EnableSpeakerMonitorThread(bool enable)
+     if(enable == true && m_bEnabled == false)
+     {
+         ALOGD("open SpeakerMonitorThread");
++        //Echo reference path
++        if (mixer_ctl_set_enum_by_string(mixer_get_ctl_by_name(AudioALSADriverUtility::getInstance()->getMixer(), "Audio_Speaker_Protection_SRAM_Switch"), "On"))
++        {
++            ALOGE("Error: Audio_Speaker_Protection_SRAM_Switch invalid value");
++        }
+         pthread_mutex_lock(&mSpkMonitorMutex);
+         ret = pthread_create(&mSpeakerMonitorThreadID, NULL, SpeakerMonitorThread, (void *)this);
+         if (ret != 0)
+@@ -896,6 +901,10 @@ status_t AudioALSASpeakerMonitor::EnableSpeakerMonitorThread(bool enable)
+         }
+         m_bEnabled = false;
+         pthread_mutex_unlock(&mSpkMonitorMutex);
++        if (mixer_ctl_set_enum_by_string(mixer_get_ctl_by_name(AudioALSADriverUtility::getInstance()->getMixer(), "Audio_Speaker_Protection_SRAM_Switch"), "Off"))
++        {
++            ALOGE("Error: Audio_Speaker_Protection_SRAM_Switch invalid value");
++        }
+     }
+     return NO_ERROR;
+ }
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamIn.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamIn.cpp
+index 61713bb..725b093 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamIn.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamIn.cpp
+@@ -404,7 +404,21 @@ status_t AudioALSAStreamIn::setParameters(const String8 &keyValuePairs)
+         }
+         status = mStreamManager->routingInputDevice(mStreamAttributeTarget.input_device, inputdevice);
+     }
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++    if (param.getInt(String8("MOD_DAI_INPUT"), value) == NO_ERROR)
++    {
++        param.remove(String8("MOD_DAI_INPUT"));
++        ALOGD("%s() set stream to MOD_DAI", __FUNCTION__);
++        // channel
++        mStreamAttributeTarget.audio_channel_mask = AUDIO_CHANNEL_IN_MONO;
++        mStreamAttributeTarget.num_channels = android_audio_legacy::AudioSystem::popCount(mStreamAttributeTarget.audio_channel_mask);
+ 
++        // sample rate
++        mStreamAttributeTarget.sample_rate = 16000;
++        mStreamAttributeTarget.bFixedRouting = true;
++        mStreamAttributeTarget.bModemDai_Input = true;
++    }
++#endif
+     if (param.size())
+     {
+         ALOGW("%s(), still have param.size() = %d, remain param = \"%s\"",
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamManager.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamManager.cpp
+index 53fb1e8..fd1f207 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamManager.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamManager.cpp
+@@ -26,6 +26,12 @@
+ #include "AudioALSACaptureHandlerSpkFeed.h"
+ #endif
+ 
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++#include "AudioALSASpeechStreamController.h"
++#include "AudioALSACaptureHandlerModemDai.h"
++#include "AudioALSAPlaybackHandlerSphDL.h"
++#endif
++
+ #include "AudioALSASpeechPhoneCallController.h"
+ #include "AudioALSAFMController.h"
+ 
+@@ -334,6 +340,22 @@ AudioALSAPlaybackHandlerBase *AudioALSAStreamManager::createPlaybackHandler(
+     stream_attribute_source->bBypassPostProcessDL = mBypassPostProcessDL;
+     // create
+     AudioALSAPlaybackHandlerBase *pPlaybackHandler = NULL;
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++    if(stream_attribute_source->bModemDai_Input == true)
++    {
++        stream_attribute_source->sample_rate = 16000;
++        pPlaybackHandler = new AudioALSAPlaybackHandlerSphDL(stream_attribute_source);
++        uint32_t dFltMngindex = mFilterManagerVector.indexOfKey(stream_attribute_source->mStreamOutIndex);
++        ALOGD("%s() ApplyFilter [%d]/[%d] Device [0x%x]", __FUNCTION__, dFltMngindex, mFilterManagerVector.size(), stream_attribute_source->output_devices);
++
++        if (dFltMngindex < mFilterManagerVector.size())
++        {
++            pPlaybackHandler->setFilterMng(static_cast<AudioMTKFilterManager *>(mFilterManagerVector[dFltMngindex]));
++            mFilterManagerVector[dFltMngindex]->setDevice(stream_attribute_source->output_devices);
++        }
++    }
++    else
++#endif
+     if (isModeInPhoneCall() == true)
+     {
+         pPlaybackHandler = new AudioALSAPlaybackHandlerVoice(stream_attribute_source);
+@@ -438,8 +460,13 @@ AudioALSACaptureHandlerBase *AudioALSAStreamManager::createCaptureHandler(
+     if (stream_attribute_target->input_device == AUDIO_DEVICE_IN_SPK_FEED)
+     {
+         pCaptureHandler = new AudioALSACaptureHandlerSpkFeed(stream_attribute_target);
+-    }
+-    else
++    }else
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++    if((stream_attribute_target->bModemDai_Input == true))  
++    {
++        pCaptureHandler = new AudioALSACaptureHandlerModemDai(stream_attribute_target);
++    } else
++#endif
+ #endif
+         if (isModeInPhoneCall() == true)
+         {
+@@ -837,8 +864,13 @@ status_t AudioALSAStreamManager::routingOutputDevice(const audio_devices_t curre
+         {
+             if (mStreamOutVector[i]->getStreamAttribute()->output_devices == current_output_devices) // TODO(Harvey): or add group?
+             {
+-                status = mStreamOutVector[i]->routing(output_devices);
+-                ASSERT(status == NO_ERROR);
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++                if(mStreamOutVector[i]->getStreamAttribute()->bModemDai_Input != true)
++#endif
++                {
++                    status = mStreamOutVector[i]->routing(output_devices);
++                    ASSERT(status == NO_ERROR);
++                }
+             }
+         }
+     }
+@@ -850,8 +882,13 @@ status_t AudioALSAStreamManager::routingOutputDevice(const audio_devices_t curre
+             {
+                 if (mStreamOutVector[i]->getStreamAttribute()->output_devices == current_output_devices) // TODO(Harvey): or add group?
+                 {
+-                    status = mStreamOutVector[i]->routing(output_devices);
+-                    ASSERT(status == NO_ERROR);
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++                    if(mStreamOutVector[i]->getStreamAttribute()->bModemDai_Input != true)
++#endif
++                    {
++                        status = mStreamOutVector[i]->routing(output_devices);
++                        ASSERT(status == NO_ERROR);
++                    }
+                 }
+             }
+ 
+@@ -913,7 +950,11 @@ status_t AudioALSAStreamManager::routingInputDevice(const audio_devices_t curren
+     {
+         for (size_t i = 0; i < mStreamInVector.size(); i++)
+         {
+-            if (mStreamInVector[i]->getStreamAttribute()->input_device == current_input_device) // TODO(Harvey): or add group?
++            if (mStreamInVector[i]->getStreamAttribute()->input_device == current_input_device
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++                && mStreamInVector[i]->getStreamAttribute()->bFixedRouting == false
++#endif
++            ) // TODO(Harvey): or add group?
+             {
+                 status = mStreamInVector[i]->routing(input_device);
+                 ASSERT(status == NO_ERROR);
+@@ -1395,17 +1436,32 @@ status_t AudioALSAStreamManager::UpdateSpeechVolume()
+                 }
+                 else
+                 {
+-                    mAudioALSAVolumeController->ApplyMicGain(Handfree_Mic, mAudioMode);
++                    mAudioALSAVolumeController->ApplyMicGain(Headset_Mic, mAudioMode);
+                 }
+ #else
+-                mAudioALSAVolumeController->ApplyMicGain(Handfree_Mic, mAudioMode);
++                mAudioALSAVolumeController->ApplyMicGain(Headset_Mic, mAudioMode);
+ #endif
+                 break;
+             }
+             case AUDIO_DEVICE_OUT_SPEAKER:
+             {
++#ifdef  MTK_TTY_SUPPORT
++                if (pSpeechPhoneCallController->getTtyMode() == AUD_TTY_VCO)
++                {
++                    mAudioALSAVolumeController->ApplyMicGain(Normal_Mic, mAudioMode);
++                }
++                else if (pSpeechPhoneCallController->getTtyMode() == AUD_TTY_HCO || pSpeechPhoneCallController->getTtyMode() == AUD_TTY_FULL)
++                {
++                    mAudioALSAVolumeController->ApplyMicGain(TTY_CTM_Mic, mAudioMode);
++                }
++                else
++                {
++                    mAudioALSAVolumeController->ApplyMicGain(Handfree_Mic, mAudioMode);
++                }
++#else
+                 mAudioALSAVolumeController->ApplyMicGain(Handfree_Mic, mAudioMode);
+                 break;
++#endif
+             }
+             case AUDIO_DEVICE_OUT_EARPIECE:
+             {
+@@ -1578,7 +1634,135 @@ status_t AudioALSAStreamManager::setBypassDLProcess(bool flag)
+     AudioALSAStreamOut *pAudioALSAStreamOut = NULL;
+ 
+     mBypassPostProcessDL = flag;
++	
++    return NO_ERROR;
++}
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++bool AudioALSAStreamManager::IsSphStrmSupport(void)
++{
++    char property_value[PROPERTY_VALUE_MAX];
++    property_get("streamout.speech_stream.enable", property_value, "1");
++    int speech_stream = atoi(property_value);
++    ALOGD("%s = %d", __FUNCTION__, speech_stream);
++    return ((speech_stream==0)?false:true);
++}
++status_t AudioALSAStreamManager::EnableSphStrm(audio_devices_t output_devices)
++{
++    AudioALSASpeechStreamController::getInstance()->SetStreamOutputDevice(output_devices);
++    if (isModeInPhoneCall(mAudioMode) == true)
++    {
++        if((output_devices & AUDIO_DEVICE_OUT_SPEAKER) != 0)
++        {
++            AudioALSASpeechStreamController::getInstance()->EnableSpeechStreamThread(true);
++        }
++    }
++    return NO_ERROR;
++}
+ 
++status_t AudioALSAStreamManager::DisableSphStrm(audio_devices_t output_devices)
++{
++    AudioALSASpeechStreamController::getInstance()->SetStreamOutputDevice(output_devices);
++    if (isModeInPhoneCallSupportEchoRef(mAudioMode) == true)
++    {
++        if(AudioALSASpeechStreamController::getInstance()->IsSpeechStreamThreadEnable() == true)
++        {
++            AudioALSASpeechStreamController::getInstance()->EnableSpeechStreamThread(false);
++        }
++    }
+     return NO_ERROR;
+ }
++
++status_t AudioALSAStreamManager::EnableSphStrm(audio_mode_t new_mode)
++{
++    if ((new_mode < AUDIO_MODE_NORMAL) || (new_mode > AUDIO_MODE_MAX))
++    {
++        return BAD_VALUE;
++    }
++
++    if (isModeInPhoneCall(new_mode) == true)
++    {
++        if((AudioALSASpeechStreamController::getInstance()->GetStreamOutputDevice() & AUDIO_DEVICE_OUT_SPEAKER) != 0 && 
++            (AudioALSASpeechStreamController::getInstance()->IsSpeechStreamThreadEnable() == false))
++        {
++            AudioALSASpeechStreamController::getInstance()->EnableSpeechStreamThread(true);
++        }
++    }
++    return NO_ERROR;
++}
++
++status_t AudioALSAStreamManager::DisableSphStrm(audio_mode_t new_mode)
++{
++    if ((new_mode < AUDIO_MODE_NORMAL) || (new_mode > AUDIO_MODE_MAX))
++    {
++        return BAD_VALUE;
++    }
++    if (new_mode == mAudioMode)
++    {
++        ALOGW("-%s(), mAudioMode: %d == %d, return", __FUNCTION__, mAudioMode, new_mode);
++        return BAD_VALUE;
++    }
++
++    if (isModeInPhoneCallSupportEchoRef(mAudioMode) == true)
++    {
++        if(AudioALSASpeechStreamController::getInstance()->IsSpeechStreamThreadEnable() == true)
++        {
++            AudioALSASpeechStreamController::getInstance()->EnableSpeechStreamThread(false);
++        }
++    }
++    return NO_ERROR;
++}
++
++bool AudioALSAStreamManager::isModeInPhoneCallSupportEchoRef(const audio_mode_t audio_mode)
++{
++    if(audio_mode == AUDIO_MODE_IN_CALL)
++    {
++        return true;
++    }
++    else if(audio_mode == AUDIO_MODE_IN_CALL_EXTERNAL)
++    {
++        // get DSDA proposal type, only proposal2 support
++        char property_value[PROPERTY_VALUE_MAX];
++        property_get("persist.af.dsda_proposal_type", property_value, "2");
++        int dsda_proposal_type = atoi(property_value);
++        ALOGD("dsda_proposal_type = %d", dsda_proposal_type);
++        if(dsda_proposal_type == 2)
++            return true;
++        else
++            return false;
++    }
++    else
++    {
++        return false;
++    }
++}
++
++status_t AudioALSAStreamManager::UpdateStreamOutFilter(android_audio_legacy::AudioStreamOut *out, int format, uint32_t channels, uint32_t sampleRate)
++{
++    AudioAutoTimeoutLock streamVectorAutoTimeoutLock(mStreamVectorLock);
++    AudioAutoTimeoutLock _l(mLock);
++    if (out == NULL)
++    {
++        ALOGE("%s(), Cannot close null output stream!! return", __FUNCTION__);
++        return INVALID_OPERATION;
++    }
++
++    AudioALSAStreamOut *pAudioALSAStreamOut = static_cast<AudioALSAStreamOut *>(out);
++    uint32_t dFltMngindex = mFilterManagerVector.indexOfKey(pAudioALSAStreamOut->getIdentity());
++
++    if (dFltMngindex < mFilterManagerVector.size())
++    {
++        AudioMTKFilterManager *pAudioFilterManagerHandler = static_cast<AudioMTKFilterManager *>(mFilterManagerVector[dFltMngindex]);
++        ALOGD("%s, remove mFilterManagerVector Success [%d]/[%d] [%d], pAudioFilterManagerHandler=%p",
++              __FUNCTION__, dFltMngindex, mFilterManagerVector.size(), pAudioALSAStreamOut->getIdentity(), pAudioFilterManagerHandler);
++        ASSERT(pAudioFilterManagerHandler != 0);
++        mFilterManagerVector.removeItem(pAudioALSAStreamOut->getIdentity());
++        delete pAudioFilterManagerHandler;
++    }
++    
++    AudioMTKFilterManager *pAudioFilterManagerHandler = new AudioMTKFilterManager(sampleRate, android_audio_legacy::AudioSystem::popCount(channels), format, pAudioALSAStreamOut->bufferSize());
++    mFilterManagerVector.add(pAudioALSAStreamOut->getIdentity(), pAudioFilterManagerHandler);
++    return NO_ERROR;
++}
++#endif
++
+ } // end of namespace android
+diff --git a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamOut.cpp b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamOut.cpp
+index dcf8247..efaaae2 100644
+--- a/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamOut.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/aud_drv/AudioALSAStreamOut.cpp
+@@ -122,8 +122,8 @@ status_t AudioALSAStreamOut::set(
+     mStreamAttributeSource.buffer_size = LOW_POWER_HAL_BUFFER_SIZE; // TODO(Harvey): Query this
+     mStreamAttributeSource.latency = (LOW_LATENCY_HAL_BUFFER_SIZE * 1000) / (mStreamAttributeSource.sample_rate * size_per_frame);
+ #else
+-    mStreamAttributeSource.buffer_size = 3072 * 2 * 2; // TODO(Harvey): Query this
+-    mStreamAttributeSource.latency = (mStreamAttributeSource.buffer_size * 1000) / (mStreamAttributeSource.sample_rate * size_per_frame);
++    mStreamAttributeSource.buffer_size = LOW_LATENCY_HAL_BUFFER_SIZE; // TODO(Harvey): Query this
++    mStreamAttributeSource.latency = LOW_LATENCY_HAL_BUFFER_SIZE;
+ #endif
+ 
+     return *status;
+@@ -248,9 +248,42 @@ status_t AudioALSAStreamOut::setParameters(const String8 &keyValuePairs)
+         param.remove(keyRouting);
+ 
+         AudioAutoTimeoutLock _l(mLock);
+-        status = mStreamManager->routingOutputDevice(mStreamAttributeSource.output_devices, static_cast<audio_devices_t>(value));
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++            if(mStreamManager->IsSphStrmSupport())
++            {
++                ALOGD("%s():Check Speech OutputDevice, %d -> %d", __FUNCTION__, mStreamAttributeSource.output_devices, value);
++                if(mStreamAttributeSource.output_devices != static_cast<audio_devices_t>(value))
++                {
++                    mStreamManager->DisableSphStrm(static_cast<audio_devices_t>(value));
++                }
++            }
++#endif
++            status = mStreamManager->routingOutputDevice(mStreamAttributeSource.output_devices, static_cast<audio_devices_t>(value));
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++            if(mStreamManager->IsSphStrmSupport())
++            {
++                mStreamManager->EnableSphStrm(static_cast<audio_devices_t>(value));
++            }
++#endif
+     }
+ 
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++    if (param.getInt(String8("SPH_DL_OUTPUT"), value) == NO_ERROR)
++    {
++        param.remove(String8("SPH_DL_OUTPUT"));
++        ALOGD("%s() set stream to SPH_DL_OUTPUT", __FUNCTION__);
++        // channel
++        mStreamAttributeSource.audio_channel_mask = AUDIO_CHANNEL_IN_MONO;
++        mStreamAttributeSource.num_channels = android_audio_legacy::AudioSystem::popCount(mStreamAttributeSource.audio_channel_mask);
++
++
++        // sample rate
++        mStreamAttributeSource.sample_rate = 16000;
++        mStreamAttributeSource.bFixedRouting = true;
++        mStreamAttributeSource.bModemDai_Input = true;
++        mStreamManager->UpdateStreamOutFilter((android_audio_legacy::AudioStreamOut *)this, mStreamAttributeSource.audio_format, mStreamAttributeSource.num_channels, mStreamAttributeSource.sample_rate);
++    }
++#endif
+     if (param.size())
+     {
+         ALOGW("%s(), still have param.size() = %d, remain param = \"%s\"",
+diff --git a/mediatek/platform/mt6595/hardware/audio/include/AudioALSACaptureDataProviderBase.h b/mediatek/platform/mt6595/hardware/audio/include/AudioALSACaptureDataProviderBase.h
+index e373149..5b21259 100644
+--- a/mediatek/platform/mt6595/hardware/audio/include/AudioALSACaptureDataProviderBase.h
++++ b/mediatek/platform/mt6595/hardware/audio/include/AudioALSACaptureDataProviderBase.h
+@@ -40,7 +40,12 @@ class AudioALSACaptureDataProviderBase
+     protected:
+         AudioALSACaptureDataProviderBase();
+ 
+-
++        /**
++         * pcm driver open/close
++         */
++        status_t         openPcmDriver(const unsigned int device); // TODO(Harvey): Query device by string
++        status_t         closePcmDriver();
++    
+         /**
+          * provide captrue data to all attached clients
+          */
+diff --git a/mediatek/platform/mt6595/hardware/audio/include/AudioALSADeviceString.h b/mediatek/platform/mt6595/hardware/audio/include/AudioALSADeviceString.h
+index 599a8d0..f940dba 100644
+--- a/mediatek/platform/mt6595/hardware/audio/include/AudioALSADeviceString.h
++++ b/mediatek/platform/mt6595/hardware/audio/include/AudioALSADeviceString.h
+@@ -34,6 +34,7 @@ static String8 keypcmMODADCI2S = String8("ANC_Debug_Record_MOD");
+ static String8 keypcmADC2AWB = String8("ANC_Debug_Record_ADC2");
+ static String8 keypcmIO2DAI = String8("ANC_Debug_Record_IO2");
+ static String8 keypcmHpimpedancePlayback = String8("HP_IMPEDANCE_Playback");
++static String8 keypcmModomDaiCapture = String8("Moddai_Capture");
+ 
+ }
+ 
+diff --git a/mediatek/platform/mt6595/hardware/audio/include/AudioALSAHardwareResourceManager.h b/mediatek/platform/mt6595/hardware/audio/include/AudioALSAHardwareResourceManager.h
+index e8457ae..27b50d6 100644
+--- a/mediatek/platform/mt6595/hardware/audio/include/AudioALSAHardwareResourceManager.h
++++ b/mediatek/platform/mt6595/hardware/audio/include/AudioALSAHardwareResourceManager.h
+@@ -64,6 +64,7 @@ class AudioALSAHardwareResourceManager
+          * Interrupt Rate
+          */
+         virtual status_t setInterruptRate(const uint32_t rate);
++        virtual status_t setInterruptRate2(const uint32_t rate);
+ 
+ 
+         /**
+diff --git a/mediatek/platform/mt6595/hardware/audio/include/AudioALSAStreamManager.h b/mediatek/platform/mt6595/hardware/audio/include/AudioALSAStreamManager.h
+index b6fd54f..90d2107 100644
+--- a/mediatek/platform/mt6595/hardware/audio/include/AudioALSAStreamManager.h
++++ b/mediatek/platform/mt6595/hardware/audio/include/AudioALSAStreamManager.h
+@@ -183,8 +183,21 @@ class AudioALSAStreamManager
+          * Bypass DL Post Process Flag
+          */
+         status_t setBypassDLProcess(bool flag);
+-
+-
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++        /**
++         * Enable/Disable speech Strm
++         */
++        status_t DisableSphStrm(const audio_mode_t new_mode);
++        status_t EnableSphStrm(const audio_mode_t new_mode);
++        status_t DisableSphStrm(audio_devices_t output_devices);
++        status_t EnableSphStrm(audio_devices_t output_devices);
++        /**
++         * Update Stream out filter
++         */
++        bool isModeInPhoneCallSupportEchoRef(const audio_mode_t audio_mode);
++        status_t UpdateStreamOutFilter(android_audio_legacy::AudioStreamOut *out, int format, uint32_t channels, uint32_t sampleRate);
++        bool IsSphStrmSupport(void);
++#endif
+     protected:
+         AudioALSAStreamManager();
+ 
+diff --git a/mediatek/platform/mt6595/hardware/audio/speech_driver/AudioALSASpeechPhoneCallController.cpp b/mediatek/platform/mt6595/hardware/audio/speech_driver/AudioALSASpeechPhoneCallController.cpp
+index 99b8009..50e9eb6 100644
+--- a/mediatek/platform/mt6595/hardware/audio/speech_driver/AudioALSASpeechPhoneCallController.cpp
++++ b/mediatek/platform/mt6595/hardware/audio/speech_driver/AudioALSASpeechPhoneCallController.cpp
+@@ -36,7 +36,9 @@ static const char WAKELOCK_NAME[] = "EXT_MD_AUDIO_WAKELOCK";
+ 
+ 
+ static struct mixer *mMixer;
+-
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++static bool IsSpeechStreamSupport = true;
++#endif
+ 
+ AudioALSASpeechPhoneCallController *AudioALSASpeechPhoneCallController::mSpeechPhoneCallController = NULL;
+ AudioALSASpeechPhoneCallController *AudioALSASpeechPhoneCallController::getInstance()
+@@ -167,16 +169,24 @@ status_t AudioALSASpeechPhoneCallController::open(const audio_mode_t audio_mode,
+     AudioAutoTimeoutLock _l(mLock);
+ 
+ 
++#ifndef MTK_INT_MD_SPE_FOR_EXT_MD // proposal 2 has no need to get wake lock
+     // wake lock for external modem
+     if (audio_mode == AUDIO_MODE_IN_CALL_EXTERNAL)
+     {
+         int ret = acquire_wake_lock(PARTIAL_WAKE_LOCK, WAKELOCK_NAME);
+         ALOGD("%s(), acquire_wake_lock(%s) = %d", __FUNCTION__, WAKELOCK_NAME, ret);
+     }
++#endif
+ 
+ 
+     mHardwareResourceManager->EnableAudBufClk(true);
+-
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++    bool b_speechStream  = false;
++    char property_value[PROPERTY_VALUE_MAX];
++    property_get("streamout.speech_stream.enable", property_value, "1");
++    int speech_stream = atoi(property_value);
++    IsSpeechStreamSupport = (speech_stream == 0)? false:true;
++#endif
+     // get speech driver instance
+     mSpeechDriverFactory->SetActiveModemIndexByAudioMode(audio_mode);
+     const modem_index_t    modem_index   = mSpeechDriverFactory->GetActiveModemIndex();
+@@ -280,6 +290,15 @@ status_t AudioALSASpeechPhoneCallController::open(const audio_mode_t audio_mode,
+             ASSERT(mPcmIn == NULL && mPcmOut == NULL);
+             mPcmIn = pcm_open(0, (dsda_proposal_type == DSDA_PROPOSAL_1) ? 17 : 19, PCM_IN, &mConfig);
+             mPcmOut = pcm_open(0, (dsda_proposal_type == DSDA_PROPOSAL_1) ? 17 : 19, PCM_OUT, &mConfig);
++            pcm_start(mPcmIn); // TODO(Harvey, Chipeng): Samsung not use this?
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++            b_speechStream = (((output_devices & AUDIO_DEVICE_OUT_SPEAKER) != 0) && (dsda_proposal_type == 2) && (IsSpeechStreamSupport == true)) ? true : false;
++            if( b_speechStream == false){ //When and proposal 1 or not speaker mode , turn on DL PCM directly
++                pcm_start(mPcmOut);
++            }
++#else
++            pcm_start(mPcmOut); // TODO(Harvey, Chipeng): Samsung not use this?
++#endif
+         }
+         else
+         {
+@@ -295,12 +314,18 @@ status_t AudioALSASpeechPhoneCallController::open(const audio_mode_t audio_mode,
+             ASSERT(mPcmIn == NULL && mPcmOut == NULL);
+             mPcmIn = pcm_open(0, 2, PCM_IN, &mConfig);
+             mPcmOut = pcm_open(0, 2, PCM_OUT, &mConfig);
++            ASSERT(mPcmIn != NULL && mPcmOut != NULL);
++            pcm_start(mPcmIn); // TODO(Harvey, Chipeng): Samsung not use this?
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++            b_speechStream = (((output_devices & AUDIO_DEVICE_OUT_SPEAKER) != 0) && (IsSpeechStreamSupport == true)) ? true : false;
++            if( b_speechStream == false ){ //When not speaker mode, turn on DL PCM directly
++                pcm_start(mPcmOut);
++            }
++#else
++            pcm_start(mPcmOut); // TODO(Harvey, Chipeng): Samsung not use this?
++#endif
+         }
+-        ASSERT(mPcmIn != NULL && mPcmOut != NULL);
+         ALOGD("%s(), mPcmIn = %p, mPcmOut = %p", __FUNCTION__, mPcmIn, mPcmOut);
+-
+-        pcm_start(mPcmIn); // TODO(Harvey, Chipeng): Samsung not use this?
+-        pcm_start(mPcmOut); // TODO(Harvey, Chipeng): Samsung not use this?
+     }
+ 
+     if (checkTtyNeedOn() == true)
+@@ -358,7 +383,12 @@ status_t AudioALSASpeechPhoneCallController::open(const audio_mode_t audio_mode,
+ 
+     if (checkTtyNeedOn() == false)
+     {
+-        mHardwareResourceManager->startOutputDevice(output_devices, 16000);
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++        if(b_speechStream == false)
++#endif
++        {
++            mHardwareResourceManager->startOutputDevice(output_devices, 16000);
++        }
+     }
+ 
+ #ifdef MTK_ACTIVE_NOISE_CANCELLATION_SUPPORT
+@@ -410,9 +440,37 @@ status_t AudioALSASpeechPhoneCallController::close()
+     struct mixer_ctl *ctl;
+     enum mixer_ctl_type type;
+     unsigned int num_values;
+-
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)    
++    audio_devices_t out_dev = mHardwareResourceManager->getOutputDevice();
++    bool b_speechStream = false;
++    if(out_dev == 0)
++    {
++        b_speechStream = true;
++    }
++    else
++    {
++        if(mAudioMode == AUDIO_MODE_IN_CALL_EXTERNAL)
++        {
++#if defined (DSDA_SUPPORT)
++            const dsda_proposal_t dsda_proposal_type = SpeechDriverDSDA::GetDSDAProposalType();
++#else
++            const dsda_proposal_t dsda_proposal_type = DSDA_PROPOSAL_1;
++#endif
++            b_speechStream = (((out_dev & AUDIO_DEVICE_OUT_SPEAKER) != 0) && (dsda_proposal_type == DSDA_PROPOSAL_2) && (IsSpeechStreamSupport == true)) ? true : false;
++        }
++        else
++        {
++            b_speechStream = (((out_dev & AUDIO_DEVICE_OUT_SPEAKER) != 0) && (IsSpeechStreamSupport == true)) ? true : false;
++        }
++    }
++    
++    if(b_speechStream == false) // output device not controled by speech stream.
++    {
++        mHardwareResourceManager->stopOutputDevice();
++    }
++#else
+     mHardwareResourceManager->stopOutputDevice();
+-
++#endif
+     // Stop Side Tone Filter
+     mHardwareResourceManager->EnableSideToneFilter(false);
+ 
+@@ -426,7 +484,13 @@ status_t AudioALSASpeechPhoneCallController::close()
+ 
+     if (mPcmOut != NULL)
+     {
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++        if( b_speechStream == false ){ //When not speaker mode, turn off DL PCM directly
++            pcm_stop(mPcmOut);
++        }
++#else
+         pcm_stop(mPcmOut);
++#endif
+         pcm_close(mPcmOut);
+         mPcmOut = NULL;
+     }
+@@ -482,12 +546,14 @@ status_t AudioALSASpeechPhoneCallController::close()
+ 
+     mHardwareResourceManager->EnableAudBufClk(false);
+ 
++#ifndef MTK_INT_MD_SPE_FOR_EXT_MD // proposal 2 has no need to get wake lock
+     // wake lock for external modem
+     if (mAudioMode == AUDIO_MODE_IN_CALL_EXTERNAL)
+     {
+         int ret = release_wake_lock(WAKELOCK_NAME);
+         ALOGD("%s(), release_wake_lock(%s) = %d", __FUNCTION__, WAKELOCK_NAME, ret);
+     }
++#endif
+ 
+ 
+     mAudioMode = AUDIO_MODE_NORMAL; // TODO(Harvey): default value? VoIP?
+@@ -512,9 +578,31 @@ status_t AudioALSASpeechPhoneCallController::routing(const audio_devices_t new_o
+     pSpeechDriver->SetDownlinkMute(true);
+     pSpeechDriver->SetUplinkMute(true);
+ 
+-
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)    
++    audio_devices_t out_dev = mHardwareResourceManager->getOutputDevice();
++    bool b_speechStream = false;
++    if(out_dev != AUDIO_DEVICE_NONE) // output device not controled by speech stream.
++    {
++        mHardwareResourceManager->stopOutputDevice();
++    }
++    if(mAudioMode == AUDIO_MODE_IN_CALL_EXTERNAL)
++    {
++#if defined (DSDA_SUPPORT)
++        const dsda_proposal_t dsda_proposal_type = SpeechDriverDSDA::GetDSDAProposalType();
++#else
++        const dsda_proposal_t dsda_proposal_type = DSDA_PROPOSAL_1;
++#endif
++        b_speechStream = (((new_output_devices & AUDIO_DEVICE_OUT_SPEAKER) != 0) && (dsda_proposal_type == DSDA_PROPOSAL_2) && (IsSpeechStreamSupport == true)) ? true : false;
++    }
++    else
++    {
++        b_speechStream = (((new_output_devices & AUDIO_DEVICE_OUT_SPEAKER) != 0) && (IsSpeechStreamSupport == true)) ? true : false;
++    }
++    ALOGD("+%s(), new_output_devices = 0x%x, b_speechStream %d, mAudioMode %d", __FUNCTION__, new_output_devices, b_speechStream, mAudioMode);
++#else
+     // Stop PMIC digital/analog part - downlink
+     mHardwareResourceManager->stopOutputDevice();
++#endif
+ 
+     // Stop Side Tone Filter
+     mHardwareResourceManager->EnableSideToneFilter(false);
+@@ -626,7 +714,14 @@ status_t AudioALSASpeechPhoneCallController::routing(const audio_devices_t new_o
+ 
+         if (mPcmOut != NULL)
+         {
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++            if(out_dev != AUDIO_DEVICE_NONE) //When not speaker mode, turn off DL PCM directly
++            {
++                pcm_stop(mPcmOut);
++            }
++#else
+             pcm_stop(mPcmOut);
++#endif
+             pcm_close(mPcmOut);
+             mPcmOut = NULL;
+         }
+@@ -667,7 +762,14 @@ status_t AudioALSASpeechPhoneCallController::routing(const audio_devices_t new_o
+         ALOGD("%s(), mPcmIn = %p, mPcmOut = %p", __FUNCTION__, mPcmIn, mPcmOut);
+ 
+         pcm_start(mPcmIn); // TODO(Harvey, Chipeng): Samsung not use this?
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++        if(b_speechStream == false){ //When not speaker mode, turn on DL PCM directly
++            pcm_start(mPcmOut);
++            ALOGD("%s(), output_device %d, pcm_start %p ", __FUNCTION__, output_device, mPcmOut);
++        }
++#else
+         pcm_start(mPcmOut); // TODO(Harvey, Chipeng): Samsung not use this?
++#endif
+     }
+ 
+     // Set new device
+@@ -679,9 +781,15 @@ status_t AudioALSASpeechPhoneCallController::routing(const audio_devices_t new_o
+     {
+         // Set PMIC digital/analog part - uplink has pop, open first
+         mHardwareResourceManager->startInputDevice(input_device);
+-
++#if defined(MTK_SPEAKER_MONITOR_SPEECH_SUPPORT)
++        if(b_speechStream == false) // Not speaker and speech Stream Controlled
++        {
++            mHardwareResourceManager->startOutputDevice(output_device, sample_rate);
++        }
++#else
+         // Set PMIC digital/analog part - DL need trim code.
+         mHardwareResourceManager->startOutputDevice(output_device, sample_rate);
++#endif
+     }
+ 
+     // start Side Tone Filter
+diff --git a/vendor/mediatek/ckt95_lw_kk/artifacts/out/target/product/ckt95_lw_kk/obj/lib/libMtkOmxAacDec.so b/vendor/mediatek/ckt95_lw_kk/artifacts/out/target/product/ckt95_lw_kk/obj/lib/libMtkOmxAacDec.so
+index dc16a7c11c9e558bd3a2ef3f088afde8541a9f2e..3e298796599ac32a1936954b92cecaa8ae46d5b0 100755
+GIT binary patch
+delta 129
+zcmZ3}BeAAOqM?Ox3)34D&L`KI7-j(Ro9$msm=4D<O0@5s$OOd9+jmZ6X|B>SG*B=y
+zFf?T_G`2FeurfAc00KuxX9btk<ouM>A_bq!B$%A>_6#0Y8Ad7J09SW~kfOxA;)495
+R5(b#G2?N9SdAzKBKL99mC=>ty
+
+delta 116
+zcmZ3}BeAAOqM?Ox3)34DPL7*Q3^T4XG5py6)r9GA3?oPT&WTJw%)EW)M3&|%9R*Vb
+zBLhQI2164oV{<DbGX@}VbaYm5NlngANi9<F$xMRDnQzbFVU=OzfGV|^-oVQ$vV8$B
+HYtIh=)Yv0J
+
+diff --git a/vendor/mediatek/ckt95_lw_kk/artifacts/out/target/product/ckt95_lw_kk/obj/lib/libMtkOmxAacEnc.so b/vendor/mediatek/ckt95_lw_kk/artifacts/out/target/product/ckt95_lw_kk/obj/lib/libMtkOmxAacEnc.so
+index dad21b7f27aa184cac439025b459532bae744bc0..a09c6a4a96cd413d9d5b73a2cf78162b1e0c5132 100755
+GIT binary patch
+delta 140
+zcmZ4UQfkdhsfI0#8Bf?Ob~7^=?B1UDgpp5&QK7w7fC-41ftY1`tpMxvUK2wD1tSAP
+zQwBq0D^m+AV<QG2aCCH5aLr53Pf0CeP)*STBak>$jq!Gmd8`tQQc$i5NXj?B)m<T^
+WC^4_NAit=jy=p$|_Nw`8Mxp>kqb8*Q
+
+delta 140
+zcmZ4UQfkdhsfI0#8Bf@Bb~7^w?Ao69gpp5&(V)FnfC-41ftY1`tpMxvUK0gV1tSAP
+zQwBp5D`RsjBQpjdaCCH5aLr53Pf0CeP)*STBak>$jm374d8`tQQoaGM?g}AAiFw5Z
+X`9&pgX-fu%_Nw`;+pFfY8HoY_RaYi~
+
+diff --git a/vendor/mediatek/ckt95_lw_kk/artifacts/out/target/product/ckt95_lw_kk/system/lib/libMtkOmxAacDec.so b/vendor/mediatek/ckt95_lw_kk/artifacts/out/target/product/ckt95_lw_kk/system/lib/libMtkOmxAacDec.so
+index dc16a7c11c9e558bd3a2ef3f088afde8541a9f2e..3e298796599ac32a1936954b92cecaa8ae46d5b0 100755
+GIT binary patch
+delta 129
+zcmZ3}BeAAOqM?Ox3)34D&L`KI7-j(Ro9$msm=4D<O0@5s$OOd9+jmZ6X|B>SG*B=y
+zFf?T_G`2FeurfAc00KuxX9btk<ouM>A_bq!B$%A>_6#0Y8Ad7J09SW~kfOxA;)495
+R5(b#G2?N9SdAzKBKL99mC=>ty
+
+delta 116
+zcmZ3}BeAAOqM?Ox3)34DPL7*Q3^T4XG5py6)r9GA3?oPT&WTJw%)EW)M3&|%9R*Vb
+zBLhQI2164oV{<DbGX@}VbaYm5NlngANi9<F$xMRDnQzbFVU=OzfGV|^-oVQ$vV8$B
+HYtIh=)Yv0J
+
+diff --git a/vendor/mediatek/ckt95_lw_kk/artifacts/out/target/product/ckt95_lw_kk/system/lib/libMtkOmxAacEnc.so b/vendor/mediatek/ckt95_lw_kk/artifacts/out/target/product/ckt95_lw_kk/system/lib/libMtkOmxAacEnc.so
+index dad21b7f27aa184cac439025b459532bae744bc0..a09c6a4a96cd413d9d5b73a2cf78162b1e0c5132 100755
+GIT binary patch
+delta 140
+zcmZ4UQfkdhsfI0#8Bf?Ob~7^=?B1UDgpp5&QK7w7fC-41ftY1`tpMxvUK2wD1tSAP
+zQwBq0D^m+AV<QG2aCCH5aLr53Pf0CeP)*STBak>$jq!Gmd8`tQQc$i5NXj?B)m<T^
+WC^4_NAit=jy=p$|_Nw`8Mxp>kqb8*Q
+
+delta 140
+zcmZ4UQfkdhsfI0#8Bf@Bb~7^w?Ao69gpp5&(V)FnfC-41ftY1`tpMxvUK0gV1tSAP
+zQwBp5D`RsjBQpjdaCCH5aLr53Pf0CeP)*STBak>$jm374d8`tQQoaGM?g}AAiFw5Z
+X`9&pgX-fu%_Nw`;+pFfY8HoY_RaYi~
+
+-- 
+1.9.1
+

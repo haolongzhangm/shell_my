@@ -1,0 +1,101 @@
+diff --git a/frameworks/base/wifi/java/android/net/wifi/WifiStateMachine.java b/frameworks/base/wifi/java/android/net/wifi/WifiStateMachine.java
+index 7fe9c3d..93391da 100644
+--- a/frameworks/base/wifi/java/android/net/wifi/WifiStateMachine.java
++++ b/frameworks/base/wifi/java/android/net/wifi/WifiStateMachine.java
+@@ -885,9 +885,9 @@ public class WifiStateMachine extends StateMachine {
+         IBinder b = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
+         mNwService = INetworkManagementService.Stub.asInterface(b);
+ 
+-        mP2pSupported = mContext.getPackageManager().hasSystemFeature(
+-                PackageManager.FEATURE_WIFI_DIRECT);
+-
++        //mP2pSupported = mContext.getPackageManager().hasSystemFeature(
++          //      PackageManager.FEATURE_WIFI_DIRECT);
++		mP2pSupported = false;
+         mWifiNative = new WifiNative(mInterfaceName);
+         mWifiConfigStore = new WifiConfigStore(context, mWifiNative);
+         mWifiMonitor = new WifiMonitor(this, mWifiNative);
+diff --git a/frameworks/base/wifi/java/android/net/wifi/p2p/WifiP2pService.java b/frameworks/base/wifi/java/android/net/wifi/p2p/WifiP2pService.java
+index 5935857..880c5c9 100644
+--- a/frameworks/base/wifi/java/android/net/wifi/p2p/WifiP2pService.java
++++ b/frameworks/base/wifi/java/android/net/wifi/p2p/WifiP2pService.java
+@@ -481,9 +481,9 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
+         mInterface = "p2p0";
+         mNetworkInfo = new NetworkInfo(ConnectivityManager.TYPE_WIFI_P2P, 0, NETWORKTYPE, "");
+ 
+-        mP2pSupported = mContext.getPackageManager().hasSystemFeature(
+-                PackageManager.FEATURE_WIFI_DIRECT);
+-
++       // mP2pSupported = mContext.getPackageManager().hasSystemFeature(
++         //       PackageManager.FEATURE_WIFI_DIRECT);
++		mP2pSupported = false;
+         mThisDevice.primaryDeviceType = mContext.getResources().getString(
+                 com.android.internal.R.string.config_wifi_p2p_device_type);
+ 
+diff --git a/mediatek/config/mt6595/init.rc b/mediatek/config/mt6595/init.rc
+index accf551..e48c010 100755
+--- a/mediatek/config/mt6595/init.rc
++++ b/mediatek/config/mt6595/init.rc
+@@ -1394,20 +1394,6 @@ service rmmod rmmod
+ 
+ #remove -puse_p2p_group_interface=1. our driver doesnot support this ffeature
+ #
+-service p2p_supplicant /system/bin/wpa_supplicant \
+-	-iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
+-	-I/system/etc/wifi/wpa_supplicant_overlay.conf -N \
+-	-ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf -e/data/misc/wifi/entropy.bin -ddd \
+-	-I/system/etc/wifi/p2p_supplicant_overlay.conf \
+-	-O/data/misc/wifi/sockets -g@android:wpa_wlan0
+-	#   we will start as root and wpa_supplicant will switch to user wifi
+-	#   after setting up the capabilities required for WEXT
+-	#   user wifi
+-	#   group wifi inet keystore
+-	class main
+-	socket wpa_wlan0 dgram 660 wifi wifi
+-	disabled
+-	oneshot
+ 
+ service wpa_supplicant /system/bin/wpa_supplicant \
+ 	-iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin -ddd \
+@@ -1422,15 +1408,6 @@ service wpa_supplicant /system/bin/wpa_supplicant \
+ 	disabled
+ 	oneshot
+ 
+-service ap_daemon /system/bin/wpa_supplicant \
+-	-iap0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf -e/data/misc/wifi/entropy.bin -puse_p2p_group_interface=1 -ddd
+-	#   we will start as root and wpa_supplicant will switch to user wifi
+-	#   after setting up the capabilities required for WEXT
+-	#   user wifi
+-	#   group wifi inet keystore
+-	class main
+-	disabled
+-	oneshot
+ 
+ #service wlanLoader /system/bin/wlan_loader
+ #    user root
+diff --git a/mediatek/external/mtk_wifi/config/mtk-wpa_supplicant.conf b/mediatek/external/mtk_wifi/config/mtk-wpa_supplicant.conf
+index ef8a8af..0a73b19 100755
+--- a/mediatek/external/mtk_wifi/config/mtk-wpa_supplicant.conf
++++ b/mediatek/external/mtk_wifi/config/mtk-wpa_supplicant.conf
+@@ -7,6 +7,4 @@ model_number=1.0
+ serial_number=2.0
+ device_type=10-0050F204-5
+ os_version=01020300
+-config_methods=display push_button keypad
+-p2p_no_group_iface=1
+-driver_param=use_p2p_group_interface=1
++
+diff --git a/system/netd/SoftapController.cpp b/system/netd/SoftapController.cpp
+index f296980..27b587f 100644
+--- a/system/netd/SoftapController.cpp
++++ b/system/netd/SoftapController.cpp
+@@ -272,7 +272,8 @@ int SoftapController::fwReloadSoftap(int argc, char *argv[])
+         return ResponseCode::CommandParameterError;
+     if (wifi_change_fw_path((const char *)fwpath)) {
+         ALOGE("Softap fwReload failed");
+-        return ResponseCode::OperationFailed;
++		ALOGD("##### test wifi dongle so return OK");
++        //return ResponseCode::OperationFailed;
+     }
+     else {
+         ALOGD("Softap fwReload - Ok");

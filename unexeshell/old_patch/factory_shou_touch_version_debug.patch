@@ -1,0 +1,144 @@
+diff --git a/mediatek/factory/inc/uistrings_chn.h b/mediatek/factory/inc/uistrings_chn.h
+index 2af5911..d0456a4 100644
+--- a/mediatek/factory/inc/uistrings_chn.h
++++ b/mediatek/factory/inc/uistrings_chn.h
+@@ -459,6 +459,7 @@
+ #define uistr_info_touch_start					"点击屏开始!"
+ #define uistr_info_touch_red_cross			"点击红色标记!"
+ #define uistr_info_touch_pass_continue		"通过!点击屏继续"
++#define uistr_info_touch_readid				"读取芯片ID"
+ 
+ /* OFN */
+ #define uistr_info_ofn_fail							"测试失败"
+diff --git a/mediatek/factory/inc/uistrings_eng.h b/mediatek/factory/inc/uistrings_eng.h
+index d65345f..069faee 100644
+--- a/mediatek/factory/inc/uistrings_eng.h
++++ b/mediatek/factory/inc/uistrings_eng.h
+@@ -457,6 +457,7 @@
+ #define uistr_info_touch_start					"touch screen to start!"
+ #define uistr_info_touch_red_cross			"touch the red cross!"
+ #define uistr_info_touch_pass_continue		"pass! tap to continue"
++#define uistr_info_touch_readid				"读取芯片ID"
+ 
+ /* OFN */
+ #define uistr_info_ofn_fail							"Fail"
+diff --git a/mediatek/factory/src/test/ftm_touch.c b/mediatek/factory/src/test/ftm_touch.c
+index af96556..309b786 100644
+--- a/mediatek/factory/src/test/ftm_touch.c
++++ b/mediatek/factory/src/test/ftm_touch.c
+@@ -47,6 +47,7 @@
+ #include "miniui.h"
+ #include "ftm.h"
+ 
++#define EKT_IC_ID_NODE "/sys/devices/platform/mt-i2c.2/i2c-2/2-0015/ektf2k_version"
+ enum {
+     ITEM_TOUCH_MAIN,
+     ITEM_TOUCH_CALIBRATION,
+@@ -57,6 +58,7 @@ enum {
+     ITEM_TOUCH_DEADZONE,
+     ITEM_TOUCH_ZOOM,
+     ITEM_TOUCH_FREEMODE,
++	ITEM_TOUCH_READID
+     ITEM_TOUCH_PASS,
+     ITEM_TOUCH_FAIL,
+     ITEM_TOUCH_CHOOSER,
+@@ -69,6 +71,7 @@ item_t rtype_touch_items[] = {
+     item(ITEM_TOUCH_SENSITIVITY, uistr_info_touch_sensitivity),
+     item(ITEM_TOUCH_DEADZONE,    uistr_info_touch_deadzone),
+     item(ITEM_TOUCH_FREEMODE,    uistr_info_touch_freemode),
++	item(ITEM_TOUCH_READID,   uistr_info_touch_readid),
+     item(ITEM_TOUCH_PASS,        uistr_pass),
+     item(ITEM_TOUCH_FAIL,        uistr_fail),
+     item(-1            ,  NULL),
+@@ -82,6 +85,7 @@ item_t ctype_touch_items[] = {
+     //item(ITEM_TOUCH_DEADZONE,    "Deadzone"),
+     //item(ITEM_TOUCH_ZOOM,        "PinchToZoom"),
+     item(ITEM_TOUCH_FREEMODE,    uistr_info_touch_freemode),
++	item(ITEM_TOUCH_READID,   uistr_info_touch_readid),
+     item(ITEM_TOUCH_PASS,        uistr_pass),
+     item(ITEM_TOUCH_FAIL,        uistr_fail),
+     item(-1            ,  NULL),
+@@ -109,6 +113,7 @@ struct touch {
+     struct paintview zoom;
+     struct paintview *cpv;
+     struct itemview menu;
++	struct paintview chipid;
+     text_t title;
+ };
+ 
+@@ -232,7 +237,31 @@ void clear_touch_result(void)
+     g_pass_case4 =0;
+     g_pass_case5 =0;
+ }
+-
++void Read_id(struct touch *tpd)
++{
++	char strbuff[20];
++	int len=0;
++	char tp[40];
++	FILE *fd = fopen(EKT_IC_ID_NODE, "r");
++	LOGD(TAG "read EKT_IC_ID = %d \n",fd);
++	if (fd != 0)
++		{
++			LOGD(TAG "read id now ...... \n");
++			if( fscanf(fd, "%s\n", strbuff) == 1)
++			{
++				LOGD(TAG "read strbuff = %s \n",strbuff);
++				fclose(fd);
++				ui_color(0, 0, 0, 50);
++				ui_fill(0, 0, tpd->width, tpd->height);
++				ui_color(255, 255, 255, 255);
++				sprintf(tp,"%s",strbuff);
++				ui_text(50,100,tp);
++			}
++			fclose(fd);
++		}
++	else
++		LOGD(TAG "open EKT_IC_ID_NODE failed\n",fd);
++}
+ 
+ /*
+ void setline(line_t *line,int sx, int sy, int dx, int dy, int width, int color) {
+@@ -820,6 +849,7 @@ static void paint_redraw(struct touch *tpd) {
+     case ITEM_TOUCH_SENSITIVITY: paint_sensitivity(tpd); break;
+     case ITEM_TOUCH_DEADZONE:    paint_deadzone(tpd); break;
+     case ITEM_TOUCH_ZOOM:        paint_zoom(tpd); break;
++	case ITEM_TOUCH_READID:		Read_id(tpd); break;
+     default: break;
+     } ui_flip();
+ }
+@@ -1587,6 +1617,8 @@ static void *touch_update_thread(void *priv) {
+                         tpd->menu.m_selected++; part(tpd, ITEM_TOUCH_CHOOSER);
+                     }
+                     break;
++				case ITEM_TOUCH_READID:
++					break;
+                 case ITEM_TOUCH_ZOOM:
+                     if(enter==true) scene_init(tpd); //mt_radius = tpd->height/4, mt_max_radius=0, mt_min_radius=tpd->width/2;
+                     if(pc==2 && p) {
+@@ -1611,7 +1643,7 @@ static void *touch_update_thread(void *priv) {
+                 }
+                 
+                 if(enter==true || release==true) { px=x;py=y;enter=false; release=false; }
+-                if(tpd->scene!=ITEM_TOUCH_ACCURACY && tpd->scene!=ITEM_TOUCH_ZOOM && tpd->scene!=ITEM_TOUCH_CHOOSER) {
++                if(tpd->scene!=ITEM_TOUCH_ACCURACY && tpd->scene!=ITEM_TOUCH_ZOOM && tpd->scene!=ITEM_TOUCH_CHOOSER && tpd->scene!=ITEM_TOUCH_READID) {
+                     if(tpd->scene==ITEM_TOUCH_FREEMODE) {
+                         //ui_color(0, 0, 0, 10);
+                         //ui_fill(0, 21, tpd->width, tpd->height-10);
+@@ -1652,6 +1684,7 @@ void setup_cpv(struct touch *tpd) {
+     case ITEM_TOUCH_DEADZONE:  tpd->cpv = &(tpd->empty); break;
+     case ITEM_TOUCH_FREEMODE: tpd->cpv = &(tpd->freemode); break;
+     case ITEM_TOUCH_ZOOM: tpd->cpv = &(tpd->zoom); break;
++	case ITEM_TOUCH_READID:    tpd->cpv = &(tpd->chipid); break;
+     default: tpd->cpv = NULL; break;
+     }
+ }
+@@ -1747,7 +1780,7 @@ int touch_entry(struct ftm_param *param, void *priv) {
+     sensitivity_lines = scene_sensitivity(tpd);
+     tpd->sensitivity.set_line(&(tpd->sensitivity), &(sensitivity_lines[1]), sensitivity_lines[0].sx);*/
+     ui_init_paintview(&(tpd->zoom), paintview_key_handler, &(tpd->zoom));
+-
++	ui_init_paintview(&(tpd->chipid), paintview_key_handler, &(tpd->chipid));
+     ui_init_paintview(&(tpd->freemode), paintview_key_handler, &(tpd->freemode));
+     tpd->freemode.set_line(&(tpd->freemode), freemode_lines, 1);
+ 

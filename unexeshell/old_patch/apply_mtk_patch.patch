@@ -1,0 +1,752 @@
+diff --git a/external/apache-http/src/org/apache/http/conn/ssl/AbstractVerifier.java b/external/apache-http/src/org/apache/http/conn/ssl/AbstractVerifier.java
+index 723d806..deda1d0 100644
+--- a/external/apache-http/src/org/apache/http/conn/ssl/AbstractVerifier.java
++++ b/external/apache-http/src/org/apache/http/conn/ssl/AbstractVerifier.java
+@@ -44,10 +44,10 @@ import java.util.Iterator;
+ import java.util.LinkedList;
+ import java.util.List;
+ import java.util.Locale;
+-import java.util.StringTokenizer;
+ import java.util.logging.Logger;
+ import java.util.logging.Level;
+ 
++import javax.net.ssl.DistinguishedNameParser;
+ import javax.net.ssl.SSLException;
+ import javax.net.ssl.SSLSession;
+ import javax.net.ssl.SSLSocket;
+@@ -202,38 +202,10 @@ public abstract class AbstractVerifier implements X509HostnameVerifier {
+     }
+ 
+     public static String[] getCNs(X509Certificate cert) {
+-        LinkedList<String> cnList = new LinkedList<String>();
+-        /*
+-          Sebastian Hauer's original StrictSSLProtocolSocketFactory used
+-          getName() and had the following comment:
++        DistinguishedNameParser dnParser =
++                new DistinguishedNameParser(cert.getSubjectX500Principal());
++        List<String> cnList = dnParser.getAllMostSpecificFirst("cn");
+ 
+-                Parses a X.500 distinguished name for the value of the
+-                "Common Name" field.  This is done a bit sloppy right
+-                 now and should probably be done a bit more according to
+-                <code>RFC 2253</code>.
+-
+-           I've noticed that toString() seems to do a better job than
+-           getName() on these X500Principal objects, so I'm hoping that
+-           addresses Sebastian's concern.
+-
+-           For example, getName() gives me this:
+-           1.2.840.113549.1.9.1=#16166a756c6975736461766965734063756362632e636f6d
+-
+-           whereas toString() gives me this:
+-           EMAILADDRESS=juliusdavies@cucbc.com
+-
+-           Looks like toString() even works with non-ascii domain names!
+-           I tested it with "&#x82b1;&#x5b50;.co.jp" and it worked fine.
+-        */
+-        String subjectPrincipal = cert.getSubjectX500Principal().toString();
+-        StringTokenizer st = new StringTokenizer(subjectPrincipal, ",");
+-        while(st.hasMoreTokens()) {
+-            String tok = st.nextToken();
+-            int x = tok.indexOf("CN=");
+-            if(x >= 0) {
+-                cnList.add(tok.substring(x + 3));
+-            }
+-        }
+         if(!cnList.isEmpty()) {
+             String[] cns = new String[cnList.size()];
+             cnList.toArray(cns);
+diff --git a/kernel/drivers/mmc/card/block.c b/kernel/drivers/mmc/card/block.c
+index 68778c4..5144fc4 100644
+--- a/kernel/drivers/mmc/card/block.c
++++ b/kernel/drivers/mmc/card/block.c
+@@ -2850,6 +2850,9 @@ static const struct mmc_fixup blk_fixups[] =
+      * Some MMC cards cache feature, cannot flush the previous cache data by force programming or reliable write
+      * which cannot gurrantee the strong order betwee meta data and file data.
+      */
++	/*
++	 * Toshiba eMMC after enable cache feature, write performance drop, because flush operation waste much time
++	 */
+ 	MMC_FIXUP(CID_NAME_ANY, CID_MANFID_TOSHIBA, CID_OEMID_ANY, add_quirk_mmc,
+ 		  MMC_QUIRK_DISABLE_CACHE), 
+ #endif
+diff --git a/libcore/luni/src/main/java/javax/net/ssl/DistinguishedNameParser.java b/libcore/luni/src/main/java/javax/net/ssl/DistinguishedNameParser.java
+index c3c1606..25ab76f 100644
+--- a/libcore/luni/src/main/java/javax/net/ssl/DistinguishedNameParser.java
++++ b/libcore/luni/src/main/java/javax/net/ssl/DistinguishedNameParser.java
+@@ -17,6 +17,9 @@
+ 
+ package javax.net.ssl;
+ 
++import java.util.ArrayList;
++import java.util.Collections;
++import java.util.List;
+ import javax.security.auth.x500.X500Principal;
+ 
+ /**
+@@ -406,4 +409,71 @@ public final class DistinguishedNameParser {
+             }
+         }
+     }
++
++    /**
++     * Parses the DN and returns all values for an attribute type, in
++     * the order of decreasing significance (most significant first).
++     *
++     * @param attributeType attribute type to look for (e.g. "ca")
++     */
++    public List<String> getAllMostSpecificFirst(String attributeType) {
++        // Initialize internal state.
++        pos = 0;
++        beg = 0;
++        end = 0;
++        cur = 0;
++        chars = dn.toCharArray();
++        List<String> result = Collections.emptyList();
++
++        String attType = nextAT();
++        if (attType == null) {
++            return result;
++        }
++        while (pos < length) {
++            String attValue = "";
++
++            switch (chars[pos]) {
++            case '"':
++                attValue = quotedAV();
++                break;
++            case '#':
++                attValue = hexAV();
++                break;
++            case '+':
++            case ',':
++            case ';': // compatibility with RFC 1779: semicolon can separate RDNs
++                //empty attribute value
++                break;
++            default:
++                attValue = escapedAV();
++            }
++
++            // Values are ordered from most specific to least specific
++            // due to the RFC2253 formatting. So take the first match
++            // we see.
++            if (attributeType.equalsIgnoreCase(attType)) {
++                if (result.isEmpty()) {
++                    result = new ArrayList<String>();
++                }
++                result.add(attValue);
++            }
++
++            if (pos >= length) {
++                break;
++            }
++
++            if (chars[pos] == ',' || chars[pos] == ';') {
++            } else if (chars[pos] != '+') {
++                throw new IllegalStateException("Malformed DN: " + dn);
++            }
++
++            pos++;
++            attType = nextAT();
++            if (attType == null) {
++                throw new IllegalStateException("Malformed DN: " + dn);
++            }
++        }
++
++        return result;
++    }
+ }
+diff --git a/libcore/luni/src/test/java/libcore/javax/net/ssl/DistinguishedNameParserTest.java b/libcore/luni/src/test/java/libcore/javax/net/ssl/DistinguishedNameParserTest.java
+index 723c697..91c596f 100644
+--- a/libcore/luni/src/test/java/libcore/javax/net/ssl/DistinguishedNameParserTest.java
++++ b/libcore/luni/src/test/java/libcore/javax/net/ssl/DistinguishedNameParserTest.java
+@@ -19,38 +19,50 @@ package libcore.javax.net.ssl;
+ import javax.net.ssl.DistinguishedNameParser;
+ import javax.security.auth.x500.X500Principal;
+ import junit.framework.TestCase;
++import java.util.Arrays;
+ 
+ public final class DistinguishedNameParserTest extends TestCase {
+-    public void testGetFirstCn() {
+-        assertFirstCn("", null);
+-        assertFirstCn("ou=xxx", null);
+-        assertFirstCn("ou=xxx,cn=xxx", "xxx");
+-        assertFirstCn("ou=xxx+cn=yyy,cn=zzz+cn=abc", "yyy");
+-        assertFirstCn("cn=a,cn=b", "a");
+-        assertFirstCn("cn=Cc,cn=Bb,cn=Aa", "Cc");
+-        assertFirstCn("cn=imap.gmail.com", "imap.gmail.com");
++    public void testGetCns() {
++        assertCns("");
++        assertCns("ou=xxx");
++        assertCns("ou=xxx,cn=xxx", "xxx");
++        assertCns("ou=xxx+cn=yyy,cn=zzz+cn=abc", "yyy", "zzz", "abc");
++        assertCns("cn=a,cn=b", "a", "b");
++        assertCns("cn=Cc,cn=Bb,cn=Aa", "Cc", "Bb", "Aa");
++        assertCns("cn=imap.gmail.com", "imap.gmail.com");
++        assertCns("l=\"abcn=a,b\", cn=c", "c");
+     }
+ 
+-    public void testGetFirstCnWithOid() {
+-        assertFirstCn("2.5.4.3=a,ou=xxx", "a");
++    public void testGetCnsWithOid() {
++        assertCns("2.5.4.3=a,ou=xxx", "a");
+     }
+ 
+-    public void testGetFirstCnWithQuotedStrings() {
+-        assertFirstCn("cn=\"\\\" a ,=<>#;\"", "\" a ,=<>#;");
+-        assertFirstCn("cn=abc\\,def", "abc,def");
++    public void testGetCnsWithQuotedStrings() {
++        assertCns("cn=\"\\\" a ,=<>#;\"", "\" a ,=<>#;");
++        assertCns("cn=abc\\,def", "abc,def");
+     }
+ 
+-    public void testGetFirstCnWithUtf8() {
+-        assertFirstCn("cn=Lu\\C4\\8Di\\C4\\87", "\u004c\u0075\u010d\u0069\u0107");
++    public void testGetCnsWithUtf8() {
++        assertCns("cn=Lu\\C4\\8Di\\C4\\87", "\u004c\u0075\u010d\u0069\u0107");
+     }
+ 
+-    public void testGetFirstCnWithWhitespace() {
+-        assertFirstCn("ou=a, cn=  a  b  ,o=x", "a  b");
+-        assertFirstCn("cn=\"  a  b  \" ,o=x", "  a  b  ");
++    public void testGetCnsWithWhitespace() {
++        assertCns("ou=a, cn=  a  b  ,o=x", "a  b");
++        assertCns("cn=\"  a  b  \" ,o=x", "  a  b  ");
+     }
+ 
+-    private void assertFirstCn(String dn, String expected) {
++    private void assertCns(String dn, String... expected) {
+         X500Principal principal = new X500Principal(dn);
+-        assertEquals(dn, expected, new DistinguishedNameParser(principal).findMostSpecific("cn"));
++        DistinguishedNameParser parser = new DistinguishedNameParser(principal);
++
++        // Test getAllMostSpecificFirst
++        assertEquals(dn, Arrays.asList(expected), parser.getAllMostSpecificFirst("cn"));
++
++        // Test findMostSpecific
++        if (expected.length > 0) {
++            assertEquals(dn, expected[0], parser.findMostSpecific("cn"));
++        } else {
++            assertNull(dn, parser.findMostSpecific("cn"));
++        }
+     }
+ }
+diff --git a/mediatek/platform/mt6595/kernel/drivers/mmc-host/mt_sd.h b/mediatek/platform/mt6595/kernel/drivers/mmc-host/mt_sd.h
+index 051f93d..cab891b 100644
+--- a/mediatek/platform/mt6595/kernel/drivers/mmc-host/mt_sd.h
++++ b/mediatek/platform/mt6595/kernel/drivers/mmc-host/mt_sd.h
+@@ -1356,6 +1356,7 @@ struct msdc_host
+     u32                         sw_timeout;
+     u32                         power_cycle; /* power cycle done in tuning flow*/
+     bool                        power_cycle_enable;/*Enable power cycle*/    
++    bool                        error_tune_enable; /* enable error tune flow */
+     u32                         sd_30_busy;
+     bool                        tune;
+     MSDC_POWER_DOMAIN           power_domain;
+diff --git a/mediatek/platform/mt6595/kernel/drivers/mmc-host/sd.c b/mediatek/platform/mt6595/kernel/drivers/mmc-host/sd.c
+index 54bc7e1..8d4ac83 100755
+--- a/mediatek/platform/mt6595/kernel/drivers/mmc-host/sd.c
++++ b/mediatek/platform/mt6595/kernel/drivers/mmc-host/sd.c
+@@ -68,7 +68,7 @@
+ #include <mach/eint.h>
+ #include <cust_eint.h>
+ #endif
+-
++#include "mach/mt_vcore_dvfs.h"
+ #include <mach/mt_storage_logger.h>
+ #include <mach/partition.h>
+ #define EXT_CSD_BOOT_SIZE_MULT           226 /* R */
+@@ -257,6 +257,7 @@ EXPORT_SYMBOL(hwPowerDown_fpga);
+ struct msdc_host *mtk_msdc_host[]    = {NULL, NULL, NULL, NULL};
+ int g_dma_debug[HOST_MAX_NUM]        = {0, 0, 0, 0};
+ u32 latest_int_status[HOST_MAX_NUM]  = {0, 0, 0, 0};
++unsigned int msdc_base[HOST_MAX_NUM] = {0, 0, 0, 0}; 
+ 
+ transfer_mode msdc_latest_transfer_mode[HOST_MAX_NUM] = // 0 for PIO; 1 for DMA; 2 for nothing
+ {
+@@ -711,20 +712,44 @@ EXPORT_SYMBOL(msdc_get_dma_address);
+         sdr_write32(MSDC_INT, val); \
+     } while(0)
+ 
+-#define msdc_clr_fifo(id) \
+-    do { \
+-        int retry = 3, cnt = 1000; \
+-        sdr_set_bits(MSDC_FIFOCS, MSDC_FIFOCS_CLR); \
+-        msdc_retry(sdr_read32(MSDC_FIFOCS) & MSDC_FIFOCS_CLR, retry, cnt,id); \
+-    } while(0)
+-
+-#define msdc_reset_hw(id) \
+-    do { \
+-        msdc_reset(id); \
+-        msdc_clr_fifo(id); \
+-        msdc_clr_int(); \
+-    } while(0)
++static void msdc_clr_fifo(unsigned int id) 
++{
++    int retry = 3, cnt = 1000; 
++    unsigned int base;
++    if(id < 0 || id >= HOST_MAX_NUM){
++        return; 
++    }    
++    base = msdc_base[id]; 
++    
++    if(sdr_read32(MSDC_DMA_CFG) & MSDC_DMA_CFG_STS){ 
++       printk(KERN_EMERG "<<<WARN>>>: msdc%d, clear FIFO when DMA active, MSDC_DMA_CFG=0x%x\n", id, sdr_read32(MSDC_DMA_CFG));
++       show_stack(current, NULL);       
++       sdr_set_field(MSDC_DMA_CTRL, MSDC_DMA_CTRL_STOP, 1);
++       msdc_retry((sdr_read32(MSDC_DMA_CFG) & MSDC_DMA_CFG_STS),retry,cnt,id);
++       if(retry == 0){
++          printk(KERN_EMERG "<<<WARN>>>: msdc%d, faield to stop DMA before clear FIFO, MSDC_DMA_CFG=0x%x\n", id, sdr_read32(MSDC_DMA_CFG));
++          return; 
++       }
++    }
++    
++    retry = 3; 
++    cnt = 1000; 
++    sdr_set_bits(MSDC_FIFOCS, MSDC_FIFOCS_CLR);
++    msdc_retry(sdr_read32(MSDC_FIFOCS) & MSDC_FIFOCS_CLR, retry, cnt,id); 
++}
+ 
++static void msdc_reset_hw(unsigned int id)
++{
++    unsigned int base; 
++    if(id < 0 || id >= HOST_MAX_NUM){
++        printk("invalid id: %d, HOST_MAX_NUM:%d", id, HOST_MAX_NUM);
++        return; 
++    }     
++    base = msdc_base[id];  
++    msdc_reset(id);  
++    msdc_clr_fifo(id);  
++    msdc_clr_int(); 
++}
+ #ifdef MSDC_TOP_RESET_ERROR_TUNE
+ //only for axi wrapper of msdc0 dma mode
+ #define msdc_reset_gdma() \
+@@ -1467,6 +1492,7 @@ extern void mmc_remove_card(struct mmc_card *card);
+ extern void mmc_detach_bus(struct mmc_host *host);
+ extern void mmc_power_off(struct mmc_host *host);
+ 
++#if 0
+ static void msdc_set_bad_card_and_remove(struct msdc_host *host)
+ {
+     int got_polarity = 0;
+@@ -1502,6 +1528,7 @@ static void msdc_set_bad_card_and_remove(struct msdc_host *host)
+         ERR_MSG("Do remove the bad card, block_bad_card=%d, card_inserted=%d", host->block_bad_card, host->card_inserted);
+     }
+ }
++#endif
+ 
+ unsigned int msdc_do_command(struct msdc_host   *host,
+                                       struct mmc_command *cmd,
+@@ -1764,6 +1791,7 @@ static void msdc_tasklet_card(unsigned long arg)
+         msdc_reset_pwr_cycle_counter(host);
+         msdc_reset_crc_tune_counter(host, all_counter);
+         msdc_reset_tmo_tune_counter(host, all_counter);
++        host->error_tune_enable = 1; 
+     }
+ 
+     ERR_MSG("host->suspend(%d)",host->suspend);
+@@ -2100,6 +2128,10 @@ static u32 msdc_power_tuning(struct msdc_host *host)
+     }
+ #endif
+ 
++    if(!host->error_tune_enable) {
++        return 1; 
++    }
++    
+     if((host->sd_30_busy > 0) && (host->sd_30_busy <= MSDC_MAX_POWER_CYCLE)){
+         host->power_cycle_enable = 1;
+     }
+@@ -2193,11 +2225,17 @@ static u32 msdc_power_tuning(struct msdc_host *host)
+             ERR_MSG("the %d time, Power cycle Done, host->error(0x%x), ret(%d)", host->power_cycle,host->error, ret);
+             (host->power_cycle)++;
+         }else if (host->power_cycle == MSDC_MAX_POWER_CYCLE){
++#if 0
+             ERR_MSG("the %d time, exceed the max power cycle time %d, go to remove the bad card, power_cycle_enable=%d", host->power_cycle, MSDC_MAX_POWER_CYCLE, host->power_cycle_enable);
+-
+             spin_unlock(&host->lock);
+             msdc_set_bad_card_and_remove(host);
+             spin_lock(&host->lock);
++#else
++            if(host->error_tune_enable){
++                ERR_MSG("do disable error tune flow of bad SD card");
++                host->error_tune_enable = 0;
++            }
++#endif
+         }
+     }
+ 
+@@ -2354,7 +2392,7 @@ int msdc_reinit(struct msdc_host *host)
+ static u32 msdc_abort_data(struct msdc_host *host)
+ {
+     struct mmc_host *mmc = host->mmc;
+-    u32 base = host->base;
++    //u32 base = host->base;
+     u32 status = 0;
+     u32 state = 0;
+     u32 err = 0;
+@@ -2906,7 +2944,7 @@ static void msdc_pm(pm_message_t state, void *data)
+     struct msdc_host *host = (struct msdc_host *)data;
+ 
+     int evt = state.event;
+-    u32 base = host->base;
++    //u32 base = host->base;
+ 
+     msdc_ungate_clock(host);
+ 
+@@ -3077,7 +3115,7 @@ EXPORT_SYMBOL(msdc_get_host);
+ 
+ #ifdef MTK_EMMC_SUPPORT
+ u8 ext_csd[512];
+-int offset = 0;
++//int offset = 0;
+ char partition_access = 0;
+ 
+ static int msdc_get_data(u8* dst,struct mmc_data *data)
+@@ -3451,8 +3489,16 @@ static unsigned int msdc_command_start(struct msdc_host   *host,
+         if (host->autocmd & MSDC_AUTOCMD12)
+             rawcmd |= (1 << 28);
+ #ifdef MTK_MSDC_USE_CMD23
+-        else if((host->autocmd & MSDC_AUTOCMD23))
++        else if((host->autocmd & MSDC_AUTOCMD23)){
+             rawcmd |= (1 << 29);
++            if(sbc){
++                if(sdr_read32(SDC_BLK_NUM) != (sbc->arg & 0xFFFF))//if the block number is bigger than 0xFFFF, then CMD23 arg will be failed to set it.
++                    printk("msdc%d: acmd23 arg(0x%x) failed to match the read block num(0x%x), SDC_BLK_NUM(0x%x)\n", host->id, sbc->arg, host->mrq->cmd->data->blocks, sdr_read32(SDC_BLK_NUM));
++                else
++                    sdr_write32(SDC_BLK_NUM, sbc->arg);
++                N_MSG(CMD, "SBC addr<0x%x>, arg<0x%x> ", cmd->arg, sbc->arg);
++            }
++        }
+ #endif /* end of MTK_MSDC_USE_CMD23 */
+     } else if (opcode == MMC_READ_SINGLE_BLOCK) {
+         rawcmd |= (1 << 11);
+@@ -3463,15 +3509,13 @@ static unsigned int msdc_command_start(struct msdc_host   *host,
+ #ifdef MTK_MSDC_USE_CMD23
+         else if((host->autocmd & MSDC_AUTOCMD23)){
+             rawcmd |= (1 << 29);
+-#ifdef MTK_MSDC_USE_CACHE
+-            if(sbc && host->mmc->card && mmc_card_mmc(host->mmc->card) && (host->mmc->card->ext_csd.cache_ctrl & 0x1)){
++            if(sbc){
+                 if(sdr_read32(SDC_BLK_NUM) != (sbc->arg & 0xFFFF))//if the block number is bigger than 0xFFFF, then CMD23 arg will be failed to set it.
+-                    printk("msdc%d: acmd23 arg(0x%x) failed to match the block num(0x%x), SDC_BLK_NUM(0x%x)\n", host->id, sbc->arg, host->mrq->cmd->data->blocks, sdr_read32(SDC_BLK_NUM));
++                    printk("msdc%d: acmd23 arg(0x%x) failed to match the write block num(0x%x), SDC_BLK_NUM(0x%x)\n", host->id, sbc->arg, host->mrq->cmd->data->blocks, sdr_read32(SDC_BLK_NUM));
+                 else
+                     sdr_write32(SDC_BLK_NUM, sbc->arg);
+                 N_MSG(CMD, "SBC addr<0x%x>, arg<0x%x> ", cmd->arg, sbc->arg);
+             }
+-#endif
+         }
+ #endif /* end of MTK_MSDC_USE_CMD23 */
+     } else if (opcode == MMC_WRITE_BLOCK) {
+@@ -3791,7 +3835,7 @@ end:
+ static int msdc_pio_abort(struct msdc_host *host, struct mmc_data *data, unsigned long tmo)
+ {
+     int  ret = 0;
+-    u32  base = host->base;
++    //u32  base = host->base;
+ 
+     if (atomic_read(&host->abort)) {
+         ret = 1;
+@@ -4343,10 +4387,8 @@ static void msdc_dma_stop(struct msdc_host *host)
+     if(host->autocmd & MSDC_AUTOCMD12)
+         wints |= MSDC_INT_ACMDCRCERR | MSDC_INT_ACMDTMO | MSDC_INT_ACMDRDY;
+     N_MSG(DMA, "DMA status: 0x%.8x",sdr_read32(MSDC_DMA_CFG));
+-    //while (sdr_read32(MSDC_DMA_CFG) & MSDC_DMA_CFG_STS);
+ 
+     sdr_set_field(MSDC_DMA_CTRL, MSDC_DMA_CTRL_STOP, 1);
+-    //while (sdr_read32(MSDC_DMA_CFG) & MSDC_DMA_CFG_STS);
+     msdc_retry((sdr_read32(MSDC_DMA_CFG) & MSDC_DMA_CFG_STS),retry,count,host->id);
+     if(retry == 0){
+         ERR_MSG("######################## Failed to stop DMA! start dump#############################");
+@@ -5129,8 +5171,9 @@ extern unsigned int autok_get_current_vcore_offset(void);
+ extern int msdc_autok_stg1_data_get(void **ppData, int *pLen);
+ extern int msdc_autok_apply_param(struct msdc_host *host, unsigned int vcore_uv);
+ //extern void mt_cpufreq_disable(unsigned int type, bool disabled);
++#ifndef _DVFS_ENABLE_
+ extern void mt_vcore_dvfs_disable_by_sdio(unsigned int type, bool disabled);
+-
++#endif
+ static unsigned int msdc_online_tuning(struct msdc_host *host, unsigned fn, unsigned addr)
+ {
+     u32 base = host->base;
+@@ -5167,8 +5210,12 @@ static unsigned int msdc_online_tuning(struct msdc_host *host, unsigned fn, unsi
+ 
+     atomic_set(&host->ot_done, 0);
+ 	//mt_cpufreq_disable(1, true);
+-	mt_vcore_dvfs_disable_by_sdio(1, true);
+-
++#ifndef _DVFS_ENABLE_    
++    mt_vcore_dvfs_disable_by_sdio(1, true);
++#else    
++    vcorefs_sdio_lock_dvfs(1);
++#endif    
++    
+     vcore_uv = autok_get_current_vcore_offset();
+     // read auto-K result from auto-K callback function
+     //msdc_autok_stg1_data_get(&msdc_param, &len);
+@@ -5319,8 +5366,12 @@ out:
+     atomic_set(&host->ot_done, 1);
+ 
+ 	//mt_cpufreq_disable(1, false);
+-	mt_vcore_dvfs_disable_by_sdio(1, false);
+-
++#ifndef _DVFS_ENABLE_    
++    mt_vcore_dvfs_disable_by_sdio(1, false);
++#else    
++    vcorefs_sdio_unlock_dvfs(1);
++#endif    
++    
+     return ret;
+ }
+ 
+@@ -5491,7 +5542,6 @@ static int msdc_do_request(struct mmc_host*mmc, struct mmc_request*mrq)
+         }
+ 
+         msdc_set_blknum(host, data->blocks);
+-        //msdc_clr_fifo();  /* no need */
+ 
+ #ifdef MTK_MSDC_USE_CMD23
+         if (0 == (host->autocmd & MSDC_AUTOCMD23)){
+@@ -5501,11 +5551,8 @@ static int msdc_do_request(struct mmc_host*mmc, struct mmc_request*mrq)
+ 
+                 if(host->hw->host_function == MSDC_EMMC){
+ #ifdef MTK_MSDC_USE_CACHE
+-                    if(l_force_prg)
+-                        mrq->sbc->arg |= (1 << 31);
+-#else
+-                    mrq->sbc->arg &= ~(1 << 31);
+-                    mrq->sbc->arg &= ~(1 << 29);
++                    if(l_force_prg && !((mrq->sbc->arg >> 31) & 0x1))
++                        mrq->sbc->arg |= (1 << 24);
+ #endif
+                 }
+ 
+@@ -5528,11 +5575,9 @@ static int msdc_do_request(struct mmc_host*mmc, struct mmc_request*mrq)
+             if (mrq->sbc){
+                 host->autocmd &= ~MSDC_AUTOCMD12;
+                 if(host->hw->host_function == MSDC_EMMC){
+-                    mrq->sbc->arg &= ~(1 << 31);
+-                    mrq->sbc->arg &= ~(1 << 29);
+ #ifdef MTK_MSDC_USE_CACHE
+-                    if(l_force_prg)
+-                        mrq->sbc->arg |= (1 << 31);
++                    if(l_force_prg && !((mrq->sbc->arg >> 31) & 0x1))
++                        mrq->sbc->arg |= (1 << 24);
+ #endif
+                 }
+             } else {
+@@ -5953,7 +5998,6 @@ static int msdc_tune_rw_request(struct mmc_host*mmc, struct mmc_request*mrq)
+     }
+ 
+     msdc_set_blknum(host, data->blocks);
+-    //msdc_clr_fifo();  /* no need */
+     msdc_dma_on();  /* enable DMA mode first!! */
+     init_completion(&host->xfer_done);
+ 
+@@ -6254,7 +6298,6 @@ static int msdc_do_request_async(struct mmc_host*mmc, struct mmc_request*mrq)
+     }
+ 
+     msdc_set_blknum(host, data->blocks);
+-    //msdc_clr_fifo();  /* no need */
+     msdc_dma_on();  /* enable DMA mode first!! */
+     //init_completion(&host->xfer_done);
+ 
+@@ -6267,11 +6310,8 @@ static int msdc_do_request_async(struct mmc_host*mmc, struct mmc_request*mrq)
+ 
+                 if(host->hw->host_function == MSDC_EMMC){
+ #ifdef MTK_MSDC_USE_CACHE
+-                    if(l_force_prg)
+-                        mrq->sbc->arg |= (1 << 31);
+-#else
+-                    mrq->sbc->arg &= ~(1 << 31);
+-                    mrq->sbc->arg &= ~(1 << 29);
++                    if(l_force_prg && !((mrq->sbc->arg >> 31) & 0x1))
++                        mrq->sbc->arg |= (1 << 24);
+ #endif
+                 }
+ 
+@@ -6293,11 +6333,9 @@ static int msdc_do_request_async(struct mmc_host*mmc, struct mmc_request*mrq)
+             if (mrq->sbc){
+                 host->autocmd &= ~MSDC_AUTOCMD12;
+                 if(host->hw->host_function == MSDC_EMMC){
+-                    mrq->sbc->arg &= ~(1 << 29);
+-                    mrq->sbc->arg &= ~(1 << 31);
+ #ifdef MTK_MSDC_USE_CACHE
+-                    if(l_force_prg)
+-                        mrq->sbc->arg |= (1 << 31);
++                    if(l_force_prg && !((mrq->sbc->arg >> 31) & 0x1))
++                        mrq->sbc->arg |= (1 << 24);
+ #endif
+                 }
+             } else {
+@@ -6551,6 +6589,10 @@ int msdc_tune_cmdrsp(struct msdc_host *host)
+     u32 clkmode;
+     int hs400 = 0;
+ 
++    if(!host->error_tune_enable) {
++        return 1; 
++    }
++    
+     sdr_get_field(MSDC_IOCON, MSDC_IOCON_RSPL, orig_rsmpl);
+     sdr_get_field(MSDC_PAD_TUNE, MSDC_PAD_TUNE_CMDRDLY, orig_rrdly);
+     sdr_get_field(MSDC_PATCH_BIT1, MSDC_PB1_CMD_RSP_TA_CNTR, orig_cmdrtc);
+@@ -6844,6 +6886,10 @@ int emmc_hs400_tune_rw(struct msdc_host *host)
+         return err;
+     }
+ 
++    if(!host->error_tune_enable) {
++        return 1; 
++    }
++    
+     sdr_get_field(EMMC50_PAD_DS_TUNE, MSDC_EMMC50_PAD_DS_TUNE_DLY1, orig_ds_dly1);
+     sdr_get_field(EMMC50_PAD_DS_TUNE, MSDC_EMMC50_PAD_DS_TUNE_DLY3, orig_ds_dly3);
+ 
+@@ -6908,6 +6954,10 @@ int msdc_tune_read(struct msdc_host *host)
+     u32 orig_dat0, orig_dat1, orig_dat2, orig_dat3, orig_dat4, orig_dat5, orig_dat6, orig_dat7;
+     int result = 0;
+ 
++    if(!host->error_tune_enable) {
++        return 1; 
++    }
++    
+ #if 1
+     if (host->mclk >= 100000000){
+         sel = 1;
+@@ -7124,6 +7174,10 @@ int msdc_tune_write(struct msdc_host *host)
+     int clkmode = 0;
+     int hs400 = 0;
+ 
++    if(!host->error_tune_enable) {
++        return 1; 
++    }
++    
+ #if 1
+     if (host->mclk >= 100000000)
+         sel = 1;
+@@ -7513,12 +7567,19 @@ static void msdc_ops_request_legacy(struct mmc_host *mmc, struct mmc_request *mr
+                 ERR_MSG("abort failed");
+                 data_abort = 1;
+                 if(host->hw->host_function == MSDC_SD){
++#if 0
+                     if(host->card_inserted){
+                         ERR_MSG("go to remove the bad card");
+                         spin_unlock(&host->lock);
+                         msdc_set_bad_card_and_remove(host);
+                         spin_lock(&host->lock);
+                     }
++#else
++                    if(host->error_tune_enable){
++                        ERR_MSG("do disable error tune flow of bad SD card");
++                        host->error_tune_enable = 0;
++                    }
++#endif
+                     goto out;
+                 }
+             }
+@@ -7840,12 +7901,19 @@ static void msdc_tune_async_request(struct mmc_host *mmc, struct mmc_request *mr
+             if (msdc_abort_data(host)) {
+                 ERR_MSG("abort failed");
+                 if(host->hw->host_function == MSDC_SD){
++#if 0
+                     if(host->card_inserted){
+                         ERR_MSG("go to remove the bad card");
+                         spin_unlock(&host->lock);
+                         msdc_set_bad_card_and_remove(host);
+                         spin_lock(&host->lock);
+                     }
++#else
++                    if(host->error_tune_enable){
++                        ERR_MSG("do disable error tune flow of bad SD card");
++                        host->error_tune_enable = 0;
++                    }
++#endif
+                     goto out;
+                 }
+             }
+@@ -9524,6 +9592,9 @@ int sdio_stop_transfer(void)
+         if(is_card_sdio(mtk_msdc_host[hostidx]))
+         {
+             struct msdc_host *host = mtk_msdc_host[hostidx];
++            if(atomic_read(&host->ot_work.ot_disable)){
++                return -1;
++            }
+ #ifdef MTK_SDIO30_ONLINE_TUNING_SUPPORT
+             while(1)
+             {
+@@ -9607,7 +9678,7 @@ int sdio_start_ot_transfer(void)
+             struct msdc_host *host = mtk_msdc_host[hostidx];
+ #ifdef MTK_SDIO30_ONLINE_TUNING_SUPPORT
+             u32 vcore_uv_off, vcore_sel, vcore_uv, fIdent = 0;
+-            static u32 prev_vcore_sel = 0;
++            static u32 prev_vcore_sel = UINT_MAX;
+ 
+             printk("[%s] msdc%d Check vcore\n", __func__, host->id);
+ 
+@@ -9746,6 +9817,8 @@ static int msdc_drv_probe(struct platform_device *pdev)
+     irq  = platform_get_irq(pdev, 0);
+     base = IO_PHYS_TO_VIRT(mem->start);
+ 
++    msdc_base[pdev->id] = base;
++    
+     l_irq_data.irq = irq;
+ 
+     BUG_ON((!hw) || (!mem) || (irq < 0));
+@@ -9905,6 +9978,7 @@ static int msdc_drv_probe(struct platform_device *pdev)
+     host->sd_30_busy = 0;
+     msdc_reset_tmo_tune_counter(host, all_counter);
+     msdc_reset_pwr_cycle_counter(host);
++    host->error_tune_enable = 1; 
+ 
+     if (is_card_sdio(host)|| (host->hw->flags & MSDC_SDIO_IRQ))
+     {
+diff --git a/mediatek/platform/mt6595/kernel/drivers/mu3phy/mtk-phy-asic.c b/mediatek/platform/mt6595/kernel/drivers/mu3phy/mtk-phy-asic.c
+index 533bc9a..0e02438 100644
+--- a/mediatek/platform/mt6595/kernel/drivers/mu3phy/mtk-phy-asic.c
++++ b/mediatek/platform/mt6595/kernel/drivers/mu3phy/mtk-phy-asic.c
+@@ -567,9 +567,6 @@ void usb_phy_savecurrent(unsigned int clk_on)
+ 		set_ada_ssusb_xtal_ck(0);
+ 
+ 		/*---POWER-----*/
+-		/*AVDD18_USB_P0 is always turned on. The driver does _NOT_ need to control it.*/
+-		hwPowerDown(MT6332_POWER_LDO_VUSB33, "VDD33_USB_P0");
+-
+ 		/* Set RG_VUSB10_ON as 1 after VDD10 Ready */
+ 		hwPowerDown(MT6331_POWER_LDO_VUSB10, "VDD10_USB_P0");
+ 	}
+@@ -770,9 +767,6 @@ void usb_fake_powerdown(unsigned int clk_on)
+ 		disable_clock(MT_CG_PERI_USB0, "USB30");
+ 
+ 		/*---POWER-----*/
+-		/*AVDD18_USB_P0 is always turned on. The driver does _NOT_ need to control it.*/
+-		hwPowerDown(MT6332_POWER_LDO_VUSB33, "VDD33_USB_P0");
+-
+ 		/* Set RG_VUSB10_ON as 1 after VDD10 Ready */
+ 		hwPowerDown(MT6331_POWER_LDO_VUSB10, "VDD10_USB_P0");
+ 	}
+diff --git a/mediatek/platform/mt6595/kernel/drivers/spm/mt_spm_dpidle.c b/mediatek/platform/mt6595/kernel/drivers/spm/mt_spm_dpidle.c
+index 7231f09..2207fa9 100755
+--- a/mediatek/platform/mt6595/kernel/drivers/spm/mt_spm_dpidle.c
++++ b/mediatek/platform/mt6595/kernel/drivers/spm/mt_spm_dpidle.c
+@@ -548,7 +548,7 @@ extern int request_uart_to_wakeup(void);
+ 
+ static void spm_trigger_wfi_for_dpidle(struct pwr_ctrl *pwrctrl)
+ {
+-    sync_hw_gating_value();     /* for Vcore DVFS */
++    //sync_hw_gating_value();     /* for Vcore DVFS */
+ 
+ #if 0	//deepidle no need, vproc(ext buck) can't set to 0v, because SRAM perpheral control from vproc
+     spm_i2c_control(mt6333_BUSNUM, 1);
+diff --git a/mediatek/platform/mt6595/kernel/drivers/spm/mt_spm_sodi.c b/mediatek/platform/mt6595/kernel/drivers/spm/mt_spm_sodi.c
+index 0b30de2..4e2784d 100755
+--- a/mediatek/platform/mt6595/kernel/drivers/spm/mt_spm_sodi.c
++++ b/mediatek/platform/mt6595/kernel/drivers/spm/mt_spm_sodi.c
+@@ -529,7 +529,7 @@ void __attribute__((weak)) soidle_after_wfi(int cpu)
+ }
+ static void spm_trigger_wfi_for_sodi(struct pwr_ctrl *pwrctrl)
+ {
+-    sync_hw_gating_value();     /* for Vcore DVFS */
++    //sync_hw_gating_value();     /* for Vcore DVFS */
+ 
+     if (is_cpu_pdn(pwrctrl->pcm_flags)) {
+         mt_cpu_dormant(CPU_SODI_MODE);

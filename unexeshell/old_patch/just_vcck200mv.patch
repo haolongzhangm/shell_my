@@ -1,0 +1,125 @@
+From 6dde00a5e077403d1e1777ed7c5b3ad8ecf35104 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Mon, 25 May 2015 17:49:08 +0800
+Subject: [PATCH] 11
+
+Change-Id: Ifd15e405b2552eec4c5fc7e6c5ac84e0d1d5fda1
+---
+ mediatek/platform/mt6595/kernel/core/mt_cpufreq.c | 69 +++++++++++++----------
+ 2 files changed, 42 insertions(+), 32 deletions(-)
+
+diff --git a/mediatek/platform/mt6595/kernel/core/mt_cpufreq.c b/mediatek/platform/mt6595/kernel/core/mt_cpufreq.c
+index 1d9c5d3..a6a6b9f 100755
+--- a/mediatek/platform/mt6595/kernel/core/mt_cpufreq.c
++++ b/mediatek/platform/mt6595/kernel/core/mt_cpufreq.c
+@@ -103,49 +103,49 @@ extern void hp_limited_cpu_num(int num); // TODO: ask Marc to provide the head f
+ 
+ /* for DVFS OPP table */ // TODO: necessary or just specify in opp table directly???
+ 
+-#define DVFS_BIG_F0 (1898000) /* KHz */
+-#define DVFS_BIG_F1 (1495000) /* KHz */
++#define DVFS_BIG_F0 (1897992) /* KHz */
++#define DVFS_BIG_F1 (1494996) /* KHz */
+ #define DVFS_BIG_F2 (1365000) /* KHz */
+ #define DVFS_BIG_F3 (1248000) /* KHz */
+-#define DVFS_BIG_F4 (1144000) /* KHz */
+-#define DVFS_BIG_F5 (1001000) /* KHz */
+-#define DVFS_BIG_F6 (806000)  /* KHz */
+-#define DVFS_BIG_F7 (403000)  /* KHz */
++#define DVFS_BIG_F4 (1143996) /* KHz */
++#define DVFS_BIG_F5 (1000992) /* KHz */
++#define DVFS_BIG_F6 (805992)  /* KHz */
++#define DVFS_BIG_F7 (402996)  /* KHz */
+ 
+ #if defined(SLT_VMAX)
+-#define DVFS_BIG_V0 (1150)    /* mV */
++#define DVFS_BIG_V0 (1350)    /* mV */
+ #else
+-#define DVFS_BIG_V0 (1100)    /* mV */
++#define DVFS_BIG_V0 (1300)    /* mV */
+ #endif
+-#define DVFS_BIG_V1 (1079)    /* mV */
+-#define DVFS_BIG_V2 (1050)    /* mV */
+-#define DVFS_BIG_V3 (1032)    /* mV */
+-#define DVFS_BIG_V4 (1000)    /* mV */
+-#define DVFS_BIG_V5 (963)     /* mV */
+-#define DVFS_BIG_V6 (914)     /* mV */
+-#define DVFS_BIG_V7 (814)     /* mV */
+-
+-#define DVFS_LITTLE_F0 (1690000) /* KHz */
+-#define DVFS_LITTLE_F1 (1495000) /* KHz */
++#define DVFS_BIG_V1 (1279)    /* mV */
++#define DVFS_BIG_V2 (1250)    /* mV */
++#define DVFS_BIG_V3 (1232)    /* mV */
++#define DVFS_BIG_V4 (1200)    /* mV */
++#define DVFS_BIG_V5 (1163)     /* mV */
++#define DVFS_BIG_V6 (1114)     /* mV */
++#define DVFS_BIG_V7 (1014)     /* mV */
++
++#define DVFS_LITTLE_F0 (1689996) /* KHz */
++#define DVFS_LITTLE_F1 (1494996) /* KHz */
+ #define DVFS_LITTLE_F2 (1365000) /* KHz */
+ #define DVFS_LITTLE_F3 (1248000) /* KHz */
+-#define DVFS_LITTLE_F4 (1144000) /* KHz */
+-#define DVFS_LITTLE_F5 (1001000) /* KHz */
+-#define DVFS_LITTLE_F6 (806000)  /* KHz */
+-#define DVFS_LITTLE_F7 (403000)  /* KHz */
++#define DVFS_LITTLE_F4 (1143996) /* KHz */
++#define DVFS_LITTLE_F5 (1000992) /* KHz */
++#define DVFS_LITTLE_F6 (805992)  /* KHz */
++#define DVFS_LITTLE_F7 (402996)  /* KHz */
+ 
+ #if defined(SLT_VMAX)
+-#define DVFS_LITTLE_V0 (1150)    /* mV */
++#define DVFS_LITTLE_V0 (1350)    /* mV */
+ #else
+-#define DVFS_LITTLE_V0 (1125)    /* mV */
++#define DVFS_LITTLE_V0 (1325)    /* mV */
+ #endif
+-#define DVFS_LITTLE_V1 (1079)    /* mV */
+-#define DVFS_LITTLE_V2 (1050)    /* mV */
+-#define DVFS_LITTLE_V3 (1023)    /* mV */
+-#define DVFS_LITTLE_V4 (1000)    /* mV */
+-#define DVFS_LITTLE_V5 (963)     /* mV */
+-#define DVFS_LITTLE_V6 (914)     /* mV */
+-#define DVFS_LITTLE_V7 (814)     /* mV */
++#define DVFS_LITTLE_V1 (1279)    /* mV */
++#define DVFS_LITTLE_V2 (1250)    /* mV */
++#define DVFS_LITTLE_V3 (1223)    /* mV */
++#define DVFS_LITTLE_V4 (1200)    /* mV */
++#define DVFS_LITTLE_V5 (1163)     /* mV */
++#define DVFS_LITTLE_V6 (1114)     /* mV */
++#define DVFS_LITTLE_V7 (1014)     /* mV */
+ 
+ #define PWR_THRO_MODE_LBAT_1365MHZ	BIT(0)
+ #define PWR_THRO_MODE_BAT_OC_806MHZ	BIT(1)
+@@ -162,6 +162,7 @@ extern void hp_limited_cpu_num(int num); // TODO: ask Marc to provide the head f
+ #define HEX_FMT "0x%08x"
+ #undef TAG
+ 
++#define cpufreq_debug_switch 0 //1
+ #ifdef USING_XLOG
+ #include <linux/xlog.h>
+ 
+@@ -186,12 +187,18 @@ extern void hp_limited_cpu_num(int num); // TODO: ask Marc to provide the head f
+ 	printk(KERN_ERR TAG KERN_CONT fmt, ##args)
+ #define cpufreq_warn(fmt, args...)      \
+ 	printk(KERN_WARNING TAG KERN_CONT fmt, ##args)
++#if cpufreq_debug_switch
+ #define cpufreq_info(fmt, args...)      \
+ 	printk(KERN_NOTICE TAG KERN_CONT fmt, ##args)
+ #define cpufreq_dbg(fmt, args...)       \
+ 	printk(KERN_INFO TAG KERN_CONT fmt, ##args)
+ #define cpufreq_ver(fmt, args...)       \
+ 	printk(KERN_DEBUG TAG KERN_CONT fmt, ##args)
++#else
++#define cpufreq_info(fmt, args...)      
++#define cpufreq_dbg(fmt, args...)       
++#define cpufreq_ver(fmt, args...)      
++#endif
+ 
+ #endif  /* USING_XLOG */
+ 
+-- 
+1.9.1
+

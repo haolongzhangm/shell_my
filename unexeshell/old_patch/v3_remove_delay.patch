@@ -1,0 +1,31 @@
+diff --git a/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v3/mstar_drv_platform_porting_layer.c b/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v3/mstar_drv_platform_porting_layer.c
+index 4ed134c..86b4d7d1 100644
+--- a/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v3/mstar_drv_platform_porting_layer.c
++++ b/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v3/mstar_drv_platform_porting_layer.c
+@@ -206,7 +206,7 @@ void DrvPlatformLyrTouchDevicePowerOn(void)
+     gpio_set_value(MS_TS_MSG_IC_GPIO_RST, 0);
+     mdelay(10);
+     gpio_set_value(MS_TS_MSG_IC_GPIO_RST, 1);
+-    mdelay(300);
++   // mdelay(30);
+ #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM)
+     mt_set_gpio_mode(MS_TS_MSG_IC_GPIO_RST, GPIO_CTP_RST_PIN_M_GPIO);
+     mt_set_gpio_dir(MS_TS_MSG_IC_GPIO_RST, GPIO_DIR_OUT);
+@@ -216,7 +216,7 @@ void DrvPlatformLyrTouchDevicePowerOn(void)
+     mt_set_gpio_mode(MS_TS_MSG_IC_GPIO_RST, GPIO_CTP_RST_PIN_M_GPIO);
+     mt_set_gpio_dir(MS_TS_MSG_IC_GPIO_RST, GPIO_DIR_OUT);
+     mt_set_gpio_out(MS_TS_MSG_IC_GPIO_RST, GPIO_OUT_ZERO);  
+-    mdelay(50);
++   // mdelay(10);
+ 
+ #ifdef TPD_CLOSE_POWER_IN_SLEEP
+     hwPowerDown(TPD_POWER_SOURCE, "TP"); 
+@@ -228,7 +228,7 @@ void DrvPlatformLyrTouchDevicePowerOn(void)
+     mt_set_gpio_mode(MS_TS_MSG_IC_GPIO_RST, GPIO_CTP_RST_PIN_M_GPIO);
+     mt_set_gpio_dir(MS_TS_MSG_IC_GPIO_RST, GPIO_DIR_OUT);
+     mt_set_gpio_out(MS_TS_MSG_IC_GPIO_RST, GPIO_OUT_ONE);
+-    mdelay(180); // wait stable
++    mdelay(20); // wait stable
+ #endif
+ }
+ 

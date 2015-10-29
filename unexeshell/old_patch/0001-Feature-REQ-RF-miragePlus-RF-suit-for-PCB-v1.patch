@@ -1,0 +1,449 @@
+From f36c3506dc42bcfc007651d2e413ee5413dbba90 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Fri, 10 Apr 2015 14:25:08 +0800
+Subject: [PATCH] [Feature][REQ][RF] miragePlus RF suit for PCB v1
+
+[id]:84737
+
+[Products]
+	miragePlus
+
+Change-Id: I0fba2bd0891ce56e6f37be75f8d8691da7e7fbae
+---
+ .../src/rfc_wtr4905_mirageplus_v2_cmn_ag.cpp       | 152 ++++++++++++---------
+ .../rfc_wtr4905_mirageplus_v2_gsm_config_data_ag.c |  16 +--
+ .../rfc_wtr4905_mirageplus_v2_lte_config_data_ag.c |  26 ++--
+ ...fc_wtr4905_mirageplus_v2_wcdma_config_data_ag.c |   8 +-
+ 4 files changed, 113 insertions(+), 89 deletions(-)
+
+diff --git a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/common/src/rfc_wtr4905_mirageplus_v2_cmn_ag.cpp b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/common/src/rfc_wtr4905_mirageplus_v2_cmn_ag.cpp
+index 972ccb1..aefbc86 100755
+--- a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/common/src/rfc_wtr4905_mirageplus_v2_cmn_ag.cpp
++++ b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/common/src/rfc_wtr4905_mirageplus_v2_cmn_ag.cpp
+@@ -59,7 +59,7 @@ rfc_phy_device_info_type rfc_wtr4905_mirageplus_v2_phy_devices_list[] =
+     RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */ 
+     {    4,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */ 
+     0x217, /* PHY_DEVICE_MANUFACTURER_ID */ 
+-    0xC8, /* PHY_DEVICE_PRODUCT_ID */ 
++    0xC8, /* PHY_DEVICE_PRODUCT_ID */
+     0, /* PHY_DEVICE_PRODUCT_REV */ 
+     0x1, /* DEFAULT USID RANGE START */
+     0x1, /* DEFAULT USID RANGE END */
+@@ -69,43 +69,60 @@ rfc_phy_device_info_type rfc_wtr4905_mirageplus_v2_phy_devices_list[] =
+     RFC_TX_MODEM_CHAIN_0, /* ASSOCIATED_DAC */ 
+   }, /* END - Device: WTR4905 */ 
+ 
+-  { /*Device: SKY77631 */ 
++  { /*Device: SKY77781-11 */
+     GEN_PA, /* PHY_DEVICE_NAME */ 
+     1, /* PHY_DEVICE_INSTANCE */ 
+     RFC_NO_ALTERNATE_PART, /* PHY_DEVICE_ALT_PART_NUM_OF_INSTANCE */ 
+     RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */ 
+     {    0,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */ 
+     0x01A5, /* PHY_DEVICE_MANUFACTURER_ID */ 
+-    0x0F, /* PHY_DEVICE_PRODUCT_ID */ 
+-    0, /* PHY_DEVICE_PRODUCT_REV */ 
++    0x15, /* PHY_DEVICE_PRODUCT_ID */
++    0, /* PHY_DEVICE_PRODUCT_REV */
++    0x0E, /* DEFAULT USID RANGE START */
++    0x0E, /* DEFAULT USID RANGE END */
++    0x0E, /* PHY_DEVICE_ASSIGNED_USID */
++    0 /*Warning: Not specified*/, /* RFFE_GROUP_ID */
++    FALSE, /* INIT */
++    RFC_INVALID_PARAM, /* ASSOCIATED_DAC */
++  }, /* END - Device: SKY77781-11 */
++
++  { /*Device: SKY77631 */
++    GEN_PA, /* PHY_DEVICE_NAME */
++    2, /* PHY_DEVICE_INSTANCE */
++    RFC_NO_ALTERNATE_PART, /* PHY_DEVICE_ALT_PART_NUM_OF_INSTANCE */
++    RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */
++    {    0,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */
++    0x01A5, /* PHY_DEVICE_MANUFACTURER_ID */
++    0x0F, /* PHY_DEVICE_PRODUCT_ID */
++    0, /* PHY_DEVICE_PRODUCT_REV */
+     0x0F, /* DEFAULT USID RANGE START */
+     0x0F, /* DEFAULT USID RANGE END */
+-    0x0F, /* PHY_DEVICE_ASSIGNED_USID */ 
+-    0 /*Warning: Not specified*/, /* RFFE_GROUP_ID */ 
+-    FALSE, /* INIT */ 
+-    RFC_INVALID_PARAM, /* ASSOCIATED_DAC */ 
+-  }, /* END - Device: SKY77631 */ 
+-
+-  { /*Device: RFMD1496A */ 
+-    GEN_ASM /* ASM_SP12T */, /* PHY_DEVICE_NAME */ 
+-    2, /* PHY_DEVICE_INSTANCE */ 
+-    RFC_NO_ALTERNATE_PART, /* PHY_DEVICE_ALT_PART_NUM_OF_INSTANCE */ 
+-    RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */ 
+-    {    0,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */ 
+-    0x0134, /* PHY_DEVICE_MANUFACTURER_ID */ 
+-    0x20, /* PHY_DEVICE_PRODUCT_ID */ 
+-    0, /* PHY_DEVICE_PRODUCT_REV */ 
++    0x0F, /* PHY_DEVICE_ASSIGNED_USID */
++    0 /*Warning: Not specified*/, /* RFFE_GROUP_ID */
++    FALSE, /* INIT */
++    RFC_INVALID_PARAM, /* ASSOCIATED_DAC */
++  }, /* END - Device: SKY77631 */
++
++  { /*Device: RFMD1496A */
++    GEN_ASM /* ASM_SP12T */, /* PHY_DEVICE_NAME */
++    3, /* PHY_DEVICE_INSTANCE */
++    RFC_NO_ALTERNATE_PART, /* PHY_DEVICE_ALT_PART_NUM_OF_INSTANCE */
++    RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */
++    {    0,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */
++    0x0134, /* PHY_DEVICE_MANUFACTURER_ID */
++    0x20, /* PHY_DEVICE_PRODUCT_ID */
++    0, /* PHY_DEVICE_PRODUCT_REV */
+     0x0B, /* DEFAULT USID RANGE START */
+     0x0B, /* DEFAULT USID RANGE END */
+     0x0B, /* PHY_DEVICE_ASSIGNED_USID */ 
+-    0 /*Warning: Not specified*/, /* RFFE_GROUP_ID */ 
+-    FALSE, /* INIT */ 
+-    RFC_INVALID_PARAM, /* ASSOCIATED_DAC */ 
+-  }, /* END - Device: RFMD1496A */ 
++    0 /*Warning: Not specified*/, /* RFFE_GROUP_ID */
++    FALSE, /* INIT */
++    RFC_INVALID_PARAM, /* ASSOCIATED_DAC */
++  }, /* END - Device: RFMD1496A */
+ 
+   { /*Device: RFMD1656 */ 
+     GEN_ASM /* ASM_SP6T */, /* PHY_DEVICE_NAME */ 
+-    3, /* PHY_DEVICE_INSTANCE */ 
++    4, /* PHY_DEVICE_INSTANCE */
+     RFC_NO_ALTERNATE_PART, /* PHY_DEVICE_ALT_PART_NUM_OF_INSTANCE */ 
+     RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */ 
+     {    0,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */ 
+@@ -143,46 +160,53 @@ rfc_phy_device_info_type rfc_wtr4905_mirageplus_v2_phy_devices_list[] =
+ rfc_logical_device_info_type rfc_wtr4905_mirageplus_v2_logical_devices_list[] = 
+ {
+   { /*Device: WTR4905 */ 
+-    RFDEVICE_TRANSCEIVER, /* DEVICE_MODULE_TYPE */ 
+-    WTR4905, /* DEVICE_MODULE_NAME */ 
+-    0, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+-    0, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+-  }, /* END - Device: WTR4905 */ 
+-
+-  { /*Device: SKY77631 */ 
+-    RFDEVICE_PA, /* DEVICE_MODULE_TYPE */ 
+-    GEN_PA, /* DEVICE_MODULE_NAME */ 
+-    0, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+-    1, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+-  }, /* END - Device: SKY77631 */ 
+-
+-  { /*Device: RFMD1496A */ 
+-    RFDEVICE_ASM, /* DEVICE_MODULE_TYPE */ 
+-    GEN_ASM, /* DEVICE_MODULE_NAME */ 
+-    0, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+-    2, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+-  }, /* END - Device: RFMD1496A */ 
+-
+-  { /*Device: RFMD1656 */ 
+-    RFDEVICE_ASM, /* DEVICE_MODULE_TYPE */ 
+-    GEN_ASM, /* DEVICE_MODULE_NAME */ 
+-    1, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+-    3, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+-  }, /* END - Device: RFMD1656 */ 
+-
+-  { /*Device: TRX_HDET */ 
+-    RFDEVICE_HDET, /* DEVICE_MODULE_TYPE */ 
+-    TRX_HDET, /* DEVICE_MODULE_NAME */ 
+-    0, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+-    0, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+-  }, /* END - Device: TRX_HDET */ 
+-
+-  { /*Device: RFDEVICE_INVALID */ 
+-    RFDEVICE_TYPE_INVALID, /* DEVICE_MODULE_TYPE */ 
+-    RFDEVICE_INVALID, /* DEVICE_MODULE_NAME */ 
+-    0 /*Warning: Not specified*/, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+-    0 /*Warning: Not specified*/, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+-  }, /* END - Device: RFDEVICE_INVALID */ 
++    RFDEVICE_TRANSCEIVER, /* DEVICE_MODULE_TYPE */
++    WTR4905, /* DEVICE_MODULE_NAME */
++    0, /* DEVICE_MODULE_TYPE_INSTANCE */
++    0, /* ASSOCIATED_PHY_DEVICE_INSTANCE */
++  }, /* END - Device: WTR4905 */
++
++  { /*Device: SKY77781-11 */
++    RFDEVICE_PA, /* DEVICE_MODULE_TYPE */
++    GEN_PA, /* DEVICE_MODULE_NAME */
++    0, /* DEVICE_MODULE_TYPE_INSTANCE */
++    1, /* ASSOCIATED_PHY_DEVICE_INSTANCE */
++  }, /* END - Device: SKY77781-11 */
++
++  { /*Device: SKY77631 */
++    RFDEVICE_PA, /* DEVICE_MODULE_TYPE */
++    GEN_PA, /* DEVICE_MODULE_NAME */
++    1, /* DEVICE_MODULE_TYPE_INSTANCE */
++    2, /* ASSOCIATED_PHY_DEVICE_INSTANCE*/
++  }, /* END - Device: SKY77631 */
++
++  { /*Device: RFMD1496A */
++    RFDEVICE_ASM, /* DEVICE_MODULE_TYPE */
++    GEN_ASM, /* DEVICE_MODULE_NAME */
++    0, /* DEVICE_MODULE_TYPE_INSTANCE */
++    3, /* ASSOCIATED_PHY_DEVICE_INSTANCE */
++  }, /* END - Device: RFMD1496A */
++
++  { /*Device: RFMD1656 */
++    RFDEVICE_ASM, /* DEVICE_MODULE_TYPE */
++    GEN_ASM, /* DEVICE_MODULE_NAME */
++    1, /* DEVICE_MODULE_TYPE_INSTANCE */
++    4, /* ASSOCIATED_PHY_DEVICE_INSTANCE */
++  }, /* END - Device: RFMD1656 */
++
++  { /*Device: TRX_HDET */
++    RFDEVICE_HDET, /* DEVICE_MODULE_TYPE */
++    TRX_HDET, /* DEVICE_MODULE_NAME */
++    0, /* DEVICE_MODULE_TYPE_INSTANCE */
++    0, /* ASSOCIATED_PHY_DEVICE_INSTANCE */
++  }, /* END - Device: TRX_HDET */
++
++  { /*Device: RFDEVICE_INVALID */
++    RFDEVICE_TYPE_INVALID, /* DEVICE_MODULE_TYPE */
++    RFDEVICE_INVALID, /* DEVICE_MODULE_NAME */
++    0 /*Warning: Not specified*/, /* DEVICE_MODULE_TYPE_INSTANCE */
++    0 /*Warning: Not specified*/, /* ASSOCIATED_PHY_DEVICE_INSTANCE */
++  }, /* END - Device: RFDEVICE_INVALID */
+ 
+ };
+ 
+diff --git a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/gsm/src/rfc_wtr4905_mirageplus_v2_gsm_config_data_ag.c b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/gsm/src/rfc_wtr4905_mirageplus_v2_gsm_config_data_ag.c
+index 26961e9..84e78df 100755
+--- a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/gsm/src/rfc_wtr4905_mirageplus_v2_gsm_config_data_ag.c
++++ b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/gsm/src/rfc_wtr4905_mirageplus_v2_gsm_config_data_ag.c
+@@ -182,7 +182,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_gsm_g850_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -308,7 +308,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_gsm_g900_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -373,7 +373,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_rx0_gsm_g1800_device_info =
+       0,  /* PHY_PATH_NUM */
+       {
+         0 /*Warning: Not specified*/,  /* INTF_REV */
+-        (int)WTR4905_GSM_PRXLGY1_BAND1800_PMB1,  /* PORT */
++        (int)WTR4905_GSM_PRXLGY1_BAND1800_PMB3,  /* PORT */
+         ( RFDEVICE_PA_LUT_MAPPING_INVALID ),  /* RF_ASIC_BAND_PA_LUT_MAP */
+         FALSE,  /* TXAGC_LUT */
+         WTR4905_FBRX_ATTN_DEFAULT,  /* FBRX_ATTN_STATE */
+@@ -387,7 +387,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_rx0_gsm_g1800_device_info =
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+-        (0x0134 << 22)/*mfg_id*/ | (0x20 << 14)/*prd_id*/ | (7)/*port_num*/,  /* PORT_NUM */
++        (0x0134 << 22)/*mfg_id*/ | (0x20 << 14)/*prd_id*/ | (4)/*port_num*/,  /* PORT_NUM */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+@@ -434,7 +434,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_gsm_g1800_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -499,7 +499,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_rx0_gsm_g1900_device_info =
+       0,  /* PHY_PATH_NUM */
+       {
+         0 /*Warning: Not specified*/,  /* INTF_REV */
+-        (int)WTR4905_GSM_PRXLGY1_BAND1900_PMB3,  /* PORT */
++        (int)WTR4905_GSM_PRXLGY1_BAND1900_PMB1,  /* PORT */
+         ( RFDEVICE_PA_LUT_MAPPING_INVALID ),  /* RF_ASIC_BAND_PA_LUT_MAP */
+         FALSE,  /* TXAGC_LUT */
+         WTR4905_FBRX_ATTN_DEFAULT,  /* FBRX_ATTN_STATE */
+@@ -513,7 +513,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_rx0_gsm_g1900_device_info =
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+-        (0x0134 << 22)/*mfg_id*/ | (0x20 << 14)/*prd_id*/ | (4)/*port_num*/,  /* PORT_NUM */
++        (0x0134 << 22)/*mfg_id*/ | (0x20 << 14)/*prd_id*/ | (7)/*port_num*/,  /* PORT_NUM */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+@@ -560,7 +560,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_gsm_g1900_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+diff --git a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/lte/src/rfc_wtr4905_mirageplus_v2_lte_config_data_ag.c b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/lte/src/rfc_wtr4905_mirageplus_v2_lte_config_data_ag.c
+index 9054f70..b9b1641 100755
+--- a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/lte/src/rfc_wtr4905_mirageplus_v2_lte_config_data_ag.c
++++ b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/lte/src/rfc_wtr4905_mirageplus_v2_lte_config_data_ag.c
+@@ -232,7 +232,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_lte_b1_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -414,7 +414,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_lte_b2_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -486,7 +486,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_rx0_lte_b3_device_info =
+       0,  /* PHY_PATH_NUM */
+       {
+         0 /*Warning: Not specified*/,  /* INTF_REV */
+-        (int)WTR4905_LTEFDD_PRXLGY1_BAND3_PMB1,  /* PORT */
++        (int)WTR4905_LTEFDD_PRXLGY1_BAND3_PMB3,  /* PORT */
+         ( RFDEVICE_PA_LUT_MAPPING_INVALID ),  /* RF_ASIC_BAND_PA_LUT_MAP */
+         FALSE,  /* TXAGC_LUT */
+         WTR4905_FBRX_ATTN_DEFAULT,  /* FBRX_ATTN_STATE */
+@@ -500,7 +500,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_rx0_lte_b3_device_info =
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+-        (0x0134 << 22)/*mfg_id*/ | (0x20 << 14)/*prd_id*/ | (7)/*port_num*/,  /* PORT_NUM */
++        (0x0134 << 22)/*mfg_id*/ | (0x20 << 14)/*prd_id*/ | (4)/*port_num*/,  /* PORT_NUM */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+@@ -536,7 +536,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_rx1_lte_b3_device_info =
+       1,  /* PHY_PATH_NUM */
+       {
+         0 /*Warning: Not specified*/,  /* INTF_REV */
+-        (int)WTR4905_LTEFDD_DRXLGY1_BAND3_DMB1,  /* PORT */
++        (int)WTR4905_LTEFDD_DRXLGY1_BAND3_DMB2,  /* PORT */
+         ( RFDEVICE_PA_LUT_MAPPING_INVALID ),  /* RF_ASIC_BAND_PA_LUT_MAP */
+         FALSE,  /* TXAGC_LUT */
+         WTR4905_FBRX_ATTN_DEFAULT,  /* FBRX_ATTN_STATE */
+@@ -550,7 +550,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_rx1_lte_b3_device_info =
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+-        (0x0134 << 22)/*mfg_id*/ | (0x24 << 14)/*prd_id*/ | (4)/*port_num*/,  /* PORT_NUM */
++        (0x0134 << 22)/*mfg_id*/ | (0x24 << 14)/*prd_id*/ | (3)/*port_num*/,  /* PORT_NUM */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+@@ -596,7 +596,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_lte_b3_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -614,7 +614,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_lte_b3_device_info =
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+-        (0x0134 << 22)/*mfg_id*/ | (0x20 << 14)/*prd_id*/ | (7)/*port_num*/,  /* PORT_NUM */
++        (0x0134 << 22)/*mfg_id*/ | (0x20 << 14)/*prd_id*/ | (4)/*port_num*/,  /* PORT_NUM */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+@@ -779,7 +779,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_lte_b4_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -965,7 +965,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_lte_b7_device_info =
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+-        (0x01A5 << 22)/*mfg_id*/ | (0x0F << 14)/*prd_id*/ | (0)/*port_num*/,  /* PORT_NUM */
++        (0x01A5 << 22)/*mfg_id*/ | (0x15 << 14)/*prd_id*/ | (0)/*port_num*/,  /* PORT_NUM */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+@@ -1140,7 +1140,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_lte_b8_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -1323,7 +1323,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_lte_b20_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -1509,7 +1509,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_lte_b40_device_info =
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+-        (0x01A5 << 22)/*mfg_id*/ | (0x0F << 14)/*prd_id*/ | (0)/*port_num*/,  /* PORT_NUM */
++        (0x01A5 << 22)/*mfg_id*/ | (0x15 << 14)/*prd_id*/ | (0)/*port_num*/,  /* PORT_NUM */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+         0,  /* Array Filler */
+diff --git a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/wcdma/src/rfc_wtr4905_mirageplus_v2_wcdma_config_data_ag.c b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/wcdma/src/rfc_wtr4905_mirageplus_v2_wcdma_config_data_ag.c
+index 0638062..b55a10e 100755
+--- a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/wcdma/src/rfc_wtr4905_mirageplus_v2_wcdma_config_data_ag.c
++++ b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus_v2/wcdma/src/rfc_wtr4905_mirageplus_v2_wcdma_config_data_ag.c
+@@ -182,7 +182,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_wcdma_b1_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -314,7 +314,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_wcdma_b2_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -446,7 +446,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_wcdma_b5_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -579,7 +579,7 @@ rfc_device_info_type rf_card_wtr4905_mirageplus_v2_tx0_wcdma_b8_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+-- 
+1.9.1
+

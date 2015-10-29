@@ -1,0 +1,28 @@
+diff --git a/mediatek/config/ckt95_lw_kk/mtk-kpd.kl b/mediatek/config/ckt95_lw_kk/mtk-kpd.kl
+index 21077c9..5f0d2ff 100755
+--- a/mediatek/config/ckt95_lw_kk/mtk-kpd.kl
++++ b/mediatek/config/ckt95_lw_kk/mtk-kpd.kl
+@@ -29,8 +29,8 @@ key 103   DPAD_UP
+ key 102   HOME
+ key 105   DPAD_LEFT
+ key 106   DPAD_RIGHT
+-key 115   CAMERA         WAKE_DROPPED
+-key 114   HOTSPOT       WAKE_DROPPED
++key 115   CAMERA         WAKE
++key 114   HOTSPOT       WAKE
+ key 113   MUTE              WAKE_DROPPED
+ key 116   POWER             WAKE
+ key 211   FOCUS
+diff --git a/mediatek/kernel/drivers/keypad/kpd.c b/mediatek/kernel/drivers/keypad/kpd.c
+index d21eeb8..c9e0371 100755
+--- a/mediatek/kernel/drivers/keypad/kpd.c
++++ b/mediatek/kernel/drivers/keypad/kpd.c
+@@ -21,7 +21,7 @@
+ #define KPD_NAME	"mtk-kpd"
+ #include <linux/timer.h>
+ 
+-#define MTK_KP_WAKESOURCE//this is for auto set wake up source
++//#define MTK_KP_WAKESOURCE//this is for auto set wake up source
+ 
+ struct input_dev *kpd_input_dev;
+ static bool kpd_suspend = false;
