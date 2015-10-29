@@ -1,0 +1,89 @@
+From ecdf17ea1efe5f43827f25bdbd7d77837250a5c1 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Tue, 9 Dec 2014 15:18:12 +0800
+Subject: [PATCH] [Feature] Sn writer[Suit new ckt spec]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+[id]:73279
+[Type]
+   FEATURE
+[Products]
+	EYES_BASELINE
+[Requirement]
+   N/A
+
+[Solution Description]
+   N/A
+
+[Other Info]
+   N/A
+
+ 要提交的变更：
+	修改:         build/tools/buildinfo.sh
+	修改:         mediatek/config/ckt95_lw_kk/ProjectConfig.mk
+	修改:         mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk
+	修改:         mediatek/config/common/ProjectConfig.mk
+
+Change-Id: Ida987a8e51158fa4da9e3591e6fea4b8758898d1
+---
+ build/tools/buildinfo.sh                         | 1 +
+ mediatek/config/ckt95_lw_kk/ProjectConfig.mk     | 2 +-
+ mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk | 1 +
+ mediatek/config/common/ProjectConfig.mk          | 2 +-
+ 4 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/build/tools/buildinfo.sh b/build/tools/buildinfo.sh
+index 7c8c5ba..cab75a0 100755
+--- a/build/tools/buildinfo.sh
++++ b/build/tools/buildinfo.sh
+@@ -28,6 +28,7 @@ echo "ro.build.tags=$BUILD_VERSION_TAGS"
+ echo "ro.product.model=$PRODUCT_MODEL"
+ echo "ro.product.brand=$PRODUCT_BRAND"
+ echo "ro.product.name=$CKT_PRODUCT_NAME"
++echo "ro.change.sw=$MTK_BUILD_VERNO"
+ #$PRODUCT_NAME"
+ echo "ro.product.device=$TARGET_DEVICE"
+ echo "ro.product.board=$PRODUCT_NAME"
+diff --git a/mediatek/config/ckt95_lw_kk/ProjectConfig.mk b/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
+index c2bbbd3..dfe1856 100755
+--- a/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
++++ b/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
+@@ -1483,7 +1483,7 @@ MTK_WIFI_HOTSPOT_SUPPORT=yes
+ MTK_WLAN_SUPPORT=yes
+ 
+ #CREATE_PROJECT_INFO=20140815185038
+-MTK_BUILD_VERNO = ALPS.KK1.MP11.V1.14
++#MTK_BUILD_VERNO = ALPS.KK1.MP11.V1.14
+ 
+ #ckt zhangping 20140924 for open usb acm (feature66550)
+ CKT_OPEN_USB_ACM = yes
+diff --git a/mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk b/mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk
+index bf0ad9e..fd396b2 100755
+--- a/mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk
++++ b/mediatek/config/ckt95_lw_kk/ProjectConfig_ckt.mk
+@@ -121,6 +121,7 @@ DATA_FOR_VERO=$(shell date +%y%m%d)
+ DATA_FOR_INTERNAL_VERO=$(shell date +%y%m%d%H%M%S)
+ 
+ CKT_BUILD_VERNO  ?= $(call uc, $(_CKT_BUILD_VERNO)_$(strip $(DATA_FOR_VERO)))
++MTK_BUILD_VERNO  ?= $(call uc, $(_CKT_BUILD_VERNO)_$(strip $(DATA_FOR_VERO)))
+ CKT_BUILD_INTERNAL_VERNO  ?= $(call uc, $(_CKT_BUILD_VERNO)_$(strip $(DATA_FOR_INTERNAL_VERO)))
+ #############################
+ 
+diff --git a/mediatek/config/common/ProjectConfig.mk b/mediatek/config/common/ProjectConfig.mk
+index 5356984..a4a55f8 100755
+--- a/mediatek/config/common/ProjectConfig.mk
++++ b/mediatek/config/common/ProjectConfig.mk
+@@ -4,7 +4,7 @@
+ MTK_BRANCH = KK1.MP11
+ 	# Depend on branch
+ 
+-MTK_BUILD_VERNO = ALPS.KK1.MP11.V1.14
++#MTK_BUILD_VERNO = ALPS.KK1.MP11.V1.14
+ 	# Depend on release week
+ 
+ MTK_WEEK_NO =  
+-- 
+1.9.1
+

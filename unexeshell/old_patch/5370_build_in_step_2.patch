@@ -1,0 +1,82 @@
+diff --git a/mediatek/config/mt6595/autoconfig/kconfig/platform b/mediatek/config/mt6595/autoconfig/kconfig/platform
+old mode 100755
+new mode 100644
+index 221deff..86a4e4c
+--- a/mediatek/config/mt6595/autoconfig/kconfig/platform
++++ b/mediatek/config/mt6595/autoconfig/kconfig/platform
+@@ -910,7 +910,18 @@ CONFIG_CFG80211_INTERNAL_REGDB=y
+ CONFIG_CFG80211_WEXT=y
+ # CONFIG_LIB80211 is not set
+ # CONFIG_CFG80211_ALLOW_RECONNECT is not set
+-# CONFIG_MAC80211 is not set
++CONFIG_MAC80211=y
++CONFIG_MAC80211_HAS_RC=y
++# CONFIG_MAC80211_RC_PID is not set
++CONFIG_MAC80211_RC_MINSTREL=y
++CONFIG_MAC80211_RC_MINSTREL_HT=y
++CONFIG_MAC80211_RC_DEFAULT_MINSTREL=y
++CONFIG_MAC80211_RC_DEFAULT="minstrel_ht"
++# CONFIG_MAC80211_MESH is not set
++# CONFIG_MAC80211_LEDS is not set
++# CONFIG_MAC80211_DEBUGFS is not set
++# CONFIG_MAC80211_MESSAGE_TRACING is not set
++# CONFIG_MAC80211_DEBUG_MENU is not set
+ # CONFIG_WIMAX is not set
+ # CONFIG_RFKILL is not set
+ # CONFIG_NET_9P is not set
+@@ -1221,14 +1232,39 @@ CONFIG_SLHC=y
+ # CONFIG_USB_USBNET is not set
+ # CONFIG_USB_IPHETH is not set
+ CONFIG_WLAN=y
++# CONFIG_LIBERTAS_THINFIRM is not set
++# CONFIG_AT76C50X_USB is not set
+ # CONFIG_USB_ZD1201 is not set
+ # CONFIG_USB_NET_RNDIS_WLAN is not set
++# CONFIG_RTL8187 is not set
++# CONFIG_MAC80211_HWSIM is not set
+ # CONFIG_WIFI_CONTROL_FUNC is not set
+ # CONFIG_ATH_CARDS is not set
++# CONFIG_B43 is not set
++# CONFIG_B43LEGACY is not set
+ # CONFIG_BRCMFMAC is not set
+ # CONFIG_HOSTAP is not set
+ # CONFIG_LIBERTAS is not set
++# CONFIG_P54_COMMON is not set
++CONFIG_RT2X00=y
++# CONFIG_RT2500USB is not set
++# CONFIG_RT73USB is not set
++CONFIG_RT2800USB=y
++# CONFIG_RT2800USB_RT33XX is not set
++# CONFIG_RT2800USB_RT35XX is not set
++CONFIG_RT2800USB_RT53XX=y
++# CONFIG_RT2800USB_RT55XX is not set
++# CONFIG_RT2800USB_UNKNOWN is not set
++CONFIG_RT2800_LIB=y
++CONFIG_RT2X00_LIB_USB=y
++CONFIG_RT2X00_LIB=y
++CONFIG_RT2X00_LIB_FIRMWARE=y
++CONFIG_RT2X00_LIB_CRYPTO=y
++CONFIG_RT2X00_LIB_LEDS=y
++# CONFIG_RT2X00_DEBUG is not set
++# CONFIG_RTLWIFI is not set
+ # CONFIG_WL_TI is not set
++# CONFIG_ZD1211RW is not set
+ # CONFIG_MWIFIEX is not set
+ 
+ #
+@@ -2100,6 +2136,7 @@ CONFIG_RTC_INTF_DEV=y
+ #
+ CONFIG_STAGING=y
+ # CONFIG_USBIP_CORE is not set
++# CONFIG_W35UND is not set
+ # CONFIG_PRISM2_USB is not set
+ # CONFIG_ECHO is not set
+ # CONFIG_COMEDI is not set
+@@ -2687,6 +2724,7 @@ CONFIG_MTK_SCHED_CMP_TGS_WAKEUP=y
+ CONFIG_MTK_SCHED_TRACERS=y
+ CONFIG_MTK_FTRACE_DEFAULT_ENABLE=y
+ # CONFIG_MTK_KERNEL_MARKER is not set
++# CONFIG_FUNCTION_DURATION_TRACER is not set
+ # CONFIG_MT65XX_TRACER is not set
+ 
+ #

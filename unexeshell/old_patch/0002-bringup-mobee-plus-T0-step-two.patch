@@ -1,0 +1,28 @@
+From d0c102357bd1a549d9b8f7bd9d400bd042e1ccdd Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Wed, 27 May 2015 13:56:51 +0800
+Subject: [PATCH 2/2] bringup mobee plus T0 step two
+
+Change-Id: I35800597658dba922b2f75ba38334e1f5633bd31
+---
+ .../rfa/rfc/vreg_mgr/wtr1605_sv/src/rfc_vreg_mgr_wtr1605_sv.cpp       | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/modem_proc/rfa/rfc/vreg_mgr/wtr1605_sv/src/rfc_vreg_mgr_wtr1605_sv.cpp b/modem_proc/rfa/rfc/vreg_mgr/wtr1605_sv/src/rfc_vreg_mgr_wtr1605_sv.cpp
+index 2b54dab..9f47b95 100755
+--- a/modem_proc/rfa/rfc/vreg_mgr/wtr1605_sv/src/rfc_vreg_mgr_wtr1605_sv.cpp
++++ b/modem_proc/rfa/rfc/vreg_mgr/wtr1605_sv/src/rfc_vreg_mgr_wtr1605_sv.cpp
+@@ -918,8 +918,8 @@ void rfc_vreg_mgr_wtr1605_sv::init_rf_npa_handle(void)
+       (rf_hw_id != RF_HW_WTR4905_MIRAGEPLUS_V2) &&
+       (rf_hw_id != RF_HW_WTR4905_MIRAGE02A_V2) &&
+       (rf_hw_id != RF_HW_WTR4905_NAMEK_V2) &&
+-      (RF_HW_ID != RF_HW_WTR4905_MOBEE_V2) &&
+-      (RF_HW_ID != RF_HW_WTR4905_MOBEEPLUS_V2))
++      (rf_hw_id != RF_HW_WTR4905_MOBEE_V2) &&
++      (rf_hw_id != RF_HW_WTR4905_MOBEEPLUS_V2))
+   {
+     //One time set up a required sync client to have Sleep Set formed in the RPM
+     rf_sleep_set_sv_client_handle = npa_create_sync_client( PMIC_NPA_GROUP_ID_RF1_TECH_1X, 
+-- 
+1.9.1
+

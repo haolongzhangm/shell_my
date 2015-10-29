@@ -1,0 +1,22 @@
+diff --git a/system/vold/Volume.cpp b/system/vold/Volume.cpp
+index 008b694..630d6ed 100644
+--- a/system/vold/Volume.cpp
++++ b/system/vold/Volume.cpp
+@@ -803,6 +803,17 @@ __CHECK_FAT_AGAIN:
+              }
+         }  
+ #endif     
++#if 1
++     char need_formart_sdcard0[PROPERTY_VALUE_MAX] ;
++            property_get("xxxxxxxxxxxxx", need_formart_sdcard0, "1");
++            
++            if (!strcmp(need_formart_sdcard0, "1") && !strcmp(getLabel(), "sdcard0")) {
++                SLOGI("** internal sdcard0 need format. Try to format it. (%s)\n", devicePath);
++				exec("system/bin/mkfs.vfat",.............);
++
++                }
++
++#endif
+ 
+         errno = 0;
+         int gid;

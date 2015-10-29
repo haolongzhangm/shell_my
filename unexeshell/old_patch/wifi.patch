@@ -1,0 +1,86 @@
+diff --git a/frameworks/base/services/java/com/android/server/wifi/WifiService.java b/frameworks/base/services/java/com/android/server/wifi/WifiService.java
+index 7939b41..8ea9572 100644
+--- a/frameworks/base/services/java/com/android/server/wifi/WifiService.java
++++ b/frameworks/base/services/java/com/android/server/wifi/WifiService.java
+@@ -40,6 +40,11 @@ import android.net.wifi.WifiInfo;
+ import android.net.wifi.WifiManager;
+ import android.net.wifi.WifiStateMachine;
+ import android.net.wifi.WifiWatchdogStateMachine;
++import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
++import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLING;
++import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
++import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLING;
++import static android.net.wifi.WifiManager.WIFI_AP_STATE_FAILED;
+ import android.os.Binder;
+ import android.os.Handler;
+ import android.os.Messenger;
+@@ -178,7 +183,10 @@ public final class WifiService extends IWifiManager.Stub {
+ 	private static boolean isHotSpotLedOpenTheadRunning = false;
+ 	private static boolean isHotSpotLedCloseTheadRunning = false;
+ 	//end add for blueLedStatus charge
+-
++	/**
++	 *  add wifiAp config store config // ture: open before; false: close before
++	 */
++	private static int wifiApStoreConfig = WIFI_AP_STATE_DISABLED;
+     /**
+      * Handles client connections
+      */
+@@ -392,6 +400,25 @@ public final class WifiService extends IWifiManager.Stub {
+                         ///M: modify for timing issue to access Settings.Global.AIRPLANE_MODE_ON
+                         boolean isAirplaneModeOn = intent.getBooleanExtra("state", false);
+                         SXlog.i(TAG, "ACTION_AIRPLANE_MODE_CHANGED isAirplaneModeOn="+isAirplaneModeOn);
++
++						if (isAirplaneModeOn) {
++							SXlog.i(TAG, "set HICAM.ON.AIRPLANE = TREUE");
++							System.setProperty("HICAM.ON.AIRPLANE", "ture");
++							SXlog.i(TAG, "fisrt disable AP and store old AP status");
++							wifiApStoreConfig = getWifiApEnabledState();
++							if (getWifiApEnabledState() == WIFI_AP_STATE_ENABLED) {
++								setWifiApEnabled(null, false);
++							}
++						} else {
++							SXlog.i(TAG, "set HICAM.ON.AIRPLANE = FLASE");
++							System.setProperty("HICAM.ON.AIRPLANE", "false");
++							SXlog.i(TAG, "restore AP old status: old AP status = " + wifiApStoreConfig);
++							if (wifiApStoreConfig == WIFI_AP_STATE_ENABLED) {
++								SXlog.i(TAG, "restore AP status and set wifiApStoreConfig default to false");
++								setWifiApEnabled(null, true);
++								wifiApStoreConfig = WIFI_AP_STATE_DISABLED;
++							}
++						}
+                         
+                         if (mSettingsStore.handleAirplaneModeToggled(isAirplaneModeOn)) {
+ 
+@@ -411,7 +438,8 @@ public final class WifiService extends IWifiManager.Stub {
+                     @Override
+                     public void onReceive(Context context, Intent intent) {
+                         SXlog.i(TAG, "ACTION_SWTICH_SOTFAP_FROM_KEY_OPEN  " + intent.getAction());
+-			Toast.makeText(mContext, "WiFi Hot Ap Enabling.......", Toast.LENGTH_SHORT).show();
++						if ("ture" != System.getProperty("HICAM.ON.AIRPLANE"))
++							Toast.makeText(mContext, "WiFi Hot Ap Enabling.......", Toast.LENGTH_SHORT).show();
+                     }
+                 },
+                 new IntentFilter(ACTION_SWTICH_SOTFAP_FROM_KEY_OPEN));
+@@ -421,7 +449,8 @@ public final class WifiService extends IWifiManager.Stub {
+                     @Override
+                     public void onReceive(Context context, Intent intent) {
+                         SXlog.i(TAG, "ACTION_SWTICH_SOTFAP_FROM_KEY_CLOSE  " + intent.getAction());
+-			Toast.makeText(mContext, "WiFi Hot Ap Disabling.......", Toast.LENGTH_SHORT).show();
++						if ("ture" != System.getProperty("HICAM.ON.AIRPLANE"))
++							Toast.makeText(mContext, "WiFi Hot Ap Disabling.......", Toast.LENGTH_SHORT).show();
+                     }
+                 },
+                 new IntentFilter(ACTION_SWTICH_SOTFAP_FROM_KEY_CLOSE));
+@@ -827,6 +856,11 @@ public final class WifiService extends IWifiManager.Stub {
+      * @param enabled true to enable and false to disable
+      */
+     public void setWifiApEnabled(WifiConfiguration wifiConfig, boolean enabled) {
++		if ("ture" == System.getProperty("HICAM.ON.AIRPLANE")) {
++			SXlog.i(TAG, "HICAM IS in air plane just return");
++			Toast.makeText(mContext, "please trun off airplane ", Toast.LENGTH_SHORT).show();
++			return ;
++		}
+         SXlog.d(TAG, "setWifiApEnabled:" + enabled + ", pid:" + Binder.getCallingPid()
+             + ", uid:" + Binder.getCallingUid() + ", wifiConfig:" + wifiConfig);
+         enforceChangePermission();

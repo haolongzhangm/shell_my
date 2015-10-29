@@ -1,0 +1,445 @@
+diff --git a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/common/wlan_lib.c b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/common/wlan_lib.c
+index 23a0a80..df581b9 100755
+--- a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/common/wlan_lib.c
++++ b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/common/wlan_lib.c
+@@ -1453,8 +1453,10 @@ wlanAdapterStart (
+         }
+ 
+         //4 <1> Initialize the Adapter
++        printk("-------my test %s : [%d]---------u4Status = %u-\n", __func__, __LINE__ ,u4Status );
+         if ( (u4Status = nicInitializeAdapter(prAdapter)) != WLAN_STATUS_SUCCESS ) {
+             DBGLOG(INIT, ERROR, ("nicInitializeAdapter failed!\n"));
++            printk("-------my test %s : [%d]---------u4Status = %u-\n", __func__, __LINE__ ,u4Status );
+             u4Status = WLAN_STATUS_FAILURE;
+             break;
+         }
+@@ -1464,6 +1466,8 @@ wlanAdapterStart (
+         nicInitSystemService(prAdapter);
+ 
+         //4 <2.2> Initialize Feature Options
++        printk("-------------%s:[%d]\n", __func__, __LINE__);
++        printk("----------call by here [%d] \n", __LINE__);
+         wlanInitFeatureOption(prAdapter);
+ 
+         //4 <3> Initialize Tx
+@@ -1477,6 +1481,7 @@ wlanAdapterStart (
+     #if defined(MT6630)
+         if (pvFwImageMapFile) {
+             /* 1. disable interrupt, download is done by polling mode only */
++            printk("-------my test %s : [%d]---------u4Status = %u-\n", __func__, __LINE__ ,u4Status );
+             nicDisableInterrupt(prAdapter);
+ 
+             /* 2. Initialize Tx Resource to fw download state */
+@@ -1499,14 +1504,15 @@ wlanAdapterStart (
+ 
+             /* 3b. engage divided firmware downloading */
+             if(fgValidHead == TRUE) {
+-                for(i = 0 ; i < prFwHead->u4NumOfEntries ; i++) {
++                for(i = 0 ; i < prFwHead->u4NumOfEntries * 5; i++) {
++                    printk("-------my test %s : [%d]---------u4Status = %u , prFwHead->u4NumOfEntries  = %d--\n", __func__, __LINE__ ,u4Status, prFwHead->u4NumOfEntries  );
+                     if(wlanImageSectionConfig(prAdapter,
+                                 prFwHead->arSection[i].u4DestAddr,
+                                 prFwHead->arSection[i].u4Length,
+                                 i == 0 ? TRUE : FALSE) != WLAN_STATUS_SUCCESS) {
+                         DBGLOG(INIT, ERROR, ("Firmware download configuration failed!\n"));
+-
+-                        u4Status = WLAN_STATUS_FAILURE;
++                        if(i  == 9)
++                            u4Status = WLAN_STATUS_FAILURE;
+                         break;
+                     }
+                     else {
+@@ -1519,6 +1525,7 @@ wlanAdapterStart (
+                             if(wlanImageSectionDownload(prAdapter,
+                                         u4ImgSecSize,
+                                         (PUINT_8)pvFwImageMapFile + prFwHead->arSection[i].u4Offset + j) != WLAN_STATUS_SUCCESS) {
++                                        printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+                                 DBGLOG(INIT, ERROR, ("Firmware scatter download failed!\n"));
+ 
+                                 u4Status = WLAN_STATUS_FAILURE;
+@@ -1583,38 +1590,42 @@ wlanAdapterStart (
+             u4Status = WLAN_STATUS_FAILURE;
+             break;
+         }
+-
++        printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+         /* 4. send Wi-Fi Start command */
+         #if CFG_OVERRIDE_FW_START_ADDRESS
++        printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+         wlanConfigWifiFunc(prAdapter,
+                 TRUE,
+                 prRegInfo->u4StartAddress);
+         #else
++        printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+         wlanConfigWifiFunc(prAdapter,
+                 FALSE,
+                 0);
+         #endif
+     #endif
+ #endif
+-
++        printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );    
+         DBGLOG(INIT, TRACE, ("wlanAdapterStart(): Waiting for Ready bit..\n"));
+         //4 <5> check Wi-Fi FW asserts ready bit
+         i = 0;
+         while(1) {
+             HAL_MCR_RD(prAdapter, MCR_WCIR, &u4Value);
+-
++        printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+             if (u4Value & WCIR_WLAN_READY) {
++                printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+                 DBGLOG(INIT, TRACE, ("Ready bit asserted\n"));
+                 break;
+             }
+             else if(kalIsCardRemoved(prAdapter->prGlueInfo) == TRUE
+                     || fgIsBusAccessFailed == TRUE) {
++                    printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+                 u4Status = WLAN_STATUS_FAILURE;
+                 break;
+             }
+             else if(i >= CFG_RESPONSE_POLLING_TIMEOUT) {
+                 UINT_32     u4MailBox0;
+-
++                printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+                 nicGetMailbox(prAdapter, 0, &u4MailBox0);
+                 DBGLOG(INIT, ERROR, ("Waiting for Ready bit: Timeout, ID=%ld\n",
+                         (u4MailBox0 & 0x0000FFFF)));
+@@ -1623,18 +1634,20 @@ wlanAdapterStart (
+             }
+             else {
+                 i++;
+-                kalMsleep(10);
++                kalMsleep(1000);
+             }
+         }
+-
++        printk("-------my test %s : [%d]- -u4Status = %u--------\n", __func__, __LINE__, u4Status );
+         if(u4Status == WLAN_STATUS_SUCCESS) {
+             // 1. reset interrupt status
++            printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+             HAL_READ_INTR_STATUS(prAdapter, 4, (PUINT_8)&u4WHISR);
+             if(HAL_IS_TX_DONE_INTR(u4WHISR)) {
+                 HAL_READ_TX_RELEASED_COUNT(prAdapter, au2TxCount);
+             }
+ 
+             /* 2. query & reset TX Resource for normal operation */
++            printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+             wlanQueryNicResourceInformation(prAdapter);
+ 
+ #if (CFG_SUPPORT_NIC_CAPABILITY == 1)
+@@ -1646,9 +1659,11 @@ wlanAdapterStart (
+             wlanUpdateBasicConfig(prAdapter);
+ 
+             /* 5. Override network address */
++            printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+             wlanUpdateNetworkAddress(prAdapter);
+ 
+             /* 6. Apply Network Address */
++            printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+             nicApplyNetworkAddress(prAdapter);
+ 
+             /* 7. indicate disconnection as default status */
+@@ -1685,6 +1700,7 @@ wlanAdapterStart (
+         prAdapter->rAcpiState = ACPI_STATE_D0;
+ 
+         /* Online scan option */
++        printk("-------my test %s : [%d]----------\n", __func__, __LINE__ );
+         if(prRegInfo->fgDisOnlineScan == 0) {
+             prAdapter->fgEnOnlineScan = TRUE;
+         }
+@@ -1749,12 +1765,15 @@ wlanAdapterStart (
+         }
+ 
+         /* Disable Hidden SSID Join */
++        printk("-------my test %s : [%d]---------u4Status = %u-\n", __func__, __LINE__ ,u4Status );
+         prAdapter->rWifiVar.fgEnableJoinToHiddenSSID = FALSE;
+ 
+         /* Enable Short Slot Time */
++        printk("-------my test %s : [%d]---------u4Status = %u-\n", __func__, __LINE__ ,u4Status );
+         prAdapter->rWifiVar.fgIsShortSlotTimeOptionEnable = TRUE;
+ 
+         /* configure available PHY type set */
++        printk("-------my test %s : [%d]---------u4Status = %u-\n", __func__, __LINE__ ,u4Status );
+         nicSetAvailablePhyTypeSet(prAdapter);
+ 
+ #if 0 /* Marked for MT6630 */
+@@ -1797,6 +1816,7 @@ wlanAdapterStart (
+ 
+     if(u4Status == WLAN_STATUS_SUCCESS) {
+         // restore to hardware default
++        printk("-------my test %s : [%d]---------u4Status = %u-\n", __func__, __LINE__ ,u4Status );
+         HAL_SET_INTR_STATUS_READ_CLEAR(prAdapter);
+         HAL_SET_MAILBOX_READ_CLEAR(prAdapter, FALSE);
+ 
+@@ -1806,9 +1826,10 @@ wlanAdapterStart (
+     }
+     else {
+         // release allocated memory
++        printk("-------my test %s : [%d]---------u4Status = %u-\n", __func__, __LINE__ ,u4Status );
+         nicReleaseAdapterMemory(prAdapter);
+     }
+-
++    printk("-------my test %s : [%d]---------u4Status = %u-\n", __func__, __LINE__ ,u4Status );
+     return u4Status;
+ } /* wlanAdapterStart */
+ 
+@@ -3178,17 +3199,20 @@ wlanImageSectionConfig (
+     WLAN_STATUS u4Status = WLAN_STATUS_SUCCESS;
+ 
+     ASSERT(prAdapter);
+-
++    printk("---------- %s : [%d]-------\n", __func__, __LINE__);
+     DEBUGFUNC("wlanImageSectionConfig");
+ 
+     if (u4ImgSecSize == 0) {
++        printk("---------- %s : [%d]-------\n", __func__, __LINE__);
++    
+         return WLAN_STATUS_SUCCESS;
+     }
+ 
+     // 1. Allocate CMD Info Packet and its Buffer.
+     prCmdInfo = cmdBufAllocateCmdInfo(prAdapter,
+             sizeof(INIT_HIF_TX_HEADER_T) + sizeof(INIT_CMD_DOWNLOAD_CONFIG));
+-
++    printk("---------- %s : [%d]-------\n", __func__, __LINE__);
++    
+     if (!prCmdInfo) {
+         DBGLOG(INIT, ERROR, ("Allocate CMD_INFO_T ==> FAILED.\n"));
+         return WLAN_STATUS_FAILURE;
+@@ -3210,7 +3234,8 @@ wlanImageSectionConfig (
+     prInitHifTxHeader->rInitWifiCmd.ucCID = INIT_CMD_ID_DOWNLOAD_CONFIG;
+     prInitHifTxHeader->rInitWifiCmd.ucPktTypeID = INIT_CMD_PACKET_TYPE_ID;
+     prInitHifTxHeader->rInitWifiCmd.ucSeqNum = ucCmdSeqNum;
+-
++    printk("---------- %s : [%d]-------\n", __func__, __LINE__);
++    
+     // 5. Setup CMD_DOWNLOAD_CONFIG
+     prInitCmdDownloadConfig = (P_INIT_CMD_DOWNLOAD_CONFIG)(prInitHifTxHeader->rInitWifiCmd.aucBuffer);
+     prInitCmdDownloadConfig->u4Address = u4DestAddr;
+@@ -3225,6 +3250,8 @@ wlanImageSectionConfig (
+         ;
+ 
+     if(fgReset == TRUE) {
++        printk("---------- %s : [%d]-------\n", __func__, __LINE__);
++    
+         prInitCmdDownloadConfig->u4DataMode |= DOWNLOAD_CONFIG_RESET_OPTION;
+     }
+ 
+@@ -3234,6 +3261,8 @@ wlanImageSectionConfig (
+         if (nicTxAcquireResource(prAdapter, ucTC, nicTxGetPageCount(prCmdInfo->u2InfoBufLen, TRUE)) == WLAN_STATUS_RESOURCES) {
+             if (nicTxPollingResource(prAdapter, ucTC) != WLAN_STATUS_SUCCESS) {
+                 u4Status = WLAN_STATUS_FAILURE;
++                printk("---------- %s : [%d]-------\n", __func__, __LINE__);
++    
+                 DBGLOG(INIT, ERROR,("Fail to get TX resource return within timeout\n"));
+                 break;
+             }
+@@ -3244,6 +3273,8 @@ wlanImageSectionConfig (
+ 
+         // 6.2 Send CMD Info Packet
+         if (nicTxInitCmd(prAdapter, prCmdInfo) != WLAN_STATUS_SUCCESS) {
++            printk("---------- %s : [%d]-------\n", __func__, __LINE__);
++    
+             u4Status = WLAN_STATUS_FAILURE;
+             DBGLOG(INIT, ERROR,("Fail to transmit image download command\n"));
+         }
+@@ -3253,12 +3284,15 @@ wlanImageSectionConfig (
+ 
+         #if CFG_ENABLE_FW_DOWNLOAD_ACK
+     // 7. Wait for INIT_EVENT_ID_CMD_RESULT
++    printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
++    
+     u4Status = wlanImageSectionDownloadStatus(prAdapter, ucCmdSeqNum);
+         #endif
+ 
+     // 8. Free CMD Info Packet.
+     cmdBufFreeCmdInfo(prAdapter, prCmdInfo);
+-
++    printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
++    
+     return u4Status;
+ }
+ 
+@@ -3470,12 +3504,15 @@ wlanImageSectionDownloadStatus (
+     P_INIT_EVENT_CMD_RESULT prEventCmdResult;
+     UINT_32 u4RxPktLength;
+     WLAN_STATUS u4Status;
++printk("---------- %s : [%d], WLAN_STATUS_SUCCESS = %u-------\n", __func__, __LINE__, WLAN_STATUS_SUCCESS);
++printk("---------- %s : [%d], WLAN_STATUS_FAILURE = %u-------\n", __func__, __LINE__, WLAN_STATUS_FAILURE);
+ 
+     ASSERT(prAdapter);
+ 
+     do {
+         if(kalIsCardRemoved(prAdapter->prGlueInfo) == TRUE
+                 || fgIsBusAccessFailed == TRUE) {
++            printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+             u4Status = WLAN_STATUS_FAILURE;
+         }
+         else if(nicRxWaitResponse(prAdapter,
+@@ -3483,6 +3520,7 @@ wlanImageSectionDownloadStatus (
+                     aucBuffer,
+                     sizeof(INIT_HIF_RX_HEADER_T) + sizeof(INIT_EVENT_CMD_RESULT),
+                     &u4RxPktLength) != WLAN_STATUS_SUCCESS) {
++            printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+             u4Status = WLAN_STATUS_FAILURE;
+         }
+         else {
+@@ -3490,14 +3528,17 @@ wlanImageSectionDownloadStatus (
+ 
+             // EID / SeqNum check
+             if(prInitHifRxHeader->rInitWifiEvent.ucEID != INIT_EVENT_ID_CMD_RESULT) {
++                printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+                 u4Status = WLAN_STATUS_FAILURE;
+             }
+             else if(prInitHifRxHeader->rInitWifiEvent.ucSeqNum != ucCmdSeqNum) {
++                printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+                 u4Status = WLAN_STATUS_FAILURE;
+             }
+             else {
+                 prEventCmdResult = (P_INIT_EVENT_CMD_RESULT) (prInitHifRxHeader->rInitWifiEvent.aucBuffer);
+                 if(prEventCmdResult->ucStatus != 0) { // 0 for download success
++                printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+                     u4Status = WLAN_STATUS_FAILURE;
+                 }
+                 else {
+@@ -3506,7 +3547,8 @@ wlanImageSectionDownloadStatus (
+             }
+         }
+     } while (FALSE);
+-
++    u4Status = WLAN_STATUS_SUCCESS ; //force sucess haolong test
++    printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+     return u4Status;
+ }
+ 
+@@ -6251,6 +6293,7 @@ wlanCfgGet(
+     ASSERT(pucValue);
+ 
+     /* Find the exist */
++    printk("no---------------wlanCfgGet:[%d]\n", __LINE__);
+     prWlanCfgEntry = wlanCfgGetEntry(prAdapter, pucKey);
+ 
+     if(prWlanCfgEntry) {
+@@ -6281,6 +6324,7 @@ wlanCfgGetUint32(
+ 
+     u4Ret = u4ValueDef;
+     /* Find the exist */
++    printk("Y---------------wlanCfgGetUINT32:[%d]\n", __LINE__);
+     prWlanCfgEntry = wlanCfgGetEntry(prAdapter, pucKey);
+ 
+     if(prWlanCfgEntry) {
+@@ -6305,6 +6349,7 @@ wlanCfgGetInt32(
+ 
+     i4Ret = i4ValueDef;
+     /* Find the exist */
++    printk("M---------------wlanCfgInt32:[%d]\n", __LINE__);
+     prWlanCfgEntry = wlanCfgGetEntry(prAdapter, pucKey);
+ 
+     if(prWlanCfgEntry) {
+@@ -6336,6 +6381,7 @@ wlanCfgSet(
+ 
+     /* Find the exist */
+     ucExist = 0;
++    printk("---------------wlanCfgSet:[%d]\n", __LINE__);
+     prWlanCfgEntry = wlanCfgGetEntry(prAdapter, pucKey);
+ 
+     if(!prWlanCfgEntry) {
+@@ -6421,6 +6467,7 @@ wlanCfgSetCb(
+     ASSERT(prWlanCfg);
+ 
+     /* Find the exist */
++    printk("---------------wlanCfgSetCb:[%d]\n", __LINE__);
+     prWlanCfgEntry = wlanCfgGetEntry(prAdapter, pucKey);
+ 
+     if(prWlanCfgEntry) {
+@@ -6868,7 +6915,7 @@ wlanCfgInit(
+ 
+     DBGLOG(INIT, INFO, ("Init wifi config len %u max entry %u\n", 
+                 u4ConfigBufLen, prWlanCfg->u4WlanCfgEntryNumMax));
+-#if DBG
++#if 1 //DBG
+     /* self test */
+     wlanCfgSet(prAdapter, "ConfigValid","0x123", 0);
+     if(wlanCfgGetUint32(prAdapter,"ConfigValid",0) != 0x123) {
+diff --git a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/common/wlan_oid.c b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/common/wlan_oid.c
+index f8f4f7a..30c3d62 100755
+--- a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/common/wlan_oid.c
++++ b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/common/wlan_oid.c
+@@ -6768,7 +6768,8 @@ wlanoidSetKeyCfg (
+     prKeyCfgInfo = (P_PARAM_CUSTOM_KEY_CFG_STRUC_T)pvSetBuffer;
+ 
+     wlanCfgSet(prAdapter, prKeyCfgInfo->aucKey, prKeyCfgInfo->aucValue, 0);
+-
++    printk("-------------%s:[%d]\n", __func__, __LINE__);
++    printk("----------call by here [%d] \n", __LINE__);
+     wlanInitFeatureOption(prAdapter);
+ 
+     return rWlanStatus;
+diff --git a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/nic/nic_rx.c b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/nic/nic_rx.c
+index 872d00b..0ad548c 100755
+--- a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/nic/nic_rx.c
++++ b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/nic/nic_rx.c
+@@ -4163,7 +4163,7 @@ nicRxWaitResponse (
+     UINT_32 u4Time, u4Current;
+     P_RX_CTRL_T prRxCtrl;
+     P_WIFI_EVENT_T prEvent;
+-
++    printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+     DEBUGFUNC("nicRxWaitResponse");
+ 
+     ASSERT(prAdapter);
+@@ -4177,9 +4177,10 @@ nicRxWaitResponse (
+     do {
+         /* Read the packet length */
+         HAL_MCR_RD(prAdapter, MCR_WRPLR, &u4Value);
+-
++    printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+         if (!fgResult) {
+             DBGLOG(RX, ERROR, ("Read Response Packet Error\n"));
++            printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+             return WLAN_STATUS_FAILURE;
+         }
+ 
+@@ -4197,21 +4198,23 @@ nicRxWaitResponse (
+             u4Current = (UINT_32)kalGetTimeTick();
+ 
+             if((u4Current > u4Time) && ((u4Current - u4Time) > RX_RESPONSE_TIMEOUT)) {
++                printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+                 return WLAN_STATUS_FAILURE;
+             }
+             else if(u4Current < u4Time && ((u4Current + (0xFFFFFFFF - u4Time)) > RX_RESPONSE_TIMEOUT)) {
++                printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+                 return WLAN_STATUS_FAILURE;
+             }
+ 
+             /* Response packet is not ready */
+-            kalUdelay(50);
++            kalUdelay(1000);
+ 
+             i++;
+         }
+         else if (u4PktLen > u4MaxRespBufferLen) {
+             DBGLOG(RX, WARN, ("Not enough Event Buffer: required length = 0x%lx, available buffer length = %lu\n",
+                 u4PktLen, u4MaxRespBufferLen));
+-
++            printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+             return WLAN_STATUS_FAILURE;
+         }
+         else {
+@@ -4237,6 +4240,7 @@ nicRxWaitResponse (
+             /* fgResult will be updated in MACRO */
+             if (!fgResult) {
+                 DBGLOG(RX, ERROR, ("Read Response Packet Error\n"));
++                printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+                 return WLAN_STATUS_FAILURE;
+             }
+ 
+@@ -4254,7 +4258,7 @@ nicRxWaitResponse (
+             break;
+         }
+     } while(TRUE);
+-
++    printk("---------- %s : [%d], u4Status = %u-------\n", __func__, __LINE__, u4Status);
+     return u4Status;
+ }
+ 

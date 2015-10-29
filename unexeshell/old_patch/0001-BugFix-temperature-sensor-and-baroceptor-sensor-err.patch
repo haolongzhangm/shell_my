@@ -1,0 +1,81 @@
+From b56410ca7737ea934608945856ed4e2980ee76a9 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Thu, 19 Mar 2015 20:52:47 +0800
+Subject: [PATCH] [BugFix] temperature sensor and baroceptor sensor err
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+    [id]:82227
+    [TYPE]
+       BUG
+    [Products]
+       hicam_baseline
+    [Requirement]
+       N/A
+    [Solution Description]
+       N/A
+    [Other info]
+ 要提交的变更：
+	修改:         mediatek/custom/common/kernel/barometer/lps331ap/lps331ap_prs.c
+	修改:         mediatek/factory/src/test/ftm_barometer.c
+
+Change-Id: I7dbf3f4d4eb26aaa02ff05407ec243ceb2af7d01
+---
+ .../common/kernel/barometer/lps331ap/lps331ap_prs.c      | 16 ++++++++++++++--
+ mediatek/factory/src/test/ftm_barometer.c                |  4 ++--
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/mediatek/custom/common/kernel/barometer/lps331ap/lps331ap_prs.c b/mediatek/custom/common/kernel/barometer/lps331ap/lps331ap_prs.c
+index c20c7b4..20018db 100755
+--- a/mediatek/custom/common/kernel/barometer/lps331ap/lps331ap_prs.c
++++ b/mediatek/custom/common/kernel/barometer/lps331ap/lps331ap_prs.c
+@@ -1686,7 +1686,7 @@ static int lps331_ReadTempData(struct i2c_client *client, s32 *tempdata, int buf
+ 
+ 	temp = ( ( (u16) bit_valuesH  ) << 8 );
+ //	printk("temp data temp = %x",temp);
+-	if(temp&0x8000)
++	if(temp&0x80)
+ 	{
+ 	  temp  = ~temp;
+ 	  temp += 1;
+@@ -1698,8 +1698,20 @@ static int lps331_ReadTempData(struct i2c_client *client, s32 *tempdata, int buf
+ 	*tempdata = temp;
+ //	printk("positive :%d",*tempdata);
+ 	}
++	if(bit_valuesL&0x8)
++	{
++	  bit_valuesL  = ~bit_valuesL;
++	  bit_valuesL += 1;
++	  bit_valuesL = -bit_valuesL;
++//	  printk("nagative :%d",*tempdata);
++	}
++	else
++	{
++	bit_valuesL = bit_valuesL;
++//	printk("positive :%d",*tempdata);
++	}
+ //	*buf16 = (s16)( temp | ((u16) bit_valuesL ));
+-
++	*tempdata = (*tempdata +  bit_valuesL) / 480.0 + 42.5;
+ 
+ //	sprintf(buf, "%04x",temp);
+ 
+diff --git a/mediatek/factory/src/test/ftm_barometer.c b/mediatek/factory/src/test/ftm_barometer.c
+index aa5e68b..6664393 100644
+--- a/mediatek/factory/src/test/ftm_barometer.c
++++ b/mediatek/factory/src/test/ftm_barometer.c
+@@ -201,8 +201,8 @@ static void *barometer_update_iv_thread(void *priv)
+             continue;     
+ 
+         len = 0;
+-        len += snprintf(dat->info+len, sizeof(dat->info)-len, "%s: %f\n", uistr_info_sensor_temperature_value, baro->temp_raw/10);      
+-        len += snprintf(dat->info+len, sizeof(dat->info)-len, "%s: %f\n", uistr_info_sensor_pressure_value, baro->press_raw/100);
++        len += snprintf(dat->info+len, sizeof(dat->info)-len, "%s: %f\n", uistr_info_sensor_temperature_value, baro->temp_raw);
++        len += snprintf(dat->info+len, sizeof(dat->info)-len, "%s: %f\n", uistr_info_sensor_pressure_value, baro->press_raw/4096);
+         iv->set_text(iv, &dat->text);
+         iv->redraw(iv);
+     }
+-- 
+1.9.1
+

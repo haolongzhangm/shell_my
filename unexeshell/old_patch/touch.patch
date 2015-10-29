@@ -1,0 +1,41 @@
+commit 8b33e07a84c960a7700f5919fbdb92a81bfd4c8d
+Author: haolong.zhang <haolong.zhang@ck-telecom.com>
+Date:   Fri Sep 26 13:04:39 2014 +0800
+
+    [Feature] Add modem image into ALPS
+    
+        [id]:N/A
+        [TYPE]
+           FEATURE
+        [Products]
+           hicam_baseline
+        [Requirement]
+           N/A
+        [Solution Description]
+           N/A
+        [Other info]
+    
+    Change-Id: Ic8e6bf265be76d7806d7e98f096b128ec776615f
+
+diff --git a/mediatek/custom/common/kernel/touchpanel/ektf2k/ektf2k_driver.c b/mediatek/custom/common/kernel/touchpanel/ektf2k/ektf2k_driver.c
+index 513d0c7..942a698 100755
+--- a/mediatek/custom/common/kernel/touchpanel/ektf2k/ektf2k_driver.c
++++ b/mediatek/custom/common/kernel/touchpanel/ektf2k/ektf2k_driver.c
+@@ -356,7 +356,7 @@ static ssize_t elan_iap_write(struct file *filp, const char *buff, size_t count,
+     {
+         return -EFAULT;
+     }
+-#ifdef _DMA_MODE_
++#if 0 //_DMA_MODE_
+     ret = elan_i2c_dma_send_data(private_ts->client, tmp, count);
+ #else
+     ret = i2c_master_send(private_ts->client, tmp, count);
+@@ -380,7 +380,7 @@ ssize_t elan_iap_read(struct file *filp, char *buff, size_t count, loff_t *offp)
+ 
+     if (tmp == NULL)
+         return -ENOMEM;
+-#ifdef _DMA_MODE_
++#if 0 // _DMA_MODE_
+     ret = elan_i2c_dma_recv_data(private_ts->client, tmp, count);
+ #else
+     ret = i2c_master_recv(private_ts->client, tmp, count);

@@ -1,0 +1,1733 @@
+From 11e6c8027bb07661ea93c08dd3f3ea6c72456aea Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Wed, 22 Oct 2014 09:31:50 +0800
+Subject: [PATCH] mstar_tp_ckt_some_bug
+
+Change-Id: I49b494ba2891921314b51cf6775374d59d225db0
+---
+ .../msg2133_and_ektf2k_v2/msg2133_driver_gesture.c | 453 +++++++++++----------
+ .../msg2133_and_ektf2k_v2/tpd_custom_msg2133.h     |   6 +-
+ mediatek/factory/src/factory.c                     |  19 +-
+ mediatek/factory/src/test/ftm_touch.c              |  57 +--
+ .../src/com/mediatek/engineermode/TpFwInfo.java    |  84 +++-
+ 5 files changed, 337 insertions(+), 282 deletions(-)
+
+diff --git a/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v2/msg2133_driver_gesture.c b/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v2/msg2133_driver_gesture.c
+index ad0a8b7..53f0315 100644
+--- a/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v2/msg2133_driver_gesture.c
++++ b/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v2/msg2133_driver_gesture.c
+@@ -17,28 +17,43 @@
+ #include "cust_gpio_usage.h"
+ 
+ /*Open OR Close Debug Info*/
+-#define __TPD_DEBUG__ 
+-#define TP_DEBUG_ERR  printk
+ /*Ctp Power Off In Sleep ? */
+ //#define TPD_CLOSE_POWER_IN_SLEEP
+ 
+  //#define MSG_GESTURE_FUNCTION
+ extern int ektf2k_probed;
+ extern int have_ektf2k_chip_on_board;
+- 
++#define APS_TAG                  "[MSG2133]:"
++#define DEBUG 2
++#define FUN 1
++#define ERR 0
++static int msg_debug_level = FUN;
++module_param(msg_debug_level, int, 00664);
++#define DEBUG_LOG(fmt, args ...) \
++do { \
++	if ( msg_debug_level >= DEBUG) { \
++		printk(APS_TAG"%s[%d]:"fmt,__func__,  __LINE__,##args); \
++	} \
++} while(0)
++#define FUN_LOG(fmt, args ...) \
++do { \
++	if ( msg_debug_level >= FUN) { \
++		printk(APS_TAG"%s[%d]:"fmt,__func__,  __LINE__,##args); \
++	} \
++} while(0)
++#define ERR_PRINT(fmt, args ...) \
++do { \
++	if ( msg_debug_level >= ERR) { \
++		printk(APS_TAG"%s[%d]:"fmt,__func__,  __LINE__,##args); \
++	} \
++} while(0)
++
+ #ifdef __TP_PROXIMITY_SUPPORT__	// add by gpg
+ #include <linux/hwmsensor.h>
+ #include <linux/hwmsen_dev.h>
+ #include <linux/wakelock.h>
+ 
+-#define APS_TAG                  "[MSG2133] "
+-#define APS_FUN(f)               printk(KERN_INFO APS_TAG"%s\n", __FUNCTION__)
+-#define APS_ERR(fmt, args...)    printk(KERN_ERR  APS_TAG"%s %d : "fmt, __FUNCTION__, __LINE__, ##args)
+-#define APS_LOG(fmt, args...)    printk(KERN_INFO APS_TAG fmt, ##args)
+-#define APS_DBG(fmt, args...)    printk(KERN_INFO APS_TAG fmt, ##args)   
+-
+ static DEFINE_MUTEX(msg2133_sensor_mutex);
+-
+ static int g_bPsSensorOpen = 0;
+ static int g_nPsSensorDate = 0;
+ static int g_bSuspend = 0;
+@@ -122,15 +137,6 @@ static int tpd_keys_local[TPD_KEY_COUNT] = TPD_KEYS;
+ static int tpd_keys_dim_local[TPD_KEY_COUNT][4] = TPD_KEYS_DIM;
+ #endif
+ 
+-#if 0
+-extern void mt65xx_eint_unmask(unsigned int line);
+-extern void mt65xx_eint_mask(unsigned int line);
+-extern void mt65xx_eint_set_hw_debounce(unsigned int eint_num, unsigned int ms);
+-extern unsigned int mt65xx_eint_set_sens(unsigned int eint_num, unsigned int sens);
+-extern void mt65xx_eint_registration(unsigned int eint_num, unsigned int is_deb_en, unsigned int pol, void (EINT_FUNC_PTR)(void), unsigned int is_auto_umask);
+-#endif
+-
+- 
+ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id);
+ static int tpd_detect (struct i2c_client *client, struct i2c_board_info *info);
+ static int tpd_remove(struct i2c_client *client);
+@@ -151,12 +157,12 @@ static int p_point_num = 0;
+ #define TPD_OK 0
+ 
+  
+- static const struct i2c_device_id msg2133_tpd_id[] = {{"msg2133",0},{}};
++static const struct i2c_device_id msg2133_tpd_id[] = {{"msg2133",0},{}};
+ 
+- static struct i2c_board_info __initdata msg2133_i2c_tpd={ I2C_BOARD_INFO("msg2133", (0x26))};
++static struct i2c_board_info __initdata msg2133_i2c_tpd={ I2C_BOARD_INFO("msg2133", (0x26))};
+  
+  
+- static struct i2c_driver tpd_i2c_driver = {
++static struct i2c_driver tpd_i2c_driver = {
+   .driver = {
+ 	 .name = "msg2133",//.name = TPD_DEVICE,
+ //	 .owner = THIS_MODULE,
+@@ -190,7 +196,7 @@ static void HalTscrCReadI2CSeq(u8 addr, u8* read_data, u16 size)
+     
+     if(ret <= 0)
+     {
+-		TP_DEBUG_ERR("HalTscrCReadI2CSeq error %d,addr = %d\n", ret,addr);
++		ERR_PRINT("HalTscrCReadI2CSeq error %d,addr = %d\n", ret,addr);
+ 	}
+ }
+ 
+@@ -203,7 +209,7 @@ static void HalTscrCDevWriteI2CSeq(u8 addr, u8* data, u16 size)
+ 
+     if(ret <= 0)
+     {
+-		TP_DEBUG_ERR("HalTscrCDevWriteI2CSeq error %d,addr = %d\n", ret,addr);
++		ERR_PRINT("HalTscrCDevWriteI2CSeq error %d,addr = %d\n", ret,addr);
+ 	}
+ }
+ 
+@@ -477,12 +483,12 @@ static void drvISP_Verify( u16 k, u8* pDataToVerify )
+         {
+             if( ( RX_data[i] != 0 ) && index < 10 )
+             {
+-                //TPD_DEBUG("j=%d,RX_data[%d]=0x%x\n",j,i,RX_data[i]);
++                //FUN_LOG("j=%d,RX_data[%d]=0x%x\n",j,i,RX_data[i]);
+                 index++;
+             }
+             if( RX_data[i] != pDataToVerify[128 * j + i] )
+             {
+-                TPD_DEBUG( "k=%d,j=%d,i=%d===============Update Firmware Error================", k, j, i );
++                ERR_PRINT( "k=%d,j=%d,i=%d===============Update Firmware Error================\n", k, j, i );
+             }
+         }
+     }
+@@ -496,15 +502,6 @@ static ssize_t firmware_update_show( struct device *dev,
+ 
+ static void _HalTscrHWReset( void )
+ {
+-#if 0
+-    gpio_direction_output( MSG21XX_RESET_GPIO, 1 );
+-    gpio_set_value( MSG21XX_RESET_GPIO, 1 );
+-    gpio_set_value( MSG21XX_RESET_GPIO, 0 );
+-    mdelay( 10 ); /* Note that the RST must be in LOW 10ms at least */
+-    gpio_set_value( MSG21XX_RESET_GPIO, 1 );
+-    /* Enable the interrupt service thread/routine for INT after 50ms */
+-    mdelay( 50 );
+-#endif
+ 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
+ 	mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
+ 	mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
+@@ -513,7 +510,7 @@ static void _HalTscrHWReset( void )
+ 	mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
+ 	mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
+ 	msleep(10);
+-	TPD_DMESG("############# msg2133 reset\n");
++	FUN_LOG("############# msg2133 reset\n");
+ 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
+ 	mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
+ 	mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
+@@ -580,7 +577,7 @@ static ssize_t firmware_update_c2 ( struct device *dev,
+ 		dbbus_rx_data[0] = 0;
+ 		dbbus_rx_data[1] = 0;
+ 		HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-		TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++		FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+ 		dbbus_tx_data[3] = dbbus_rx_data[0] & 0xF7;  //Clear Bit 3
+ 		HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 	
+@@ -613,7 +610,7 @@ static ssize_t firmware_update_c2 ( struct device *dev,
+ 		dbbus_tx_data[2] = 0x02;
+ 		HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 3 );
+ 		HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-		TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++		FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+ 		dbbus_tx_data[3] = ( dbbus_rx_data[0] | 0x20 ); //Set Bit 5
+ 		HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 	
+@@ -680,7 +677,7 @@ static ssize_t firmware_update_c2 ( struct device *dev,
+ 		dbbus_rx_data[0] = 0;
+ 		dbbus_rx_data[1] = 0;
+ 		HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-		TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++		FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+ 		dbbus_tx_data[3] = dbbus_rx_data[0] & 0xF7;  //Clear Bit 3
+ 		HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 	
+@@ -712,7 +709,7 @@ static ssize_t firmware_update_c2 ( struct device *dev,
+ 		dbbus_tx_data[2] = 0x02;
+ 		HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 3 );
+ 		HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-		TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++		FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+ 		dbbus_tx_data[3] = ( dbbus_rx_data[0] | 0x20 ); //Set Bit 5
+ 		HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 	
+@@ -746,7 +743,7 @@ static ssize_t firmware_update_c2 ( struct device *dev,
+ 			drvISP_Program( i, temp[i] );  // program to slave's flash
+ 			drvISP_Verify( i, temp[i] );  //verify data
+ 		}
+-		TPD_DEBUG( "update OK\n" );
++		FUN_LOG( "update OK\n" );
+ 		drvISP_ExitIspMode();
+ 		FwDataCnt = 0;
+ 		return size;
+@@ -959,7 +956,7 @@ static ssize_t firmware_update_c32 ( struct device *dev, struct device_attribute
+             u32 n = 0;
+             for(n=0;n<UPDATE_TIMES;n++)
+             {
+-                TP_DEBUG_ERR("i=%d,n=%d",i,n);
++                FUN_LOG("i=%d,n=%d\n",i,n);
+                 HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX_TP, temp[i]+n*N_BYTE_PER_TIME, N_BYTE_PER_TIME );
+             }
+         }
+@@ -1004,14 +1001,14 @@ static ssize_t firmware_update_c32 ( struct device *dev, struct device_attribute
+     //drvDB_ExitDBBUS();
+     if ( ( crc_main_tp != crc_main ) || ( crc_info_tp != crc_info ) )
+     {
+-        //TP_DEBUG_ERR ( "update_C32 FAILED\n" );
++        //FUN_LOG ( "update_C32 FAILED\n" );
+ 		_HalTscrHWReset();
+         FwDataCnt = 0;
+ 		mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+         return ( 0 );
+     }
+ 
+-    //TP_DEBUG_ERR ( "update_C32 OK\n" );
++    //FUN_LOG ( "update_C32 OK\n" );
+ 	_HalTscrHWReset();
+     FwDataCnt = 0;
+ 	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+@@ -1162,7 +1159,7 @@ static int drvTP_read_info_dwiic_c33 ( void )
+     dwiic_tx_data[3] = 0x00;
+     HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX, dwiic_tx_data, 4 );	
+     mdelay ( 100 );
+-TP_DEBUG_ERR("MSG21332222222222");
++	FUN_LOG("\n");
+     do{
+         reg_data = drvDB_ReadReg ( 0x3C, 0xE4 );
+     }
+@@ -1173,7 +1170,7 @@ TP_DEBUG_ERR("MSG21332222222222");
+ 	dwiic_tx_data[3] = 0x04;
+ 	dwiic_tx_data[4] = 0x00;
+ 	HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX_TP , dwiic_tx_data, 5 );
+-	TP_DEBUG_ERR("4444444444444");
++	FUN_LOG("\n");
+ 	mdelay ( 50 );
+ 
+ 	// recive info data
+@@ -1186,7 +1183,7 @@ TP_DEBUG_ERR("MSG21332222222222");
+     /*
+     for(i=0;i<128;i++)
+ {
+-TP_DEBUG_ERR("MSG213333333333333333");
++	FUN_LOG("\n");
+     dwiic_info_addrss = 0x8000+8*i;
+     dwiic_tx_data[0] = 0x72;
+     dwiic_tx_data[1] = dwiic_info_addrss >>8;
+@@ -1194,12 +1191,12 @@ TP_DEBUG_ERR("MSG213333333333333333");
+     dwiic_tx_data[3] = 0x00;
+     dwiic_tx_data[4] = 0x08;
+     HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX_TP , &dwiic_tx_data[0], 5 );
+-    //TP_DEBUG_ERR("MSG21334444444444444");
++    //FUN_LOG("\n");
+     mdelay ( 5 );
+     HalTscrCReadI2CSeq ( FW_ADDR_MSG21XX_TP, &g_dwiic_info_data[i*8], 8 );
+ }
+ 	*/
+-    TP_DEBUG_ERR("MSG213355555555555555");
++	FUN_LOG("\n");
+     return ( 1 );
+ }
+ 
+@@ -1231,7 +1228,7 @@ static ssize_t firmware_update_c33 ( struct device *dev, struct device_attribute
+ 
+     crc_main = 0xffffffff;
+     crc_info = 0xffffffff;
+-    TP_DEBUG_ERR("MSG2133111111111111");
++    FUN_LOG("\n");
+     drvTP_read_info_dwiic_c33();
+ 	
+     if (0)//( g_dwiic_info_data[0] == 'M' && g_dwiic_info_data[1] == 'S' && g_dwiic_info_data[2] == 'T' && g_dwiic_info_data[3] == 'A' && g_dwiic_info_data[4] == 'R' && g_dwiic_info_data[5] == 'T' && g_dwiic_info_data[6] == 'P' && g_dwiic_info_data[7] == 'C')
+@@ -1255,7 +1252,6 @@ static ssize_t firmware_update_c33 ( struct device *dev, struct device_attribute
+         drvDB_WriteReg ( 0x1E, 0x04, 0x829F );
+ 
+         mdelay ( 50 );
+-        //TP_DEBUG_ERR("666666666666");
+         //polling 0x3CE4 is 0x2F43
+         do
+         {
+@@ -1263,21 +1259,21 @@ static ssize_t firmware_update_c33 ( struct device *dev, struct device_attribute
+ 
+         }
+         while ( reg_data != 0x2F43 );
+-        //TP_DEBUG_ERR("777777777777");
++        //FUN_LOG("\n");
+         // transmit lk info data
+         HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX_TP , &g_dwiic_info_data[0], 1024 );
+-        //TP_DEBUG_ERR("88888888888");
++        //FUN_LOG("\n");
+         //polling 0x3CE4 is 0xD0BC
+         do
+         {
+             reg_data = drvDB_ReadReg ( 0x3C, 0xE4 );
+         }
+         while ( reg_data != 0xD0BC );
+-        //TP_DEBUG_ERR("9999999999999");
++        //FUN_LOG("\n");
+     }
+ 
+     //erase main
+-    TP_DEBUG_ERR("MSG2133aaaaaaaaaaa");
++    FUN_LOG("\n");
+     drvTP_erase_emem_c33 ( EMEM_MAIN );
+     mdelay ( 1000 );
+ 
+@@ -1351,14 +1347,14 @@ static ssize_t firmware_update_c33 ( struct device *dev, struct device_attribute
+             mdelay ( 100 );
+             break;
+     }
+-TP_DEBUG_ERR("MSG2133bbbbbbbbbbbbbb");
++	FUN_LOG("\n");
+     // polling 0x3CE4 is 0x2F43
+     do
+     {
+         reg_data = drvDB_ReadReg ( 0x3C, 0xE4 );
+     }
+     while ( reg_data != 0x2F43 );
+-TP_DEBUG_ERR("MSG2133ccccccccccccc");
++	FUN_LOG("\n");
+     // calculate CRC 32
+     Init_CRC32_Table ( &crc_tab[0] );
+ 
+@@ -1399,47 +1395,47 @@ TP_DEBUG_ERR("MSG2133ccccccccccccc");
+             if ( emem_type == EMEM_MAIN ) break;
+         }
+         //drvDWIIC_MasterTransmit( DWIIC_MODE_DWIIC_ID, 1024, Fmr_Loader );
+-        TP_DEBUG_ERR("MSG2133dddddddddddddd");
++        FUN_LOG("\n");
+         #if 1
+         {
+             u32 n = 0;
+             for(n=0;n<UPDATE_TIMES;n++)
+             {
+-                TP_DEBUG_ERR("i=%d,n=%d",i,n);
++                FUN_LOG("i=%d,n=%d\n",i,n);
+                 HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX_TP, temp[i]+n*N_BYTE_PER_TIME, N_BYTE_PER_TIME );
+             }
+         }
+         #else
+         HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX_TP, temp[i], 1024 );
+         #endif
+-        TP_DEBUG_ERR("MSG2133eeeeeeeeeeee");
++        FUN_LOG("\n");
+         // polling 0x3CE4 is 0xD0BC
+         do
+         {
+             reg_data = drvDB_ReadReg ( 0x3C, 0xE4 );
+         }
+         while ( reg_data != 0xD0BC );
+-        TP_DEBUG_ERR("MSG2133ffffffffffffff");
++        FUN_LOG("\n");
+         drvDB_WriteReg ( 0x3C, 0xE4, 0x2F43 );
+     }
+-        TP_DEBUG_ERR("MSG2133ggggggggg");
++        FUN_LOG("\n");
+     if ( ( emem_type == EMEM_ALL ) || ( emem_type == EMEM_MAIN ) )
+     {
+         // write file done and check crc
+         drvDB_WriteReg ( 0x3C, 0xE4, 0x1380 );
+-        TP_DEBUG_ERR("MSG2133hhhhhhhhhhhhhh");
++        FUN_LOG("\n");
+     }
+     mdelay ( 10 ); //MCR_CLBK_DEBUG_DELAY ( 10, MCU_LOOP_DELAY_COUNT_MS );
+ 
+     if ( ( emem_type == EMEM_ALL ) || ( emem_type == EMEM_MAIN ) )
+     {
+         // polling 0x3CE4 is 0x9432
+-        TP_DEBUG_ERR("MSG2133iiiiiiiiii");
++        FUN_LOG("\n");
+         do
+         {
+             reg_data = drvDB_ReadReg ( 0x3C, 0xE4 );
+         }while ( reg_data != 0x9432 );
+-        TP_DEBUG_ERR("MSG2133jjjjjjjjjjjjj");
++        FUN_LOG("\n");
+     }
+ 
+     crc_main = crc_main ^ 0xffffffff;
+@@ -1447,7 +1443,7 @@ TP_DEBUG_ERR("MSG2133ccccccccccccc");
+ 
+     if ( ( emem_type == EMEM_ALL ) || ( emem_type == EMEM_MAIN ) )
+     {
+-        TP_DEBUG_ERR("MSG2133kkkkkkkkkkk");
++        FUN_LOG("\n");
+         // CRC Main from TP
+         crc_main_tp = drvDB_ReadReg ( 0x3C, 0x80 );
+         crc_main_tp = ( crc_main_tp << 16 ) | drvDB_ReadReg ( 0x3C, 0x82 );
+@@ -1460,7 +1456,7 @@ TP_DEBUG_ERR("MSG2133ccccccccccccc");
+     //           crc_main, crc_info, crc_main_tp, crc_info_tp );
+ 
+     //drvDB_ExitDBBUS();
+-    TP_DEBUG_ERR("MSG2133lllllllllllll");
++    FUN_LOG("\n");
+     update_pass = 1;
+ 	if ( ( emem_type == EMEM_ALL ) || ( emem_type == EMEM_MAIN ) )
+     {
+@@ -1473,14 +1469,14 @@ TP_DEBUG_ERR("MSG2133ccccccccccccc");
+ 
+     if ( !update_pass )
+     {
+-        TP_DEBUG_ERR ( "MSG2133update_C33 ok111\n" );
++        FUN_LOG ( "\n" );
+ 		_HalTscrHWReset();
+         FwDataCnt = 0;
+ 		(CUST_EINT_TOUCH_PANEL_NUM);
+         return size;
+     }
+ 
+-    TP_DEBUG_ERR ( "MSG2133update_C33 OK\n" );
++    FUN_LOG ( "\n" );
+ 	_HalTscrHWReset();
+     FwDataCnt = 0;
+ 	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+@@ -1532,7 +1528,7 @@ static ssize_t firmware_update_store ( struct device *dev,
+     dbbus_tx_data[2] = 0xCC;
+     HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX, dbbus_tx_data, 3 );
+     HalTscrCReadI2CSeq ( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-    TP_DEBUG_ERR ( "MSG2133111dbbus_rx version[0]=0x%x", dbbus_rx_data[0] );
++    FUN_LOG ( "MSG2133111dbbus_rx version[0]=0x%x\n", dbbus_rx_data[0] );
+     if ( dbbus_rx_data[0] == 2 )
+     {
+         // check version
+@@ -1541,7 +1537,7 @@ static ssize_t firmware_update_store ( struct device *dev,
+         dbbus_tx_data[2] = 0xEA;
+         HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX, dbbus_tx_data, 3 );
+         HalTscrCReadI2CSeq ( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-        TP_DEBUG_ERR ( "MSG2133dbbus_rx version[0]=0x%x", dbbus_rx_data[0] );
++        FUN_LOG ( "MSG2133dbbus_rx version[0]=0x%x\n", dbbus_rx_data[0] );
+ 
+         if ( dbbus_rx_data[0] == 3 ){
+ 
+@@ -1608,7 +1604,7 @@ static ssize_t firmware_update_store( struct device *dev,
+     dbbus_rx_data[0] = 0;
+     dbbus_rx_data[1] = 0;
+     HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-    TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++    FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+     dbbus_tx_data[3] = dbbus_rx_data[0] & 0xF7;  //Clear Bit 3
+     HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 
+@@ -1641,7 +1637,7 @@ static ssize_t firmware_update_store( struct device *dev,
+     dbbus_tx_data[2] = 0x02;
+     HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 3 );
+     HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-    TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++    FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+     dbbus_tx_data[3] = ( dbbus_rx_data[0] | 0x20 ); //Set Bit 5
+     HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 
+@@ -1708,7 +1704,7 @@ static ssize_t firmware_update_store( struct device *dev,
+     dbbus_rx_data[0] = 0;
+     dbbus_rx_data[1] = 0;
+     HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-    TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++	FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+     dbbus_tx_data[3] = dbbus_rx_data[0] & 0xF7;  //Clear Bit 3
+     HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 
+@@ -1740,7 +1736,7 @@ static ssize_t firmware_update_store( struct device *dev,
+     dbbus_tx_data[2] = 0x02;
+     HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 3 );
+     HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-    TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++    FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+     dbbus_tx_data[3] = ( dbbus_rx_data[0] | 0x20 ); //Set Bit 5
+     HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 
+@@ -1774,7 +1770,7 @@ static ssize_t firmware_update_store( struct device *dev,
+         drvISP_Program( i, temp[i] );  // program to slave's flash
+         drvISP_Verify( i, temp[i] );  //verify data
+     }
+-    TPD_DEBUG( "update OK\n" );
++	FUN_LOG( "update OK\n" );
+     drvISP_ExitIspMode();
+     FwDataCnt = 0;
+     return size;
+@@ -1821,12 +1817,12 @@ static ssize_t firmware_clear_show( struct device *dev,
+             {
+                 if( RX_data[i] != 0xFF )
+                 {
+-                    TPD_DEBUG( "k=%d,j=%d,i=%d===============erase not clean================", k, j, i );
++                    ERR_PRINT( "k=%d,j=%d,i=%d===============erase not clean================\n", k, j, i );
+                 }
+             }
+         }
+     }
+-    TPD_DEBUG( "read finish\n" );
++	FUN_LOG( "read finish\n" );
+     return sprintf( buf, "%s\n", fw_version );
+ }
+ 
+@@ -1873,7 +1869,7 @@ static ssize_t firmware_clear_store( struct device *dev,
+     dbbus_rx_data[0] = 0;
+     dbbus_rx_data[1] = 0;
+     HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-    TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++	FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+     dbbus_tx_data[3] = dbbus_rx_data[0] & 0xF7;  //Clear Bit 3
+     HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 
+@@ -1905,7 +1901,7 @@ static ssize_t firmware_clear_store( struct device *dev,
+     dbbus_tx_data[2] = 0x02;
+     HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 3 );
+     HalTscrCReadI2CSeq( FW_ADDR_MSG21XX, &dbbus_rx_data[0], 2 );
+-    TPD_DEBUG( "dbbus_rx_data[0]=0x%x", dbbus_rx_data[0] );
++    FUN_LOG( "dbbus_rx_data[0]=0x%x\n", dbbus_rx_data[0] );
+     dbbus_tx_data[3] = ( dbbus_rx_data[0] | 0x20 ); //Set Bit 5
+     HalTscrCDevWriteI2CSeq( FW_ADDR_MSG21XX, dbbus_tx_data, 4 );
+ 
+@@ -1934,9 +1930,9 @@ static ssize_t firmware_clear_store( struct device *dev,
+     // Start to load firmware
+     ///////////////////////////////////////
+     drvISP_EntryIspMode();
+-    TPD_DEBUG( "chip erase+\n" );
++    FUN_LOG( "chip erase+\n" );
+     drvISP_ChipErase();
+-    TPD_DEBUG( "chip erase-\n" );
++    FUN_LOG( "chip erase-\n" );
+     drvISP_ExitIspMode();
+     return size;
+ }
+@@ -1949,7 +1945,7 @@ static DEVICE_ATTR( clear, 0777, firmware_clear_show, firmware_clear_store );
+ static ssize_t firmware_version_show( struct device *dev,
+                                       struct device_attribute *attr, char *buf )
+ {
+-    TPD_DEBUG( "*** firmware_version_show fw_version = %s***\n", fw_version );
++    FUN_LOG( "*** firmware_version_show fw_version = %s***\n", fw_version );
+     return sprintf( buf, "%s\n", fw_version );
+ }
+ kal_bool Check_msg2133_I2C_state(void)
+@@ -1988,10 +1984,10 @@ static ssize_t firmware_version_store( struct device *dev,
+     major = ( dbbus_rx_data[1] << 8 ) + dbbus_rx_data[0];
+     minor = ( dbbus_rx_data[3] << 8 ) + dbbus_rx_data[2];
+ 
+-    TPD_DEBUG( "***major = %d ***\n", major );
+-    TPD_DEBUG( "***minor = %d ***\n", minor );
++    FUN_LOG( "***major = %d ***\n", major );
++    FUN_LOG( "***minor = %d ***\n", minor );
+     sprintf( fw_version, "%03d%03d", major, minor );
+-    TPD_DEBUG( "***fw_version = %s ***\n", fw_version );
++    FUN_LOG( "***fw_version = %s ***\n", fw_version );
+ 
+ 
+     return size;
+@@ -2009,12 +2005,26 @@ static ssize_t firmware_data_store( struct device *dev,
+ {
+ 
+     int i;
+-    TPD_DEBUG( "***FwDataCnt = %d ***\n", FwDataCnt );
++	FUN_LOG( "***FwDataCnt = %d ***\n", FwDataCnt );
+     memcpy( temp[FwDataCnt], buf, 1024 );
+     FwDataCnt++;
+     return size;
+ }
+ static DEVICE_ATTR( data, 0777, firmware_data_show, firmware_data_store );
++
++static ssize_t msg_ckt_version_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	int FW_VERSION = 0, FW_ID = 0;
++	unsigned long into_version = 0;
++	FUN_LOG("update version first\n");
++	firmware_version_store(NULL, NULL, NULL, 0);
++	into_version = simple_strtoul(fw_version, NULL, 10);
++	FW_VERSION = into_version / 1000;
++	FW_ID =into_version % 1000;
++
++	return sprintf(buf, "FW_VERSION = %03d, FW_ID = %03d, IC = msg2133a, VENDOR = mstar\n", FW_VERSION, FW_ID);
++}
++static DEVICE_ATTR( msg_ckt_version, S_IRUGO|S_IWUSR|S_IWGRP, msg_ckt_version_show, NULL);
+ #endif
+ 
+ //end for update firmware
+@@ -2236,56 +2246,56 @@ static ssize_t msg_Gesture_Function_Store(struct device *dev,
+     if( g_ON_OFF&MSG_GESTURE_FUNCTION_DOUBLECLICK_FLAG == MSG_GESTURE_FUNCTION_DOUBLECLICK_FLAG ) ///turn on 
+     {
+         msg_SetGestureDoubleClickDirectValue(1);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureDoubleClickDirectValue mode =%d",set_gesture_double_click_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureDoubleClickDirectValue mode =%d",set_gesture_double_click_mode);
+     }
+     else//turn off
+     {
+         msg_SetGestureDoubleClickDirectValue(0);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureDoubleClickDirectValue mode =%d",set_gesture_double_click_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureDoubleClickDirectValue mode =%d",set_gesture_double_click_mode);
+     }
+ 	
+     if( g_ON_OFF&MSG_GESTURE_FUNCTION_UPDIRECT_FLAG  == MSG_GESTURE_FUNCTION_UPDIRECT_FLAG ) ///turn on 
+     {
+         msg_SetGestureUpDirectValue(1);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureUpDirectValue mode =%d",set_gesture_up_direct_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureUpDirectValue mode =%d",set_gesture_up_direct_mode);
+     }
+     else//turn off
+     {
+         msg_SetGestureUpDirectValue(0);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureUpDirectValue mode =%d",set_gesture_up_direct_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureUpDirectValue mode =%d",set_gesture_up_direct_mode);
+     }
+ 	
+     if( g_ON_OFF&MSG_GESTURE_FUNCTION_DOWNDIRECT_FLAG == MSG_GESTURE_FUNCTION_DOWNDIRECT_FLAG ) ///turn on 
+     {
+         msg_SetGestureDownDirectValue(1);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureDownDirectValue mode =%d",set_gesture_down_direct_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureDownDirectValue mode =%d",set_gesture_down_direct_mode);
+     }
+     else//turn off
+     {
+         msg_SetGestureDownDirectValue(0);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureDownDirectValue mode =%d",set_gesture_down_direct_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureDownDirectValue mode =%d",set_gesture_down_direct_mode);
+     }
+ 
+     if( g_ON_OFF&MSG_GESTURE_FUNCTION_LEFTDIRECT_FLAG == MSG_GESTURE_FUNCTION_LEFTDIRECT_FLAG ) ///turn on 
+     {
+         msg_SetGestureLeftDirectValue(1);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureLeftDirectValue mode =%d",set_gesture_left_direct_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureLeftDirectValue mode =%d",set_gesture_left_direct_mode);
+     }
+     else//turn off
+     {
+         msg_SetGestureLeftDirectValue(0);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureLeftDirectValue mode =%d",set_gesture_left_direct_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureLeftDirectValue mode =%d",set_gesture_left_direct_mode);
+     }
+ 
+     if( g_ON_OFF&MSG_GESTURE_FUNCTION_RIGHTDIRECT_FLAG == MSG_GESTURE_FUNCTION_RIGHTDIRECT_FLAG ) ///turn on 
+     {
+         msg_SetGestureRightDirectValue(1);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureRightDirectValue mode =%d",set_gesture_right_direct_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureRightDirectValue mode =%d",set_gesture_right_direct_mode);
+     }
+     else//turn off
+     {
+         msg_SetGestureRightDirectValue(0);
+-        TPD_DEBUG("msg_Gesture_Function_Store msg_SetGestureRightDirectValue mode =%d",set_gesture_right_direct_mode);
++        FUN_LOG("msg_Gesture_Function_Store msg_SetGestureRightDirectValue mode =%d",set_gesture_right_direct_mode);
+     }
+ 	return size;
+ 	
+@@ -2309,16 +2319,16 @@ static ssize_t msg_Gesture_Function_DoubleClick_Store(struct device *dev,
+     if( g_ON_OFF == 1 ) ///turn on 
+     {
+         msg_SetGestureDoubleClickDirectValue(1);
+-        TPD_DEBUG("msg_Gesture_Function_DoubleClick_Store set_gesture_double_click_mode =%d",set_gesture_double_click_mode);
++        FUN_LOG("msg_Gesture_Function_DoubleClick_Store set_gesture_double_click_mode =%d\n",set_gesture_double_click_mode);
+     }
+     else if( g_ON_OFF == 0 ) //turn off
+     {
+         msg_SetGestureDoubleClickDirectValue(0);
+-        TPD_DEBUG("msg_Gesture_Function_DoubleClick_Store set_gesture_double_click_mode =%d",set_gesture_double_click_mode);
++        FUN_LOG("msg_Gesture_Function_DoubleClick_Store set_gesture_double_click_mode =%d\n",set_gesture_double_click_mode);
+     }
+     else
+     {
+-        TPD_DEBUG("msg_Gesture_Function_DoubleClick_Store Wrong Command!!!");
++        FUN_LOG("msg_Gesture_Function_DoubleClick_Store Wrong Command!!!\n");
+     }
+ 	return size;
+ }
+@@ -2342,16 +2352,16 @@ static ssize_t msg_Gesture_Function_UpDirect_Store(struct device *dev,
+     if( g_ON_OFF == 1 ) ///turn on 
+     {
+         msg_SetGestureUpDirectValue(1);
+-        TPD_DEBUG("msg_SetGestureUpDirectValue turn on mode =%d",set_gesture_up_direct_mode);
++        FUN_LOG("msg_SetGestureUpDirectValue turn on mode =%d\n",set_gesture_up_direct_mode);
+     }
+     else if( g_ON_OFF == 0 ) //turn off
+     {
+         msg_SetGestureUpDirectValue(0);
+-        TPD_DEBUG("msg_SetGestureUpDirectValue turn off mode =%d",set_gesture_up_direct_mode);
++        FUN_LOG("msg_SetGestureUpDirectValue turn off mode =%d\n",set_gesture_up_direct_mode);
+     }
+     else
+     {
+-        TPD_DEBUG("msg_SetGestureUpDirectValue Wrong Command!!!");
++        FUN_LOG("msg_SetGestureUpDirectValue Wrong Command!!!\n");
+     }
+ 	return size;
+ 	
+@@ -2377,16 +2387,16 @@ static ssize_t msg_Gesture_Function_DownDirect_Store(struct device *dev,
+     if( g_ON_OFF == 1 ) ///turn on 
+     {
+         msg_SetGestureDownDirectValue(1);
+-        TPD_DEBUG("msg_Gesture_Function_DownDirect_Store turn on mode =%d",set_gesture_down_direct_mode);
++        FUN_LOG("msg_Gesture_Function_DownDirect_Store turn on mode =%d\n",set_gesture_down_direct_mode);
+     }
+     else if( g_ON_OFF == 0 ) //turn off
+     {
+         msg_SetGestureDownDirectValue(0);
+-        TPD_DEBUG("msg_Gesture_Function_DownDirect_Store turn off mode =%d",set_gesture_down_direct_mode);
++        FUN_LOG("msg_Gesture_Function_DownDirect_Store turn off mode =%d\n",set_gesture_down_direct_mode);
+     }
+     else
+     {
+-        TPD_DEBUG("msg_Gesture_Function_DownDirect_Store Wrong Command!!!");
++        FUN_LOG("msg_Gesture_Function_DownDirect_Store Wrong Command!!!\n");
+     }
+ 	return size;
+ 	
+@@ -2412,16 +2422,16 @@ static ssize_t msg_Gesture_Function_LeftDirect_Store(struct device *dev,
+     if( g_ON_OFF == 1 ) ///turn on 
+     {
+         msg_SetGestureLeftDirectValue(1);
+-        TPD_DEBUG("msg_SetGestureLeftDirectValue turn on mode =%d",set_gesture_left_direct_mode);
++        FUN_LOG("msg_SetGestureLeftDirectValue turn on mode =%d\n",set_gesture_left_direct_mode);
+     }
+     else if( g_ON_OFF == 0 ) //turn off
+     {
+         msg_SetGestureLeftDirectValue(0);
+-        TPD_DEBUG("msg_SetGestureLeftDirectValue turn off mode =%d",set_gesture_left_direct_mode);
++        FUN_LOG("msg_SetGestureLeftDirectValue turn off mode =%d\n",set_gesture_left_direct_mode);
+     }
+     else
+     {
+-        TPD_DEBUG("msg_SetGestureLeftDirectValue Wrong Command!!!");
++        FUN_LOG("msg_SetGestureLeftDirectValue Wrong Command!!!\n");
+     }
+ 	return size;
+ 	
+@@ -2447,16 +2457,16 @@ static ssize_t msg_Gesture_Function_RightDirect_Store(struct device *dev,
+     if( g_ON_OFF == 1 ) ///turn on 
+     {
+         msg_SetGestureRightDirectValue(1);
+-        TPD_DEBUG("msg_SetGestureRightDirectValue turn on mode =%d",set_gesture_right_direct_mode);
++        FUN_LOG("msg_SetGestureRightDirectValue turn on mode =%d\n",set_gesture_right_direct_mode);
+     }
+     else if( g_ON_OFF == 0 ) //turn off
+     {
+         msg_SetGestureRightDirectValue(0);
+-        TPD_DEBUG("msg_SetGestureRightDirectValue turn off mode =%d",set_gesture_right_direct_mode);
++        FUN_LOG("msg_SetGestureRightDirectValue turn off mode =%d\n",set_gesture_right_direct_mode);
+     }
+     else
+     {
+-        TPD_DEBUG("msg_SetGestureRightDirectValue Wrong Command!!!");
++        FUN_LOG("msg_SetGestureRightDirectValue Wrong Command!!!\n");
+     }
+ 	return size;
+ 	
+@@ -2610,59 +2620,59 @@ static int proc_Gesture_Function_RightDirect_write(struct file *file, const char
+ 	 msg_gesture_function_doubleclick_proc = create_proc_entry("doubleclick", CTP_GESTURE_FUNCTION_AUTHORITY_PROC, msg_device_proc);
+ 	 if (msg_gesture_function_doubleclick_proc == NULL) 
+ 	 {
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_function_doubleclick_proc failed\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_function_doubleclick_proc failed\n");
+ 	 } 
+ 	 else 
+ 	 {
+ 		 msg_gesture_function_doubleclick_proc->read_proc = proc_Gesture_Function_DoubleClick_read;
+ 		 msg_gesture_function_doubleclick_proc->write_proc = proc_Gesture_Function_DoubleClick_write;
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_function_doubleclick_proc success\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_function_doubleclick_proc success\n");
+ 	 }
+ 
+ 	 msg_gesture_funciton_updirect_proc = create_proc_entry("updirect", CTP_GESTURE_FUNCTION_AUTHORITY_PROC, msg_device_proc);
+ 	 if (msg_gesture_funciton_updirect_proc == NULL) 
+ 	 {
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_updirect_proc failed\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_updirect_proc failed\n");
+ 	 } 
+ 	 else 
+ 	 {
+ 		 msg_gesture_funciton_updirect_proc->read_proc = proc_Gesture_Function_UpDirect_read;
+ 		 msg_gesture_funciton_updirect_proc->write_proc = proc_Gesture_Function_UpDirect_write;
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_updirect_proc success\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_updirect_proc success\n");
+ 	 }
+ 	 msg_gesture_funciton_downdirect_proc = create_proc_entry("downdirect", CTP_GESTURE_FUNCTION_AUTHORITY_PROC, msg_device_proc);
+ 	 if (msg_gesture_funciton_downdirect_proc == NULL) 
+ 	 {
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_downdirect_proc failed\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_downdirect_proc failed\n");
+ 	 } 
+ 	 else 
+ 	 {
+ 		 msg_gesture_funciton_downdirect_proc->read_proc = proc_Gesture_Function_DownDirect_read;
+ 		 msg_gesture_funciton_downdirect_proc->write_proc = proc_Gesture_Function_DownDirect_write;
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_downdirect_proc success\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_downdirect_proc success\n");
+ 	 }	
+ 	 
+ 	 msg_gesture_funciton_leftdirect_proc = create_proc_entry("leftdirect", CTP_GESTURE_FUNCTION_AUTHORITY_PROC, msg_device_proc);
+ 	 if (msg_gesture_funciton_leftdirect_proc == NULL) 
+ 	 {
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_leftdirect_proc failed\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_leftdirect_proc failed\n");
+ 	 } 
+ 	 else 
+ 	 {
+ 		 msg_gesture_funciton_leftdirect_proc->read_proc = proc_Gesture_Function_LeftDirect_read;
+ 		 msg_gesture_funciton_leftdirect_proc->write_proc = proc_Gesture_Function_LeftDirect_write;
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_leftdirect_proc success\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_leftdirect_proc success\n");
+ 	 }
+ 	 msg_gesture_funciton_rightdirect_proc = create_proc_entry("rightdirect", CTP_GESTURE_FUNCTION_AUTHORITY_PROC, msg_device_proc);
+ 	 if (msg_gesture_funciton_rightdirect_proc == NULL) 
+ 	 {
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_rightdirect_proc failed\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_rightdirect_proc failed\n");
+ 	 } 
+ 	 else 
+ 	 {
+ 		 msg_gesture_funciton_rightdirect_proc->read_proc = proc_Gesture_Function_RightDirect_read;
+ 		 msg_gesture_funciton_rightdirect_proc->write_proc = proc_Gesture_Function_RightDirect_write;
+-		 TPD_DEBUG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_rightdirect_proc success\n");
++		 FUN_LOG("msg_Gesture_Fucntion_Proc_File msg_gesture_funciton_rightdirect_proc success\n");
+ 	 }	
+ #endif
+ 
+@@ -2671,35 +2681,35 @@ static int proc_Gesture_Function_RightDirect_write(struct file *file, const char
+ 	 msg_version_proc = create_proc_entry("version", CTP_UPDATE_GESTURE_AUTHORITY_SYS, msg_device_proc);
+ 	 if (msg_version_proc == NULL) 
+ 	 {
+-		 TPD_DEBUG("create_proc_entry msg_version_proc failed\n");
++		 ERR_PRINT("create_proc_entry msg_version_proc failed\n");
+ 	 } 
+ 	 else 
+ 	 {
+ 		 msg_version_proc->read_proc = proc_version_read;
+ 		 msg_version_proc->write_proc = proc_version_write;
+-		 TPD_DEBUG("create_proc_entry msg_version_proc success\n");
++		 FUN_LOG("create_proc_entry msg_version_proc success\n");
+ 	 }
+ 	 msg_data_proc = create_proc_entry("data", CTP_UPDATE_GESTURE_AUTHORITY_SYS, msg_device_proc);
+ 	 if (msg_data_proc == NULL) 
+ 	 {
+-		 TPD_DEBUG("create_proc_entry msg_data_proc failed\n");
++		 ERR_PRINT("create_proc_entry msg_data_proc failed\n");
+ 	 } 
+ 	 else 
+ 	 {
+ 		 msg_data_proc->read_proc = proc_data_read;
+ 		 msg_data_proc->write_proc = proc_data_write;
+-		 TPD_DEBUG("create_proc_entry msg_data_proc success\n");
++		 FUN_LOG("create_proc_entry msg_data_proc success\n");
+ 	 }
+ 	 msg_update_proc = create_proc_entry("update", CTP_UPDATE_GESTURE_AUTHORITY_SYS, msg_device_proc);
+ 	 if (msg_update_proc == NULL) 
+ 	 {
+-		 TPD_DEBUG("create_proc_entry msg_update_proc failed\n");
++		 ERR_PRINT("create_proc_entry msg_update_proc failed\n");
+ 	 } 
+ 	 else 
+ 	 {
+ 		 msg_update_proc->read_proc = NULL;
+ 		 msg_update_proc->write_proc = proc_update_write;
+-		 TPD_DEBUG("create_proc_entry msg_update_proc success\n");
++		 FUN_LOG("create_proc_entry msg_update_proc success\n");
+ 	 }	  
+ #endif
+  }
+@@ -2742,7 +2752,7 @@ void gesture_key_down(int x, int y)
+ 		int closeGesturnRetval = 0;
+ 	int temp=0;
+ #endif
+-    TPD_DEBUG(KERN_ERR "[msg2133]==tpd_touchinfo() \n");
++    DEBUG_LOG("\n");
+ 
+ #ifdef SWAP_X_Y
+     int tempx;
+@@ -2751,10 +2761,10 @@ void gesture_key_down(int x, int y)
+ 
+     /*Get Touch Raw Data*/
+     i2c_master_recv( i2c_client, &val[0], REPORT_PACKET_LENGTH );
+-    TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--val[0]:%x, REPORT_PACKET_LENGTH:%x \n",val[0], REPORT_PACKET_LENGTH);
++    DEBUG_LOG("val[0]:%x, REPORT_PACKET_LENGTH:%x \n",val[0], REPORT_PACKET_LENGTH);
+ 
+     Checksum = Calculate_8BitsChecksum( &val[0], 7 ); //calculate checksum
+-    TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--Checksum:%x, val[7]:%x, val[0]:%x \n",Checksum, val[7], val[0]);
++    DEBUG_LOG("Checksum:%x, val[7]:%x, val[0]:%x \n",Checksum, val[7], val[0]);
+ 
+ #ifdef MSG_GESTURE_FUNCTION
+ if (tpd_gesture_flag == 1)
+@@ -2844,7 +2854,7 @@ if (tpd_gesture_flag == 1)
+ 
+         delta_x = ( ( ( val[4] & 0xF0 ) << 4 ) | val[5] );
+         delta_y = ( ( ( val[4] & 0x0F ) << 8 ) | val[6] );
+-TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n",u32X, u32Y,delta_x, delta_y);
++		DEBUG_LOG("--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n",u32X, u32Y,delta_x, delta_y);
+ 
+ #ifdef SWAP_X_Y
+         tempy = u32X;
+@@ -2881,8 +2891,7 @@ TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n"
+ 	
+ 
+ 
+-TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n",u32X, u32Y,delta_x, delta_y);
+-
++		DEBUG_LOG("[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n",u32X, u32Y,delta_x, delta_y);
+         if( ( val[1] == 0xFF ) && ( val[2] == 0xFF ) && ( val[3] == 0xFF ) && ( val[4] == 0xFF ) && ( val[6] == 0xFF ) )
+         { 
+             touchData->Point[0].X = 0; // final X coordinate
+@@ -2929,7 +2938,7 @@ TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n"
+                 touchData->nFingerNum = 1; //one touch
+                 touchData->Point[0].X = ( u32X * MS_TS_MSG21XX_X_MAX ) / 2048;
+                 touchData->Point[0].Y = ( u32Y * MS_TS_MSG21XX_Y_MAX ) / 2048;
+-		TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--FingerNum = 1 \n");
++				DEBUG_LOG("[tpd_touchinfo]--FingerNum = 1 \n");
+             }
+             else
+             {
+@@ -2956,7 +2965,7 @@ TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n"
+ 
+                 touchData->Point[1].X = ( x2 * MS_TS_MSG21XX_X_MAX ) / 2048;
+                 touchData->Point[1].Y = ( y2 * MS_TS_MSG21XX_Y_MAX ) / 2048;
+-				TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--FingerNum = 2 \n");
++				DEBUG_LOG("tpd_touchinfo]--FingerNum = 2 \n");
+             }
+         }	
+ 		return true;
+@@ -2970,7 +2979,7 @@ TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n"
+         //DBG("Packet error 0x%x, 0x%x, 0x%x", val[0], val[1], val[2]);
+         //DBG("             0x%x, 0x%x, 0x%x", val[3], val[4], val[5]);
+         //DBG("             0x%x, 0x%x, 0x%x", val[6], val[7], Checksum);
+-        TPD_DEBUG( KERN_ERR "err status in tp\n" );
++        ERR_PRINT("err status in tp\n");
+     }
+ 
+     //enable_irq( msg21xx_irq );
+@@ -3004,7 +3013,7 @@ TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n"
+ 		  
+ 	  if(FACTORY_BOOT == get_boot_mode()|| RECOVERY_BOOT == get_boot_mode())
+ 	  {   
+-	  	 TPD_DEBUG(KERN_ERR "[msg2133]--tpd_up-BOOT MODE--X:%d, Y:%d; \n", x, y);
++		 DEBUG_LOG("tpd_up-BOOT MODE--X:%d, Y:%d; \n", x, y);
+ 		 tpd_button(x, y, 0); 
+ 	  } 		  
+  
+@@ -3018,15 +3027,12 @@ TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n"
+ 	static u32 preKeyStatus = 0;
+ 	int i=0;
+ 
+-    TPD_DEBUG(KERN_ERR "[msg2133]touch_event_handler() do while \n");
+-
++    DEBUG_LOG("touch_event_handler() do while \n");
+ 	touchData.nFingerNum = 0;
+-	TPD_DEBUG(KERN_ERR "[msg2133]touch_event_handler() do while \n");
+-	 
+ 	if (tpd_touchinfo(&touchData)) 
+ 	{
+ 	 
+-		TPD_DEBUG(KERN_ERR "[msg2133]--KeyMode:%d, KeyCode:%d, FingerNum =%d \n", touchData.nTouchKeyMode, touchData.nTouchKeyCode, touchData.nFingerNum );
++		DEBUG_LOG("KeyMode:%d, KeyCode:%d, FingerNum =%d \n", touchData.nTouchKeyMode, touchData.nTouchKeyCode, touchData.nFingerNum );
+ 		//key...
+ 		if( touchData.nTouchKeyMode )
+ 		{
+@@ -3035,12 +3041,14 @@ TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n"
+ 			if( touchData.nTouchKeyCode == 1 )
+ 			{
+ 				//touchkeycode = KEY_MENU;
++				FUN_LOG("CODE MENU COME ...\n");
+ 				touchData.Point[0].X = 250;
+ 				touchData.Point[0].Y = 900;
+ 			}
+ 			if( touchData.nTouchKeyCode == 2 )
+ 			{
+ 				//touchkeycode = KEY_HOMEPAGE ;
++				FUN_LOG("CODE HOMEPAGE COME...\n");
+ 				touchData.Point[0].X = 400;//fwvga
+ 				touchData.Point[0].Y = 900;
+ 
+@@ -3066,8 +3074,8 @@ TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n"
+ 	 
+ 			if( ( touchData.nFingerNum ) == 0 ) //touch end
+ 			{
+-				TPD_DEBUG("------DOWN------ \n");
+-			TPD_DEBUG(KERN_ERR "[msg2133]---X:%d, Y:%d; \n", touchData.Point[0].X, touchData.Point[0].Y);
++				DEBUG_LOG("------DOWN------ \n");
++				DEBUG_LOG("X:%d, Y:%d; \n", touchData.Point[0].X, touchData.Point[0].Y);
+ 				tpd_up(touchData.Point[0].X, touchData.Point[0].Y, 0);
+ 
+ 				input_sync( tpd->dev );
+@@ -3077,9 +3085,9 @@ TPD_DEBUG(KERN_ERR"[tpd_touchinfo]--u32X:%d, u32Y:%d, delta_x:%d, delta_y:%d \n"
+ 	 
+ 				for( i = 0; i < ( (int)touchData.nFingerNum ); i++ )
+ 				{
+-				    TPD_DEBUG("------DOWN------ \n");
++				    DEBUG_LOG("------DOWN------ \n");
+ 					tpd_down(touchData.Point[i].X, touchData.Point[i].Y, 1);
+-					TPD_DEBUG(KERN_ERR "[han_onmsg2133]---X:%d, Y:%d; i=%d \n", touchData.Point[i].X, touchData.Point[i].Y, i);
++					DEBUG_LOG("X:%d, Y:%d; i=%d \n", touchData.Point[i].X, touchData.Point[i].Y, i);
+ 				}
+ 	 
+ 				input_sync( tpd->dev );
+@@ -3171,13 +3179,12 @@ int msg2133_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
+ 	int value;
+ 	hwm_sensor_data* sensor_data;
+ 
+-	//APS_FUN(f);
+ 	switch (command)
+ 	{
+ 		case SENSOR_DELAY:
+ 			if((buff_in == NULL) || (size_in < sizeof(int)))
+ 			{
+-				APS_ERR("Set delay parameter error!\n");
++				ERR_PRINT("Set delay parameter error!\n");
+ 				err = -EINVAL;
+ 			}
+ 			// Do nothing
+@@ -3186,7 +3193,7 @@ int msg2133_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
+ 		case SENSOR_ENABLE:
+ 			if((buff_in == NULL) || (size_in < sizeof(int)))
+ 			{
+-				APS_ERR("Enable sensor parameter error!\n");
++				ERR_PRINT("Enable sensor parameter error!\n");
+ 				err = -EINVAL;
+ 			}
+ 			else
+@@ -3197,7 +3204,7 @@ int msg2133_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
+ 					wake_lock(&ps_lock);		//wujinyou
+ 					if(err = msg2133_enable_ps(1))
+ 					{
+-						APS_ERR("enable ps fail: %d\n", err); 
++						ERR_PRINT("enable ps fail: %d\n", err); 
+ 						return -1;
+ 					}
+ 					g_bPsSensorOpen = 1;
+@@ -3207,7 +3214,7 @@ int msg2133_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
+ 					wake_unlock(&ps_lock);		//wujinyou
+ 					if(err = msg2133_enable_ps(0))
+ 					{
+-						APS_ERR("disable ps fail: %d\n", err); 
++						ERR_PRINT("disable ps fail: %d\n", err); 
+ 						return -1;
+ 					}
+ 					g_bPsSensorOpen = 0;
+@@ -3218,7 +3225,7 @@ int msg2133_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
+ 		case SENSOR_GET_DATA:
+ 			if((buff_out == NULL) || (size_out< sizeof(hwm_sensor_data)))
+ 			{
+-				APS_ERR("get sensor data parameter error!\n");
++				ERR_PRINT("get sensor data parameter error!\n");
+ 				err = -EINVAL;
+ 			}
+ 			else
+@@ -3230,7 +3237,7 @@ int msg2133_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
+ 			}
+ 			break;
+ 		default:
+-			APS_ERR("proxmy sensor operate function no this parameter %d!\n", command);
++			ERR_PRINT("proxmy sensor operate function no this parameter %d!\n", command);
+ 			err = -1;
+ 			break;
+ 	}
+@@ -3254,7 +3261,7 @@ static void tpd_initialize_ps_sensor_function()
+ 		
+ 	if(err = hwmsen_attach(ID_PROXIMITY, &obj_ps))
+ 	{
+-		TPD_DEBUG("attach fail = %d\n", err);
++		ERR_PRINT("attach fail = %d\n", err);
+ 		return;
+ 	}
+ }
+@@ -3328,7 +3335,7 @@ static void tpd_initialize_ps_sensor_function()
+ 		 drvDB_WriteReg ( 0x1E, 0x04, 0x829F );
+  
+ 		 mdelay ( 50 );
+-		 //TP_DEBUG_ERR("666666666666");
++		 //FUN_LOG("\n");
+ 		 //polling 0x3CE4 is 0x2F43
+ 		 do
+ 		 {
+@@ -3336,27 +3343,27 @@ static void tpd_initialize_ps_sensor_function()
+  
+ 		 }
+ 		 while ( reg_data != 0x2F43 );
+-		 //TP_DEBUG_ERR("777777777777");
++		 //FUN_LOG("\n");
+ 		 // transmit lk info data
+ 		 HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX_TP , &g_dwiic_info_data[0], 1024 );
+-		 //TP_DEBUG_ERR("88888888888");
++		 //FUN_LOG("\n");
+ 		 //polling 0x3CE4 is 0xD0BC
+ 		 do
+ 		 {
+ 			 reg_data = drvDB_ReadReg ( 0x3C, 0xE4 );
+ 		 }
+ 		 while ( reg_data != 0xD0BC );
+-		 //TP_DEBUG_ERR("9999999999999");
++		 //FUN_LOG("\n");
+ 	 }
+  
+ 	 //erase main
+-	 TP_DEBUG_ERR("MSG2133aaaaaaaaaaa");
++	 FUN_LOG("\n");
+ 	 drvTP_erase_emem_c33 ( EMEM_MAIN );
+ 	 mdelay ( 1000 );
+  
+ 	 //ResetSlave();
+ 	 _HalTscrHWReset();
+- //drvDB_EnterDBBUS();
++	 //drvDB_EnterDBBUS();
+ 	 dbbusDWIICEnterSerialDebugMode();
+ 	 dbbusDWIICStopMCU();
+ 	 dbbusDWIICIICUseBus();
+@@ -3400,14 +3407,14 @@ static void tpd_initialize_ps_sensor_function()
+ 			 mdelay ( 100 );
+ 			 break;
+ 	 }
+- TP_DEBUG_ERR("MSG2133bbbbbbbbbbbbbb");
++	 FUN_LOG("\n");
+ 	 // polling 0x3CE4 is 0x2F43
+ 	 do
+ 	 {
+ 		 reg_data = drvDB_ReadReg ( 0x3C, 0xE4 );
+ 	 }
+ 	 while ( reg_data != 0x2F43 );
+- TP_DEBUG_ERR("MSG2133ccccccccccccc");
++	 FUN_LOG("\n");
+ 	 // calculate CRC 32
+ 	 Init_CRC32_Table ( &crc_tab[0] );
+  
+@@ -3448,47 +3455,47 @@ static void tpd_initialize_ps_sensor_function()
+ 			 if ( emem_type == EMEM_MAIN ) break;
+ 		 }
+ 		 //drvDWIIC_MasterTransmit( DWIIC_MODE_DWIIC_ID, 1024, Fmr_Loader );
+-		 TP_DEBUG_ERR("MSG2133dddddddddddddd");
++		 FUN_LOG("\n");
+         #if 1
+ 		 {
+ 			 u32 n = 0;
+ 			 for(n=0;n<UPDATE_TIMES;n++)
+ 			 {
+-				 TP_DEBUG_ERR("i=%d,n=%d",i,n);
++				 FUN_LOG("i=%d,n=%d\n",i,n);
+ 				 HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX_TP, temp[i]+n*N_BYTE_PER_TIME, N_BYTE_PER_TIME );
+ 			 }
+ 		 }
+         #else
+ 		 HalTscrCDevWriteI2CSeq ( FW_ADDR_MSG21XX_TP, temp[i], 1024 );
+         #endif
+-		 TP_DEBUG_ERR("MSG2133eeeeeeeeeeee");
+ 		 // polling 0x3CE4 is 0xD0BC
++		 FUN_LOG("\n");
+ 		 do
+ 		 {
+ 			 reg_data = drvDB_ReadReg ( 0x3C, 0xE4 );
+ 		 }
+ 		 while ( reg_data != 0xD0BC );
+-		 TP_DEBUG_ERR("MSG2133ffffffffffffff");
++		 FUN_LOG("\n");
+ 		 drvDB_WriteReg ( 0x3C, 0xE4, 0x2F43 );
+ 	 }
+-		 TP_DEBUG_ERR("MSG2133ggggggggg");
++	 FUN_LOG("\n");
+ 	 if ( ( emem_type == EMEM_ALL ) || ( emem_type == EMEM_MAIN ) )
+ 	 {
+ 		 // write file done and check crc
+ 		 drvDB_WriteReg ( 0x3C, 0xE4, 0x1380 );
+-		 TP_DEBUG_ERR("MSG2133hhhhhhhhhhhhhh");
++		 FUN_LOG("\n");
+ 	 }
+ 	 mdelay ( 10 ); //MCR_CLBK_DEBUG_DELAY ( 10, MCU_LOOP_DELAY_COUNT_MS );
+  
+ 	 if ( ( emem_type == EMEM_ALL ) || ( emem_type == EMEM_MAIN ) )
+ 	 {
+ 		 // polling 0x3CE4 is 0x9432
+-		 TP_DEBUG_ERR("MSG2133iiiiiiiiii");
++		 FUN_LOG("\n");
+ 		 do
+ 		 {
+ 			 reg_data = drvDB_ReadReg ( 0x3C, 0xE4 );
+ 		 }while ( reg_data != 0x9432 );
+-		 TP_DEBUG_ERR("MSG2133jjjjjjjjjjjjj");
++		 FUN_LOG("\n");
+ 	 }
+  
+ 	 crc_main = crc_main ^ 0xffffffff;
+@@ -3496,8 +3503,8 @@ static void tpd_initialize_ps_sensor_function()
+  
+ 	 if ( ( emem_type == EMEM_ALL ) || ( emem_type == EMEM_MAIN ) )
+ 	 {
+-		 TP_DEBUG_ERR("MSG2133kkkkkkkkkkk");
+ 		 // CRC Main from TP
++		 FUN_LOG("\n");
+ 		 crc_main_tp = drvDB_ReadReg ( 0x3C, 0x80 );
+ 		 crc_main_tp = ( crc_main_tp << 16 ) | drvDB_ReadReg ( 0x3C, 0x82 );
+  
+@@ -3505,11 +3512,9 @@ static void tpd_initialize_ps_sensor_function()
+ 		 crc_info_tp = drvDB_ReadReg ( 0x3C, 0xA0 );
+ 		 crc_info_tp = ( crc_info_tp << 16 ) | drvDB_ReadReg ( 0x3C, 0xA2 );
+ 	 }
+-   //TP_DEBUG ( "crc_main=0x%x, crc_info=0x%x, crc_main_tp=0x%x, crc_info_tp=0x%x\n",
+-	 // 		  crc_main, crc_info, crc_main_tp, crc_info_tp );
+  
+ 	 //drvDB_ExitDBBUS();
+-	 TP_DEBUG_ERR("MSG2133lllllllllllll");
++	 FUN_LOG("\n");
+ 	 update_pass = 1;
+ 	 if ( ( emem_type == EMEM_ALL ) || ( emem_type == EMEM_MAIN ) )
+ 	 {
+@@ -3522,19 +3527,20 @@ static void tpd_initialize_ps_sensor_function()
+  
+ 	 if ( !update_pass )
+ 	 {
+-		 TP_DEBUG_ERR ( "MSG2133update_C33 ok111\n" );
++		 FUN_LOG("\n");
+ 		 _HalTscrHWReset();
+ 		 FwDataCnt = 0;
+ 		 mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
++
+ 		 return 1;
+ 	 }
+  
+-	 TP_DEBUG_ERR ( "MSG2133update_C33 OK\n" );
+-	 _HalTscrHWReset();
+-	 FwDataCnt = 0;
+-	 mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+-	 return 1;
++ 	FUN_LOG("\n");
++	_HalTscrHWReset();
++	FwDataCnt = 0;
++	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+ 
++	return 1;
+  }
+  
+ #endif
+@@ -3550,18 +3556,17 @@ static void tpd_initialize_ps_sensor_function()
+ 	int reset_count = 0;
+ 	int i = 0;
+ 	i2c_client = client;
+-	//msg21xx_i2c_client = client;
+ 	
+ 	/*reset I2C clock*/
+     //i2c_client->timing = 0;
+    	do
+ 	{
+-		printk("--%s:[%d]:wait ekt dirver probe over:have_ektf2k_chip_on_board = %d\n", __func__, __LINE__, have_ektf2k_chip_on_board);
++		FUN_LOG("wait ekt dirver probe over:have_ektf2k_chip_on_board = %d\n",  have_ektf2k_chip_on_board);
+ 		//msleep(10);
+ 	}while(ektf2k_probed == 0);
+ 	if (have_ektf2k_chip_on_board == 1)
+ 	{
+-		printk("--%s:[%d]:Board TP chip is ekt , now mstar probe stop ..\n", __func__, __LINE__);
++		ERR_PRINT("Board TP chip is ekt , now mstar probe stop ..\n");
+ 		return -1;
+ 	}
+    INIT_WORK( &msg21xx_wq, touch_event_handler );
+@@ -3588,27 +3593,20 @@ static void tpd_initialize_ps_sensor_function()
+     mt_set_gpio_dir(GPIO_CTP_EINT_PIN, GPIO_DIR_IN);
+    	mt_set_gpio_pull_enable(GPIO_CTP_EINT_PIN, GPIO_PULL_ENABLE);
+     mt_set_gpio_pull_select(GPIO_CTP_EINT_PIN, GPIO_PULL_DOWN);
+-		
+-
+     msleep(10);
+-
+-	//mt65xx_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
+-	//mt65xx_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
+ 	mt_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_TYPE, tpd_eint_interrupt_handler, 1);
+ 	msleep(50);
+ 	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+ 	msleep(200);
+-
+     tpd_load_status = 1;
+-
+-	TPD_DMESG("msg2133 Touch Panel Device Probe %s\n", (retval < TPD_OK) ? "FAIL" : "PASS");
+-	
+-	TPD_DEBUG("msg2133--frameware upgrade \n");
++	FUN_LOG("msg2133 Touch Panel Device Probe %s\n", (retval < TPD_OK) ? "FAIL" : "PASS");
+ #ifdef Auto_Update_Msg2133A
+ 	{
+ 		unsigned char dbbus_tx_data[3];
+ 		unsigned char dbbus_rx_data[4] ;
+ 		unsigned short major = 0, minor = 0,FW_major = 0,FW_minor = 0;
++
++		FUN_LOG("now check FW update or not.........\n");
+ 		dbbusDWIICEnterSerialDebugMode();
+ 		dbbusDWIICStopMCU();
+ 		dbbusDWIICIICUseBus();
+@@ -3629,9 +3627,13 @@ static void tpd_initialize_ps_sensor_function()
+ 		{
+ 			memcpy(&temp[i][0], &MSG_2133_BIN[i*1024], 1024);//33779
+ 		}
++		FUN_LOG("old FW_major = %d, FW_minor = %d ### new FW_major = %d, FW_minor = %d\n", major, minor, FW_major, FW_minor);
+ 		//if(((major == FW_major)&&(minor < FW_minor))||(major != FW_major))
+ 		if((minor != FW_minor)||(major != FW_major))
++		{
++			FUN_LOG("FW diff so wo into update process ......\n");
+ 			Msg2133a_firmware_Auto_update();
++		}
+ 	}
+ 
+ #endif
+@@ -3639,45 +3641,48 @@ static void tpd_initialize_ps_sensor_function()
+ #ifdef __FIRMWARE_UPDATE__
+ 		firmware_class = class_create( THIS_MODULE, "ms-touchscreen-msg20xx" );
+ 		if( IS_ERR( firmware_class ) )
+-			pr_err( "Failed to create class(firmware)!\n" );
++			ERR_PRINT( "Failed to create class(firmware)!\n" );
+ 		firmware_cmd_dev = device_create( firmware_class,
+ 										  NULL, 0, NULL, "device" );
+ 		if( IS_ERR( firmware_cmd_dev ) )
+-			pr_err( "Failed to create device(firmware_cmd_dev)!\n" );
++			ERR_PRINT( "Failed to create device(firmware_cmd_dev)!\n" );
+ 	
+ 		// version
+ 		if( device_create_file( firmware_cmd_dev, &dev_attr_version ) < 0 )
+-			pr_err( "Failed to create device file(%s)!\n", dev_attr_version.attr.name );
++			ERR_PRINT( "Failed to create device file(%s)!\n", dev_attr_version.attr.name );
+ 		// update
+ 		if( device_create_file( firmware_cmd_dev, &dev_attr_update ) < 0 )
+-			pr_err( "Failed to create device file(%s)!\n", dev_attr_update.attr.name );
++			ERR_PRINT( "Failed to create device file(%s)!\n", dev_attr_update.attr.name );
+ 		// data
+ 		if( device_create_file( firmware_cmd_dev, &dev_attr_data ) < 0 )
+-			pr_err( "Failed to create device file(%s)!\n", dev_attr_data.attr.name );
++			ERR_PRINT( "Failed to create device file(%s)!\n", dev_attr_data.attr.name );
+ 		// clear
+ 		if( device_create_file( firmware_cmd_dev, &dev_attr_clear ) < 0 )
+-			pr_err( "Failed to create device file(%s)!\n", dev_attr_clear.attr.name );
++			ERR_PRINT( "Failed to create device file(%s)!\n", dev_attr_clear.attr.name );
++		//ckt version
++		if( device_create_file( firmware_cmd_dev, &dev_attr_msg_ckt_version ) < 0 )
++			ERR_PRINT( "Failed to create device file(%s)!\n", dev_attr_msg_ckt_version.attr.name );
+ 
+ #ifdef  MSG_GESTURE_FUNCTION
+ 			// DoubleClick
+ 			if (device_create_file(firmware_cmd_dev, &dev_attr_doubleclick) < 0)
+-				pr_err("Failed to create device file(%s)!\n", dev_attr_doubleclick.attr.name);
++				ERR_PRINT("Failed to create device file(%s)!\n", dev_attr_doubleclick.attr.name);
+ 			
+ 			// UpDirect
+ 			if (device_create_file(firmware_cmd_dev, &dev_attr_updirect) < 0)
+-				pr_err("Failed to create device file(%s)!\n", dev_attr_updirect.attr.name);
++				ERR_PRINT("Failed to create device file(%s)!\n", dev_attr_updirect.attr.name);
+ 		
+ 			// DownDirect
+ 			if (device_create_file(firmware_cmd_dev, &dev_attr_downdirect) < 0)
+-				pr_err("Failed to create device file(%s)!\n", dev_attr_downdirect.attr.name);
++				ERR_PRINT("Failed to create device file(%s)!\n", dev_attr_downdirect.attr.name);
+ 		
+ 			// LeftDirect
+ 			if (device_create_file(firmware_cmd_dev, &dev_attr_leftdirect) < 0)
+-				pr_err("Failed to create device file(%s)!\n", dev_attr_leftdirect.attr.name);
++				ERR_PRINT("Failed to create device file(%s)!\n", dev_attr_leftdirect.attr.name);
+ 		
+ 			// RightDirect
+ 			if (device_create_file(firmware_cmd_dev, &dev_attr_rightdirect) < 0)
+-				pr_err("Failed to create device file(%s)!\n", dev_attr_rightdirect.attr.name);
++				ERR_PRINT("Failed to create device file(%s)!\n", dev_attr_rightdirect.attr.name);
+ #endif
+ 
+ 		dev_set_drvdata( firmware_cmd_dev, NULL );
+@@ -3697,7 +3702,7 @@ static void tpd_initialize_ps_sensor_function()
+  
+  {
+    
+-	 TPD_DEBUG("TPD removed\n");
++	 FUN_LOG("TPD removed\n");
+  
+    return 0;
+  }
+@@ -3707,17 +3712,18 @@ static void tpd_initialize_ps_sensor_function()
+  {
+ 
+  
+-  	TPD_DMESG("Mstar msg2133 I2C Touchscreen Driver (Built %s @ %s)\n", __DATE__, __TIME__);
++  	FUN_LOG("Mstar msg2133 I2C Touchscreen Driver (Built %s @ %s)\n", __DATE__, __TIME__);
+  
+  
+     if(i2c_add_driver(&tpd_i2c_driver)!=0)
+    	{
+-  		TPD_DMESG("msg2133 unable to add i2c driver.\n");
+-	      	return -1;
++  		ERR_PRINT("msg2133 unable to add i2c driver.\n");
++
++	    return -1;
+     }
+     if(tpd_load_status == 0) 
+     {
+-    	TPD_DMESG("msg2133 add error touch panel driver.\n");
++    	ERR_PRINT("msg2133 add error touch panel driver.\n");
+     	i2c_del_driver(&tpd_i2c_driver);
+     	return -1;
+     }
+@@ -3729,15 +3735,16 @@ static void tpd_initialize_ps_sensor_function()
+ //#if (defined(TPD_WARP_START) && defined(TPD_WARP_END))    
+ //WARP CHECK IS NEED --XB.PANG
+ //#endif 
+-
+-	TPD_DMESG("end %s, %d\n", __FUNCTION__, __LINE__);  
++	set_bit( KEY_MENU,  tpd->dev->keybit );
++	set_bit( KEY_HOMEPAGE,  tpd->dev->keybit );
++	FUN_LOG("\n");  
+ 		
+     return 0; 
+  }
+ 
+  static void tpd_resume( struct early_suspend *h )
+  {
+-   TPD_DMESG("TPD wake up\n");
++	 FUN_LOG("TPD wake up\n");
+ 
+ #ifdef MSG_GESTURE_FUNCTION
+ 	 tpd_gesture_flag = 0;
+@@ -3746,7 +3753,7 @@ static void tpd_initialize_ps_sensor_function()
+ #ifdef __TP_PROXIMITY_SUPPORT__
+ 	if(g_bPsSensorOpen == 1 && (g_bSuspend))
+ 	{
+-		TPD_DMESG("msg sensor resume in calling tp no need to resume\n");
++		FUN_LOG("msg sensor resume in calling tp no need to resume\n");
+ 		return 0;
+ 	}
+ 	g_bSuspend = 0;
+@@ -3764,13 +3771,13 @@ static void tpd_initialize_ps_sensor_function()
+     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
+     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
+ 	msleep(50);
+-	TPD_DMESG(" msg2133 reset\n");
++	FUN_LOG(" msg2133 reset\n");
+ 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
+     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
+     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
+ 	msleep(200);
+ 	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+-	TPD_DMESG("TPD wake up done\n");
++	FUN_LOG("TPD wake up done\n");
+ 	
+  }
+ 
+@@ -3783,7 +3790,7 @@ static void tpd_initialize_ps_sensor_function()
+ #ifdef __TP_PROXIMITY_SUPPORT__
+ 	if(g_bPsSensorOpen == 1)
+ 	{
+-		TPD_DMESG("msg suspend in calling tp no need to suspend\n");
++		FUN_LOG("msg suspend in calling tp no need to suspend\n");
+ 		return 0;
+ 	}
+ 	g_bSuspend = 1;
+@@ -3826,7 +3833,7 @@ static void tpd_initialize_ps_sensor_function()
+ 	//TP enter sleep mode----XB.PANG NEED CHECK
+ 	//if have sleep mode
+ #endif
+-    TPD_DMESG("TPD enter sleep done\n");
++    FUN_LOG("TPD enter sleep done\n");
+  } 
+ 
+ 
+@@ -3843,10 +3850,10 @@ static void tpd_initialize_ps_sensor_function()
+  };
+  /* called when loaded into kernel */
+  static int __init tpd_driver_init(void) {
+-	 TPD_DEBUG("MediaTek MSG2133 touch panel driver init\n");
+-	   i2c_register_board_info(2, &msg2133_i2c_tpd, 1);//hhhhhhhhhhhhhhhhhhh
+-		 if(tpd_driver_add(&tpd_device_driver) < 0)
+-			 TPD_DMESG("add MSG2133 driver failed\n");
++	 FUN_LOG("MediaTek MSG2133 touch panel driver init\n");
++	 i2c_register_board_info(2, &msg2133_i2c_tpd, 1);//hhhhhhhhhhhhhhhhhhh
++	 if(tpd_driver_add(&tpd_device_driver) < 0)
++		 ERR_PRINT("add MSG2133 driver failed\n");
+ 
+ 
+ 	 return 0;
+@@ -3854,7 +3861,7 @@ static void tpd_initialize_ps_sensor_function()
+  
+  /* should never be called */
+  static void __exit tpd_driver_exit(void) {
+-	 TPD_DMESG("MediaTek MSG2133 touch panel driver exit\n");
++	 FUN_LOG("MediaTek MSG2133 touch panel driver exit\n");
+ 	 tpd_driver_remove(&tpd_device_driver);
+  }
+  
+diff --git a/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v2/tpd_custom_msg2133.h b/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v2/tpd_custom_msg2133.h
+index 4c2d0c6..8ec6bcc 100644
+--- a/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v2/tpd_custom_msg2133.h
++++ b/mediatek/custom/common/kernel/touchpanel/msg2133_and_ektf2k_v2/tpd_custom_msg2133.h
+@@ -140,9 +140,9 @@
+ 					{KEY_S_D},{KEY_V_D},{KEY_Z_D}}
+ 
+ 	#else
+-	#define TPD_KEY_COUNT           3
+-	#define TPD_KEYS                	{ KEY_MENU, KEY_HOME,KEY_BACK}
+-	#define TPD_KEYS_DIM            {{100,900,20,40},{250,900,100,40},{400,900,100,40}}
++	#define TPD_KEY_COUNT           2
++	#define TPD_KEYS                	{ KEY_MENU, KEY_BACK}
++	#define TPD_KEYS_DIM            {{250,900,100,40},{400,900,100,40}}
+ 	#endif
+ #endif
+ 
+diff --git a/mediatek/factory/src/factory.c b/mediatek/factory/src/factory.c
+index 860acdc..cdf805a 100755
+--- a/mediatek/factory/src/factory.c
++++ b/mediatek/factory/src/factory.c
+@@ -80,6 +80,8 @@
+ #define WRITE_BARCODE "AT+WRITEBARCODE"
+ #define VIBRATOR_ENABLE "/sys/class/timed_output/vibrator/enable"
+ #define MAX_RETRY_COUNT 20
++#define EKT_IC_ID_NODE "/sys/devices/platform/mt-i2c.2/i2c-2/2-0015/ektf2k_version"
++#define MSTAR_IC_ID_NODE "/sys/class/ms-touchscreen-msg20xx/device/msg_ckt_version"
+ // add for idle current auto test
+ int usb_com_port = -1;
+ int usb_status = 0;
+@@ -1779,14 +1781,15 @@ static int create_verinfo(char *info, int size)
+     print_verinfo(info, &len,  "Lcm info", lcmName);
+ 	//
+ #endif
+-	fd = open("/sys/devices/platform/mt-i2c.2/i2c-2/2-0015/ektf2k_version",O_RDONLY);
+-	 if(fd!=-1)
+-		{
+-			read(fd,tpName,128);
+-	        if(tpName[strlen(tpName)-1]=='\n') tpName[strlen(tpName)-1]=0;
+-			close(fd);
+-	    }
+-	//
++	if (((fd = open(EKT_IC_ID_NODE, O_RDONLY)) == -1) && ((fd = open(MSTAR_IC_ID_NODE, O_RDONLY)) == -1) )
++	{
++		LOGD("can not find TP on board\n\n");
++	}else
++	{
++		read(fd,tpName,128);
++		if(tpName[strlen(tpName)-1]=='\n') tpName[strlen(tpName)-1]=0;
++		close(fd);
++	}
+     print_verinfo(info, &len,  "Tp info", tpName);
+ 	//ckt add end
+ 	property_get("ro.build.version.release", val, "unknown");
+diff --git a/mediatek/factory/src/test/ftm_touch.c b/mediatek/factory/src/test/ftm_touch.c
+index 6380e8f..cf87171 100644
+--- a/mediatek/factory/src/test/ftm_touch.c
++++ b/mediatek/factory/src/test/ftm_touch.c
+@@ -48,6 +48,7 @@
+ #include "ftm.h"
+ 
+ #define EKT_IC_ID_NODE "/sys/devices/platform/mt-i2c.2/i2c-2/2-0015/ektf2k_version"
++#define MSTAR_IC_ID_NODE "/sys/class/ms-touchscreen-msg20xx/device/msg_ckt_version"
+ enum {
+     ITEM_TOUCH_MAIN,
+     ITEM_TOUCH_CALIBRATION,
+@@ -240,6 +241,7 @@ void clear_touch_result(void)
+ void Ekt_read_version(struct touch *tpd)
+ {
+ 	int len = 100, slen = 20;
++	char tp_default[128]="unKnown";
+ 	char strbuff[len];
+ 	char FW_VERSION[len];
+ 	char FW_ID[len];
+@@ -249,36 +251,37 @@ void Ekt_read_version(struct touch *tpd)
+ 	char *second_comma;
+ 	char *third_comma;
+ 	char sub = ',';
+-	FILE *fd = fopen(EKT_IC_ID_NODE, "r");
+-	LOGD(TAG "read EKT_IC_ID = %d \n",fd);
+-	if (fd != 0)
++	FILE *fd;
++	if (((fd = fopen(EKT_IC_ID_NODE, "r")) == NULL) && ((fd = fopen(MSTAR_IC_ID_NODE, "r")) == NULL))
++	{
++		LOGD(TAG, "open TP version dir failed\n");
++		ui_color(0, 0, 0, 50);
++		ui_fill(0, 0, tpd->width, tpd->height);
++		ui_text(5,25,tp_default);
++	}else
++	{
++		LOGD(TAG, "open TP VERSION OK,now read it \n");
++		if(fgets(strbuff, len, fd))
+ 		{
+-			LOGD(TAG "read id now ...... \n");
+-			if(fgets(strbuff, len, fd))
+-			{
+-				LOGD(TAG "read strbuff = %s \n",strbuff);
+-				fclose(fd);
+-				first_comma = strchr(strbuff, sub);
+-				second_comma = strchr(first_comma + 1, sub);
+-				third_comma = strchr(second_comma + 1, sub);
+-				snprintf(FW_VERSION, (first_comma - strbuff + 2) , "%s", strbuff);
+-				snprintf(FW_ID, (second_comma - first_comma +1), "%s", (first_comma + 2));
+-				snprintf(IC, (third_comma - second_comma + 1), "%s", (second_comma + 2));
+-				snprintf(VENDOR, len, "%s", (third_comma + 2));
+-				ui_color(0, 0, 0, 50);
+-				ui_fill(0, 0, tpd->width, tpd->height);
+-				ui_color(255, 255, 255, 255);
+-				ui_text(5,25,FW_VERSION);
+-				ui_text(5,50,FW_ID);
+-				ui_text(5,75,IC);
+-				ui_text(5,100,VENDOR);
+-				
+-				
+-			}
++			LOGD(TAG "read strbuff = %s \n",strbuff);
+ 			fclose(fd);
++			first_comma = strchr(strbuff, sub);
++			second_comma = strchr(first_comma + 1, sub);
++			third_comma = strchr(second_comma + 1, sub);
++			snprintf(FW_VERSION, (first_comma - strbuff + 2) , "%s", strbuff);
++			snprintf(FW_ID, (second_comma - first_comma +1), "%s", (first_comma + 2));
++			snprintf(IC, (third_comma - second_comma + 1), "%s", (second_comma + 2));
++			snprintf(VENDOR, len, "%s", (third_comma + 2));
++			ui_color(0, 0, 0, 50);
++			ui_fill(0, 0, tpd->width, tpd->height);
++			ui_color(255, 255, 255, 255);
++			ui_text(5,25,FW_VERSION);
++			ui_text(5,50,FW_ID);
++			ui_text(5,75,IC);
++			ui_text(5,100,VENDOR);
+ 		}
+-	else
+-		LOGD(TAG "open EKT_IC_ID_NODE failed\n",fd);
++		fclose(fd);
++	}
+ }
+ 
+ /*
+diff --git a/mediatek/packages/apps/EngineerMode/src/com/mediatek/engineermode/TpFwInfo.java b/mediatek/packages/apps/EngineerMode/src/com/mediatek/engineermode/TpFwInfo.java
+index 5611d3b..b360b07 100644
+--- a/mediatek/packages/apps/EngineerMode/src/com/mediatek/engineermode/TpFwInfo.java
++++ b/mediatek/packages/apps/EngineerMode/src/com/mediatek/engineermode/TpFwInfo.java
+@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
+ import java.io.FileInputStream;
+ import java.io.IOException;
+ import java.io.InputStreamReader;
++import java.io.File;
+ 
+ public class TpFwInfo extends Activity {
+ 
+@@ -19,6 +20,8 @@ public class TpFwInfo extends Activity {
+ 
+     private static final String PROC_TP_CONFIG = "/sys/devices/platform/mt-i2c.2/i2c-2/2-0015/ektf2k_version";
+ 
++	private static final String MSTAR_TP_VERSION = "/sys/class/ms-touchscreen-msg20xx/device/msg_ckt_version";
++
+     private TextView info;
+ 
+     @Override
+@@ -31,33 +34,72 @@ public class TpFwInfo extends Activity {
+     protected void onResume() {
+         super.onResume();
+         FileInputStream fis = null;
+-        try {
+-            fis = new FileInputStream(PROC_TP_CONFIG);
++		File fileEkt = new File(PROC_TP_CONFIG);
++		File fileMstar = new File(MSTAR_TP_VERSION);
++		if (fileEkt.exists())
++		{
++			try {
++			    fis = new FileInputStream(PROC_TP_CONFIG);
+ 
+-            byte[] b = new byte[1024];
++				byte[] b = new byte[1024];
+ 
+-            int n = 0;
++				int n = 0;
+ 
+-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
++				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+ 
+-            while ((n = fis.read(b)) != -1)
+-            {
+-                byteArrayOutputStream.write(b);
+-            }
++				while ((n = fis.read(b)) != -1)
++				{
++					byteArrayOutputStream.write(b);
++				}
+ 
+-            byte content[] = byteArrayOutputStream.toByteArray();
++				byte content[] = byteArrayOutputStream.toByteArray();
+ 
+-            info.setText(new String(content));
++				info.setText(new String(content));
+ 
+-        } catch (Exception e) {
+-            // TODO: handle exception
+-        } finally {
+-            try {
+-                fis.close();
+-            } catch (IOException e) {
+-                // ignor
+-            }
+-        }
+-    }
++			} catch (Exception e) {
++				// TODO: handle exception
++			} finally {
++				try {
++					fis.close();
++				} catch (IOException e) {
++					// ignor
++				}
++			}
++
++		}else if (fileMstar.exists())
++		{
++			try {
++			    fis = new FileInputStream(MSTAR_TP_VERSION);
++
++				byte[] b = new byte[1024];
++
++				int n = 0;
++
++				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
++
++				while ((n = fis.read(b)) != -1)
++				{
++					byteArrayOutputStream.write(b);
++				}
++
++				byte content[] = byteArrayOutputStream.toByteArray();
++
++				info.setText(new String(content));
++
++			} catch (Exception e) {
++				// TODO: handle exception
++			} finally {
++				try {
++					fis.close();
++				} catch (IOException e) {
++					// ignor
++				}
++			}
++
++		}else
++		{
++			info.setText("can not find Tp on Boad,check it");	
++		}
++	}
+ 
+ }
+-- 
+1.9.1
+

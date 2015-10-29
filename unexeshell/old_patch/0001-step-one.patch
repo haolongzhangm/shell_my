@@ -1,0 +1,213 @@
+From f3b2511b69b809a900dad12579855bc65b31af22 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Tue, 23 Jun 2015 13:17:16 +0800
+Subject: [PATCH] step one
+
+Change-Id: I7a74c753b2f8c74b40c99c2fb261967d2053750a
+---
+ .../src/rfc_wtr4905_mobeeplus01a_v2_cmn_ag.cpp     | 36 ++++------------------
+ ...fc_wtr4905_mobeeplus01a_v2_gsm_config_data_ag.c |  8 ++---
+ ...fc_wtr4905_mobeeplus01a_v2_lte_config_data_ag.c |  8 ++---
+ ..._wtr4905_mobeeplus01a_v2_wcdma_config_data_ag.c |  6 ++--
+ 4 files changed, 17 insertions(+), 41 deletions(-)
+
+diff --git a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/common/src/rfc_wtr4905_mobeeplus01a_v2_cmn_ag.cpp b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/common/src/rfc_wtr4905_mobeeplus01a_v2_cmn_ag.cpp
+index 88c1536..060867b 100755
+--- a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/common/src/rfc_wtr4905_mobeeplus01a_v2_cmn_ag.cpp
++++ b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/common/src/rfc_wtr4905_mobeeplus01a_v2_cmn_ag.cpp
+@@ -69,26 +69,9 @@ rfc_phy_device_info_type rfc_wtr4905_mobeeplus01a_v2_phy_devices_list[] =
+     RFC_TX_MODEM_CHAIN_0, /* ASSOCIATED_DAC */ 
+   }, /* END - Device: WTR4905 */ 
+ 
+-  { /*Device: SKY77781-11 */ 
+-    GEN_PA, /* PHY_DEVICE_NAME */ 
+-    1, /* PHY_DEVICE_INSTANCE */ 
+-    RFC_NO_ALTERNATE_PART, /* PHY_DEVICE_ALT_PART_NUM_OF_INSTANCE */ 
+-    RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */ 
+-    {    0,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */ 
+-    0x01A5, /* PHY_DEVICE_MANUFACTURER_ID */ 
+-    0x15, /* PHY_DEVICE_PRODUCT_ID */ 
+-    0, /* PHY_DEVICE_PRODUCT_REV */ 
+-    0x0E, /* DEFAULT USID RANGE START */
+-    0x0E, /* DEFAULT USID RANGE END */
+-    0x0E, /* PHY_DEVICE_ASSIGNED_USID */ 
+-    0 /*Warning: Not specified*/, /* RFFE_GROUP_ID */ 
+-    FALSE, /* INIT */ 
+-    RFC_INVALID_PARAM, /* ASSOCIATED_DAC */ 
+-  }, /* END - Device: SKY77781-11 */ 
+-
+   { /*Device: SKY77631 */ 
+     GEN_PA, /* PHY_DEVICE_NAME */ 
+-    2, /* PHY_DEVICE_INSTANCE */ 
++    1, /* PHY_DEVICE_INSTANCE */ 
+     RFC_NO_ALTERNATE_PART, /* PHY_DEVICE_ALT_PART_NUM_OF_INSTANCE */ 
+     RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */ 
+     {    0,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */ 
+@@ -105,7 +88,7 @@ rfc_phy_device_info_type rfc_wtr4905_mobeeplus01a_v2_phy_devices_list[] =
+ 
+   { /*Device: SKY13488 */ 
+     GEN_ASM /* ASM_SP12T */, /* PHY_DEVICE_NAME */ 
+-    3, /* PHY_DEVICE_INSTANCE */ 
++    2, /* PHY_DEVICE_INSTANCE */ 
+     RFC_NO_ALTERNATE_PART, /* PHY_DEVICE_ALT_PART_NUM_OF_INSTANCE */ 
+     RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */ 
+     {    0,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */ 
+@@ -122,7 +105,7 @@ rfc_phy_device_info_type rfc_wtr4905_mobeeplus01a_v2_phy_devices_list[] =
+ 
+   { /*Device: SKY13473 */ 
+     GEN_ASM /* ASM_SP6T */, /* PHY_DEVICE_NAME */ 
+-    4, /* PHY_DEVICE_INSTANCE */ 
++    3, /* PHY_DEVICE_INSTANCE */ 
+     RFC_NO_ALTERNATE_PART, /* PHY_DEVICE_ALT_PART_NUM_OF_INSTANCE */ 
+     RFDEVICE_COMM_PROTO_RFFE, /* PHY_DEVICE_COMM_PROTOCOL */ 
+     {    1,0 /* 0 not specified */,}, /* PHY_DEVICE_COMM_BUS */ 
+@@ -166,32 +149,25 @@ rfc_logical_device_info_type rfc_wtr4905_mobeeplus01a_v2_logical_devices_list[]
+     0, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+   }, /* END - Device: WTR4905 */ 
+ 
+-  { /*Device: SKY77781-11 */ 
++  { /*Device: SKY77631 */ 
+     RFDEVICE_PA, /* DEVICE_MODULE_TYPE */ 
+     GEN_PA, /* DEVICE_MODULE_NAME */ 
+     0, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+     1, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+-  }, /* END - Device: SKY77781-11 */ 
+-
+-  { /*Device: SKY77631 */ 
+-    RFDEVICE_PA, /* DEVICE_MODULE_TYPE */ 
+-    GEN_PA, /* DEVICE_MODULE_NAME */ 
+-    1, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+-    2, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+   }, /* END - Device: SKY77631 */ 
+ 
+   { /*Device: SKY13488 */ 
+     RFDEVICE_ASM, /* DEVICE_MODULE_TYPE */ 
+     GEN_ASM, /* DEVICE_MODULE_NAME */ 
+     0, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+-    3, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
++    2, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+   }, /* END - Device: SKY13488 */ 
+ 
+   { /*Device: SKY13473 */ 
+     RFDEVICE_ASM, /* DEVICE_MODULE_TYPE */ 
+     GEN_ASM, /* DEVICE_MODULE_NAME */ 
+     1, /* DEVICE_MODULE_TYPE_INSTANCE */ 
+-    4, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
++    3, /* ASSOCIATED_PHY_DEVICE_INSTANCE */ 
+   }, /* END - Device: SKY13473 */ 
+ 
+   { /*Device: TRX_HDET */ 
+diff --git a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/gsm/src/rfc_wtr4905_mobeeplus01a_v2_gsm_config_data_ag.c b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/gsm/src/rfc_wtr4905_mobeeplus01a_v2_gsm_config_data_ag.c
+index f691270..6c9a96e 100755
+--- a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/gsm/src/rfc_wtr4905_mobeeplus01a_v2_gsm_config_data_ag.c
++++ b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/gsm/src/rfc_wtr4905_mobeeplus01a_v2_gsm_config_data_ag.c
+@@ -182,7 +182,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_gsm_g850_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -308,7 +308,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_gsm_g900_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -434,7 +434,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_gsm_g1800_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -560,7 +560,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_gsm_g1900_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+diff --git a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/lte/src/rfc_wtr4905_mobeeplus01a_v2_lte_config_data_ag.c b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/lte/src/rfc_wtr4905_mobeeplus01a_v2_lte_config_data_ag.c
+index 5a05935..641ebeb 100755
+--- a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/lte/src/rfc_wtr4905_mobeeplus01a_v2_lte_config_data_ag.c
++++ b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/lte/src/rfc_wtr4905_mobeeplus01a_v2_lte_config_data_ag.c
+@@ -232,7 +232,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_lte_b1_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -596,7 +596,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_lte_b3_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -960,7 +960,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_lte_b5_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -1323,7 +1323,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_lte_b8_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+diff --git a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/wcdma/src/rfc_wtr4905_mobeeplus01a_v2_wcdma_config_data_ag.c b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/wcdma/src/rfc_wtr4905_mobeeplus01a_v2_wcdma_config_data_ag.c
+index 886f1d1..92330da 100755
+--- a/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/wcdma/src/rfc_wtr4905_mobeeplus01a_v2_wcdma_config_data_ag.c
++++ b/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mobeeplus01a_v2/wcdma/src/rfc_wtr4905_mobeeplus01a_v2_wcdma_config_data_ag.c
+@@ -182,7 +182,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_wcdma_b1_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -446,7 +446,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_wcdma_b5_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+@@ -579,7 +579,7 @@ rfc_device_info_type rf_card_wtr4905_mobeeplus01a_v2_tx0_wcdma_b8_device_info =
+     {
+       RFDEVICE_PA,
+       GEN_PA,  /* NAME */
+-      1,  /* DEVICE_MODULE_TYPE_INSTANCE */
++      0,  /* DEVICE_MODULE_TYPE_INSTANCE */
+       0 /*Warning: Not specified*/,  /* PHY_PATH_NUM */
+       {
+         0  /* Orig setting:  */,  /* INTF_REV */
+-- 
+1.9.1
+

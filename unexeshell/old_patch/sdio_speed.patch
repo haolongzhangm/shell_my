@@ -1,0 +1,21 @@
+diff --git a/kernel/drivers/mmc/core/sd.c b/kernel/drivers/mmc/core/sd.c
+index b738491..7180b64 100644
+--- a/kernel/drivers/mmc/core/sd.c
++++ b/kernel/drivers/mmc/core/sd.c
+@@ -680,7 +680,7 @@ MMC_DEV_ATTR(manfid, "0x%06x\n", card->cid.manfid);
+ MMC_DEV_ATTR(name, "%s\n", card->cid.prod_name);
+ MMC_DEV_ATTR(oemid, "0x%04x\n", card->cid.oemid);
+ MMC_DEV_ATTR(serial, "0x%08x\n", card->cid.serial);
+-
++MMC_DEV_ATTR(speed, "%d\n", card->sd_bus_speed);
+ 
+ static struct attribute *sd_std_attrs[] = {
+ 	&dev_attr_cid.attr,
+@@ -695,6 +695,7 @@ static struct attribute *sd_std_attrs[] = {
+ 	&dev_attr_name.attr,
+ 	&dev_attr_oemid.attr,
+ 	&dev_attr_serial.attr,
++	&dev_attr_speed.attr,
+ 	NULL,
+ };
+ 

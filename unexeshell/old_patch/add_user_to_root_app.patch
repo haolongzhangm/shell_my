@@ -1,0 +1,624 @@
+diff --git a/mediatek/config/k95v2_1/ProjectConfig.mk b/mediatek/config/k95v2_1/ProjectConfig.mk
+index 29e158d..031dc36 100755
+--- a/mediatek/config/k95v2_1/ProjectConfig.mk
++++ b/mediatek/config/k95v2_1/ProjectConfig.mk
+@@ -42,7 +42,7 @@
+ #MTK_VT3G324M_SUPPORT = yes
+ ALWAYSON_DFOSET = no
+ ALWAYSON_DFOSET_VALUE = MTK_CTA_SUPPORT MTK_AUTOIP_SUPPORT
+-AUTO_ADD_GLOBAL_DEFINE_BY_NAME = MTK_DISABLE_SW_SIM_SWITCH LENOVO_HIGH_BATTERY_VOLTAGE_SUPPORT MTK_BQ24250_SUPPORT X2_BQ27531_SUPPORT X2_CHARGING_STANDARD_SUPPORT MTK_OTG_PMIC_BOOST_5V MTK_EXTMD_NATIVE_DOWNLOAD_SUPPORT MTK_MD_LOW_BAT_SUPPORT MTK_ALPS_BOX_DONGLE_SUPPORT MTK_SIM_SWITCH_POLICY MTK_SIM_SWITCH MTK_ETHERNET_SUPPORT MTK_BESSURROUND_SUPPORT MTK_BOX_AUDIO_DDPLUS_SUPPORT MTK_PLAYBACK_60FPS_TO_30FPS MTK_SPEAKER_MONITOR_SUPPORT MTK_CAM_MMSDK_SUPPORT MTK_ANT_SUPPORT MTK_MIRAVISION_SETTING_SUPPORT MTK_PUMP_EXPRESS_SUPPORT MTK_BQ24157_SUPPORT MTK_MPEG_DASH_SUPPORT MTK_VOLTE_SUPPORT MTK_IMS_SUPPORT MTK_VOW_SUPPORT MTK_IPTV_SUPPORT MTK_PASSPOINT_R2_SUPPORT MTK_EXTERNAL_DONGLE_SUPPORT MTK_ALPS_BOX_SUPPORT MTK_OD_SUPPORT MTK_BQ24296_SUPPORT MTK_CAM_HDR_SUPPORT MTK_TC1_FEATURE MTK_BATTERY_PROTECT MTK_WIRELESS_CHARGER_SUPPORT MTK_CAM_STEREO_CAMERA_SUPPORT MTK_BESLOUDNESS_SUPPORT MTK_CAM_VHDR_SUPPORT MTK_CAM_EIS_SUPPORT MTK_CAM_VIDEO_FACEBEAUTY_SUPPORT MTK_CAM_FACEBEAUTY_SUPPORT MTK_WFD_SINK_UIBC_SUPPORT MTK_WFD_SINK_SUPPORT MTK_CAM_VSS_SUPPORT MTK_CAM_ZSD_SUPPORT MTK_POWER_EXT_DETECT MTK_CAM_LOMO_SUPPORT MTK_POST_PROCESS_FRAMEWORK_SUPPORT MTK_CAM_DEPTH_AF_SUPPORT MTK_MERGE_INTERFACE_SUPPORT MTK_CAM_NATIVE_PIP_SUPPORT MTK_CAM_NR3D_SUPPORT MTK_CAM_OT_SUPPORT MTK_CAM_SD_SUPPORT MTK_CAM_SINGLE_3DSHOT_SUPPORT MTK_CAM_MAV_SUPPORT MTK_CAM_AUTORAMA_SUPPORT MTK_CAM_IMAGE_REFOCUS_SUPPORT MTK_CAM_ASD_SUPPORT MTK_CAM_FD_SUPPORT MTK_CAM_GESTURE_SUPPORT MTK_MLC_NAND_SUPPORT MTK_FORCE_CLUSTER1 TRUSTONIC_TEE_SUPPORT MTK_SPI_NAND_SUPPORT MTK_RAWFS_NAND_SUPPORT MTK_PASSPOINT_R1_SUPPORT MTK_LOMO_SUPPORT MTK_EXTERNAL_LDO MTK_PMIC_MT6397 MTK_VOICE_CONTACT_SEARCH_SUPPORT MTK_TOUCH_BOOST MTK_SLOW_MOTION_VIDEO_SUPPORT MTK_VIDEO_HEVC_SUPPORT MTK_AUTO_DETECT_ALSPS MTK_GPT_SCHEME_SUPPORT MT6280_SUPER_DONGLE MTK_CSD_DIALER_SUPPORT MTK_PRIVACY_PROTECTION_LOCK MTK_SIM_RECOVERY MTK_FAN5402_SUPPORT MTK_AUDIO_HD_REC_SUPPORT MTK_PLAYREADY_SUPPORT MTK_AUDIO MTK_CLEARMOTION_SUPPORT MTK_MOTION_TRACK_SUPPORT MTK_LIVE_PHOTO_SUPPORT MTK_CAMERA_OT_SUPPORT MTK_FSCK_TUNE HW_HAVE_TP_THREAD MTK_NEW_COMBO_EMMC_SUPPORT MTK_PERSIST_PARTITION_SUPPORT MTK_DX_HDCP_SUPPORT MTK_COMBO_NAND_SUPPORT MTK_SMARTBOOK_SUPPORT MTK_DFO_RESOLUTION_SUPPORT MTK_HIGH_RESOLUTION_AUDIO_SUPPORT MTK_AUDIO_EXTCODEC_SUPPORT MTK_SUBTITLE_SUPPORT MTK_WIFIWPSP2P_NFC_SUPPORT MTK_SDIOAUTOK_SUPPORT MTK_MSDC1_NOT_SUPPORT_SDR104 MTK_FEMTO_CELL_SUPPORT MTK_CHIPTEST_INT MTK_USER_ROOT_SWITCH MTK_ENABLE_MD5 MTK_LTE_SUPPORT MTK_LTE_DC_SUPPORT MTK_WMV_PLAYBACK_SUPPORT MTK_WMA_PLAYBACK_SUPPORT MTK_MOBILE_MANAGEMENT MTK_PARTITION_TABLE_PLAIN_TEXT MTK_DOLBY_DAP_SUPPORT MTK_BQ24156_SUPPORT CUSTOM_KERNEL_BAROMETER MTK_BQ24158_SUPPORT MTK_TABLET_PLUGIN_BUILD MTK_WIFI_CALLING_RIL_SUPPORT MTK_MULTI_PARTITION_MOUNT_ONLY_SUPPORT MTK_BQ24297_SUPPORT MTK_3GDONGLE_SUPPORT MTK_PM_STATS_SUPPORT MTK_SWIP_WMAPRO MTK_AUDIO_DDPLUS_SUPPORT MTK_SEC_WFD_VIDEO_PATH_SUPPORT MTK_BATLOWV_NO_PANEL_ON_EARLY MTK_CTP_RESET_CONFIG MTK_SIM_HOT_SWAP_COMMON_SLOT MTK_TER_SERVICE MTK_OWNER_SDCARD_ONLY_SUPPORT MTK_DRM_PLAYREADY_SUPPORT MTK_SHOW_MSENSOR_TOAST_SUPPORT MTK_AUDIO_CHANGE_SUPPORT MTK_VIBSPK_SUPPORT IS_VCORE_USE_6333VCORE IS_VRF18_USE_6333VRF18 IS_VM_USE_6333VM MTK_VIDEO_AUTO_FLASH_SUPPORT MTK_AIV_SUPPORT MTK_WFD_HDCP_TX_SUPPORT PURE_AP_USE_EXTERNAL_MODEM MTK_NO_NEED_USB_LED MTK_GEMINI_SMART_3G_SWITCH MTK_HDMI_HDCP_SUPPORT MTK_INTERNAL_HDMI_SUPPORT MTK_INTERNAL_MHL_SUPPORT MTK_DMNR_TUNING_AT_MD NAND_OTP_SUPPORT MTK_DVFS_DISABLE_LOW_VOLTAGE_SUPPORT MTK_VOIP_ENHANCEMENT_SUPPORT MTK_HANDSFREE_DMNR_SUPPORT MTK_SWCHR_SUPPORT MTK_MT6333_SUPPORT MTK_MULTISIM_RINGTONE_SUPPORT MTK_DRM_KEY_MNG_SUPPORT MTK_SEC_VIDEO_PATH_SUPPORT MTK_WVDRM_L1_SUPPORT MTK_IN_HOUSE_TEE_SUPPORT MTK_DISABLE_POWER_ON_OFF_VOLTAGE_LIMITATION MTK_CTA_SUPPORT MTK_DFO_SUPPORT HAVE_MATV_FEATURE MTK_MATV_SERIAL_IF_SUPPORT MTK_BIP_SCWS MTK_MDM_FUMO MTK_MDM_LAWMO MTK_MDM_SCOMO TELEPHONY_DFOSET MTK_UART_USB_SWITCH MTK_LCA_ROM_OPTIMIZE MTK_LCA_RAM_OPTIMIZE MTK_FAT_ON_NAND MTK_AUDIO_RAW_SUPPORT MTK_MD_SHUT_DOWN_NT MTK_CACHE_MERGE_SUPPORT MTK_IPV6_TETHER_PD_MODE MTK_UMTS_TDD128_MODE MTK_YMAL_SCATTER_FILE_SUPPORT MTK_RADIOOFF_POWER_OFF_MD MTK_MT8193_HDCP_SUPPORT MTK_LCEEFT_SUPPORT MTK_USES_VR_DYNAMIC_QUALITY_MECHANISM MTK_PLATFORM_OPTIMIZE MTK_HW_ENHANCE MTK_PQ_SUPPORT MTK_AUDIO_ADPCM_SUPPORT HAVE_ADPCMENCODE_FEATURE MTK_2IN1_SPK_SUPPORT MTK_WEB_NOTIFICATION_SUPPORT MTK_GEMINI_4SIM_SUPPORT MTK_GEMINI_3SIM_SUPPORT MTK_VOICE_UNLOCK_SUPPORT MTK_VOICE_UI_SUPPORT MTK_BEAM_PLUS_SUPPORT MTK_IPOH_SUPPORT MTK_BQ27541_SUPPORT MTK_WFD_SUPPORT MTK_IPV6_TETHER_NDP_MODE MTK_TETHERING_EEM_SUPPORT MTK_AAL_SUPPORT MTK_KERNEL_POWER_OFF_CHARGING MTK_FLIGHT_MODE_POWER_OFF_MD MTK_ENABLE_MD1 MTK_ENABLE_MD2 MTK_ACMT_DEBUG MTK_BT_PROFILE_AVRCP MTK_MMPROFILE_SUPPORT MTK_GPS_SUPPORT MTK_MULTIBRIDGE_SUPPORT EVDO_DT_SUPPORT MTK_CAMCORDER_PROFILE_MID_MP4 MTK_FM_SUPPORT MTK_USES_HD_VIDEO MTK_TABLET_PLATFORM MTK_AUTO_DETECT_MAGNETOMETER MTK_NCP1851_SUPPORT MTK_FM_RECORDING_SUPPORT MTK_DEDICATEDAPN_SUPPORT MTK_DT_SUPPORT MTK_BT_FM_OVER_BT_VIA_CONTROLLER MTK_NFC_SUPPORT MTK_MASS_STORAGE MTK_BICR_SUPPORT MTK_COMBO_QUICK_SLEEP_SUPPORT MTK_THEMEMANAGER_APP MTK_TMP103_SUPPORT MTK_MT8193_SUPPORT HAVE_AACENCODE_FEATURE MTK_FM_50KHZ_SUPPORT MTK_WIFI_HOTSPOT_SUPPORT MTK_COMBO_SUPPORT MTK_2SDCARD_SWAP CUSTOM_KERNEL_GYROSCOPE MTK_SHARED_SDCARD MTK_EMMC_DISCARD MTK_DSPIRDBG MTK_MULTI_STORAGE_SUPPORT CUSTOM_KERNEL_ALSPS MTK_ENABLE_VIDEO_EDITOR CUSTOM_KERNEL_ACCELEROMETER MTK_DUAL_MIC_SUPPORT MTK_WAPI_SUPPORT MTK_FD_SUPPORT MTK_DISPLAY_HIGH_RESOLUTION MTK_BT_SUPPORT MTK_TABLET_DRAM MTK_FACEBEAUTY_SUPPORT EVDO_DT_VIA_SUPPORT MTK_FAN5405_SUPPORT MTK_BQ24160_SUPPORT MTK_BT_40_SUPPORT MTK_ASF_PLAYBACK_SUPPORT MTK_HIGH_QUALITY_THUMBNAIL MTK_SPH_EHN_CTRL_SUPPORT MTK_IMAGE_LARGE_MEM_LIMIT MTK_FM_TX_SUPPORT MTK_BRAZIL_CUSTOMIZATION_VIVO MTK_BRAZIL_CUSTOMIZATION_CLARO HAVE_XLOG_FEATURE MTK_IPV6_SUPPORT MTK_AUTORAMA_SUPPORT MTK_EAP_SIM_AKA MTK_MATV_ANALOG_SUPPORT MTK_BSP_PACKAGE MTK_BRAZIL_CUSTOMIZATION MTK_NVRAM_SECURITY CUSTOM_KERNEL_MAGNETOMETER MTK_CAMERA_APP_3DHW_SUPPORT MTK_WLANBT_SINGLEANT MTK_WLAN_SUPPORT MTK_TETHERINGIPV6_SUPPORT MTK_AUTO_DETECT_ACCELEROMETER HAVE_CMMB_FEATURE MTK_MT8193_HDMI_SUPPORT MTK_EMMC_SUPPORT_OTP MTK_TB_APP_CALL_FORCE_SPEAKER_ON MTK_PRODUCT_INFO_SUPPORT MTK_QVGA_LANDSCAPE_SUPPORT MTK_FM_SHORT_ANTENNA_SUPPORT MTK_HDMI_SUPPORT MTK_M4U_SUPPORT MTK_BT_30_SUPPORT MTK_MT8193_NFI_SUPPORT MTK_ION_SUPPORT MTK_LCA_SUPPORT MTK_FSCK_MSDOS_MTK MTK_MAV_SUPPORT HAVE_AWBENCODE_FEATURE MTK_BQ24196_SUPPORT MTK_CAMERA_BSP_SUPPORT MTK_FM_RX_SUPPORT MTK_WB_SPEECH_SUPPORT MTK_VT3G324M_SUPPORT ENCRY_PARTITION_SUPPORT MTK_SD_REINIT_SUPPORT MTK_SENSOR_SUPPORT MTK_EMMC_SUPPORT MTK_BT_21_SUPPORT MTK_COMBO_CORE_DUMP_SUPPORT MTK_DHCPV6C_WIFI MTK_EMULATOR_SUPPORT MTK_NAND_UBIFS_SUPPORT MTK_YAML_SCATTER_FILE_SUPPORT MTK_CTPPPOE_SUPPORT MTK_WORLD_PHONE MTK_VIDEO_VP9_SUPPORT MTK_THERMAL_PA_VIA_ATCMD MTK_SWIP_VORBIS MTK_FLV_PLAYBACK_SUPPORT MTK_AUDIO_APE_SUPPORT MTK_AVI_PLAYBACK_SUPPORT USE_FRAUNHOFER_AAC MTK_DRM_APP MTK_OGM_PLAYBACK_SUPPORT MTK_MTKPS_PLAYBACK_SUPPORT
++AUTO_ADD_GLOBAL_DEFINE_BY_NAME = MTK_DISABLE_SW_SIM_SWITCH LENOVO_HIGH_BATTERY_VOLTAGE_SUPPORT MTK_BQ24250_SUPPORT X2_BQ27531_SUPPORT X2_CHARGING_STANDARD_SUPPORT MTK_OTG_PMIC_BOOST_5V MTK_EXTMD_NATIVE_DOWNLOAD_SUPPORT MTK_MD_LOW_BAT_SUPPORT MTK_ALPS_BOX_DONGLE_SUPPORT MTK_SIM_SWITCH_POLICY MTK_SIM_SWITCH MTK_ETHERNET_SUPPORT MTK_BESSURROUND_SUPPORT MTK_BOX_AUDIO_DDPLUS_SUPPORT MTK_PLAYBACK_60FPS_TO_30FPS MTK_SPEAKER_MONITOR_SUPPORT MTK_CAM_MMSDK_SUPPORT MTK_ANT_SUPPORT MTK_MIRAVISION_SETTING_SUPPORT MTK_PUMP_EXPRESS_SUPPORT MTK_BQ24157_SUPPORT MTK_MPEG_DASH_SUPPORT MTK_VOLTE_SUPPORT MTK_IMS_SUPPORT MTK_VOW_SUPPORT MTK_IPTV_SUPPORT MTK_PASSPOINT_R2_SUPPORT MTK_EXTERNAL_DONGLE_SUPPORT MTK_ALPS_BOX_SUPPORT MTK_OD_SUPPORT MTK_BQ24296_SUPPORT MTK_CAM_HDR_SUPPORT MTK_TC1_FEATURE MTK_BATTERY_PROTECT MTK_WIRELESS_CHARGER_SUPPORT MTK_CAM_STEREO_CAMERA_SUPPORT MTK_BESLOUDNESS_SUPPORT MTK_CAM_VHDR_SUPPORT MTK_CAM_EIS_SUPPORT MTK_CAM_VIDEO_FACEBEAUTY_SUPPORT MTK_CAM_FACEBEAUTY_SUPPORT MTK_WFD_SINK_UIBC_SUPPORT MTK_WFD_SINK_SUPPORT MTK_CAM_VSS_SUPPORT MTK_CAM_ZSD_SUPPORT MTK_POWER_EXT_DETECT MTK_CAM_LOMO_SUPPORT MTK_POST_PROCESS_FRAMEWORK_SUPPORT MTK_CAM_DEPTH_AF_SUPPORT MTK_MERGE_INTERFACE_SUPPORT MTK_CAM_NATIVE_PIP_SUPPORT MTK_CAM_NR3D_SUPPORT MTK_CAM_OT_SUPPORT MTK_CAM_SD_SUPPORT MTK_CAM_SINGLE_3DSHOT_SUPPORT MTK_CAM_MAV_SUPPORT MTK_CAM_AUTORAMA_SUPPORT MTK_CAM_IMAGE_REFOCUS_SUPPORT MTK_CAM_ASD_SUPPORT MTK_CAM_FD_SUPPORT MTK_CAM_GESTURE_SUPPORT MTK_MLC_NAND_SUPPORT MTK_FORCE_CLUSTER1 TRUSTONIC_TEE_SUPPORT MTK_SPI_NAND_SUPPORT MTK_RAWFS_NAND_SUPPORT MTK_PASSPOINT_R1_SUPPORT MTK_LOMO_SUPPORT MTK_EXTERNAL_LDO MTK_PMIC_MT6397 MTK_VOICE_CONTACT_SEARCH_SUPPORT MTK_TOUCH_BOOST MTK_SLOW_MOTION_VIDEO_SUPPORT MTK_VIDEO_HEVC_SUPPORT MTK_AUTO_DETECT_ALSPS MTK_GPT_SCHEME_SUPPORT MT6280_SUPER_DONGLE MTK_CSD_DIALER_SUPPORT MTK_PRIVACY_PROTECTION_LOCK MTK_SIM_RECOVERY MTK_FAN5402_SUPPORT MTK_AUDIO_HD_REC_SUPPORT MTK_PLAYREADY_SUPPORT MTK_AUDIO MTK_CLEARMOTION_SUPPORT MTK_MOTION_TRACK_SUPPORT MTK_LIVE_PHOTO_SUPPORT MTK_CAMERA_OT_SUPPORT MTK_FSCK_TUNE HW_HAVE_TP_THREAD MTK_NEW_COMBO_EMMC_SUPPORT MTK_PERSIST_PARTITION_SUPPORT MTK_DX_HDCP_SUPPORT MTK_COMBO_NAND_SUPPORT MTK_SMARTBOOK_SUPPORT MTK_DFO_RESOLUTION_SUPPORT MTK_HIGH_RESOLUTION_AUDIO_SUPPORT MTK_AUDIO_EXTCODEC_SUPPORT MTK_SUBTITLE_SUPPORT MTK_WIFIWPSP2P_NFC_SUPPORT MTK_SDIOAUTOK_SUPPORT MTK_MSDC1_NOT_SUPPORT_SDR104 MTK_FEMTO_CELL_SUPPORT MTK_CHIPTEST_INT MTK_USER_ROOT_SWITCH MTK_ENABLE_MD5 MTK_LTE_SUPPORT MTK_LTE_DC_SUPPORT MTK_WMV_PLAYBACK_SUPPORT MTK_WMA_PLAYBACK_SUPPORT MTK_MOBILE_MANAGEMENT MTK_PARTITION_TABLE_PLAIN_TEXT MTK_DOLBY_DAP_SUPPORT MTK_BQ24156_SUPPORT CUSTOM_KERNEL_BAROMETER MTK_BQ24158_SUPPORT MTK_TABLET_PLUGIN_BUILD MTK_WIFI_CALLING_RIL_SUPPORT MTK_MULTI_PARTITION_MOUNT_ONLY_SUPPORT MTK_BQ24297_SUPPORT MTK_3GDONGLE_SUPPORT MTK_PM_STATS_SUPPORT MTK_SWIP_WMAPRO MTK_AUDIO_DDPLUS_SUPPORT MTK_SEC_WFD_VIDEO_PATH_SUPPORT MTK_BATLOWV_NO_PANEL_ON_EARLY MTK_CTP_RESET_CONFIG MTK_SIM_HOT_SWAP_COMMON_SLOT MTK_TER_SERVICE MTK_OWNER_SDCARD_ONLY_SUPPORT MTK_DRM_PLAYREADY_SUPPORT MTK_SHOW_MSENSOR_TOAST_SUPPORT MTK_AUDIO_CHANGE_SUPPORT MTK_VIBSPK_SUPPORT IS_VCORE_USE_6333VCORE IS_VRF18_USE_6333VRF18 IS_VM_USE_6333VM MTK_VIDEO_AUTO_FLASH_SUPPORT MTK_AIV_SUPPORT MTK_WFD_HDCP_TX_SUPPORT PURE_AP_USE_EXTERNAL_MODEM MTK_NO_NEED_USB_LED MTK_GEMINI_SMART_3G_SWITCH MTK_HDMI_HDCP_SUPPORT MTK_INTERNAL_HDMI_SUPPORT MTK_INTERNAL_MHL_SUPPORT MTK_DMNR_TUNING_AT_MD NAND_OTP_SUPPORT MTK_DVFS_DISABLE_LOW_VOLTAGE_SUPPORT MTK_VOIP_ENHANCEMENT_SUPPORT MTK_HANDSFREE_DMNR_SUPPORT MTK_SWCHR_SUPPORT MTK_MT6333_SUPPORT MTK_MULTISIM_RINGTONE_SUPPORT MTK_DRM_KEY_MNG_SUPPORT MTK_SEC_VIDEO_PATH_SUPPORT MTK_WVDRM_L1_SUPPORT MTK_IN_HOUSE_TEE_SUPPORT MTK_DISABLE_POWER_ON_OFF_VOLTAGE_LIMITATION MTK_CTA_SUPPORT MTK_DFO_SUPPORT HAVE_MATV_FEATURE MTK_MATV_SERIAL_IF_SUPPORT MTK_BIP_SCWS MTK_MDM_FUMO MTK_MDM_LAWMO MTK_MDM_SCOMO TELEPHONY_DFOSET MTK_UART_USB_SWITCH MTK_LCA_ROM_OPTIMIZE MTK_LCA_RAM_OPTIMIZE MTK_FAT_ON_NAND MTK_AUDIO_RAW_SUPPORT MTK_MD_SHUT_DOWN_NT MTK_CACHE_MERGE_SUPPORT MTK_IPV6_TETHER_PD_MODE MTK_UMTS_TDD128_MODE MTK_YMAL_SCATTER_FILE_SUPPORT MTK_RADIOOFF_POWER_OFF_MD MTK_MT8193_HDCP_SUPPORT MTK_LCEEFT_SUPPORT MTK_USES_VR_DYNAMIC_QUALITY_MECHANISM MTK_PLATFORM_OPTIMIZE MTK_HW_ENHANCE MTK_PQ_SUPPORT MTK_AUDIO_ADPCM_SUPPORT HAVE_ADPCMENCODE_FEATURE MTK_2IN1_SPK_SUPPORT MTK_WEB_NOTIFICATION_SUPPORT MTK_GEMINI_4SIM_SUPPORT MTK_GEMINI_3SIM_SUPPORT MTK_VOICE_UNLOCK_SUPPORT MTK_VOICE_UI_SUPPORT MTK_BEAM_PLUS_SUPPORT MTK_IPOH_SUPPORT MTK_BQ27541_SUPPORT MTK_WFD_SUPPORT MTK_IPV6_TETHER_NDP_MODE MTK_TETHERING_EEM_SUPPORT MTK_AAL_SUPPORT MTK_KERNEL_POWER_OFF_CHARGING MTK_FLIGHT_MODE_POWER_OFF_MD MTK_ENABLE_MD1 MTK_ENABLE_MD2 MTK_ACMT_DEBUG MTK_BT_PROFILE_AVRCP MTK_MMPROFILE_SUPPORT MTK_GPS_SUPPORT MTK_MULTIBRIDGE_SUPPORT EVDO_DT_SUPPORT MTK_CAMCORDER_PROFILE_MID_MP4 MTK_FM_SUPPORT MTK_USES_HD_VIDEO MTK_TABLET_PLATFORM MTK_AUTO_DETECT_MAGNETOMETER MTK_NCP1851_SUPPORT MTK_FM_RECORDING_SUPPORT MTK_DEDICATEDAPN_SUPPORT MTK_DT_SUPPORT MTK_BT_FM_OVER_BT_VIA_CONTROLLER MTK_NFC_SUPPORT MTK_MASS_STORAGE MTK_BICR_SUPPORT MTK_COMBO_QUICK_SLEEP_SUPPORT MTK_THEMEMANAGER_APP MTK_TMP103_SUPPORT MTK_MT8193_SUPPORT HAVE_AACENCODE_FEATURE MTK_FM_50KHZ_SUPPORT MTK_WIFI_HOTSPOT_SUPPORT MTK_COMBO_SUPPORT MTK_2SDCARD_SWAP CUSTOM_KERNEL_GYROSCOPE MTK_SHARED_SDCARD MTK_EMMC_DISCARD MTK_DSPIRDBG MTK_MULTI_STORAGE_SUPPORT CUSTOM_KERNEL_ALSPS MTK_ENABLE_VIDEO_EDITOR CUSTOM_KERNEL_ACCELEROMETER MTK_DUAL_MIC_SUPPORT MTK_WAPI_SUPPORT MTK_FD_SUPPORT MTK_DISPLAY_HIGH_RESOLUTION MTK_BT_SUPPORT MTK_TABLET_DRAM MTK_FACEBEAUTY_SUPPORT EVDO_DT_VIA_SUPPORT MTK_FAN5405_SUPPORT MTK_BQ24160_SUPPORT MTK_BT_40_SUPPORT MTK_ASF_PLAYBACK_SUPPORT MTK_HIGH_QUALITY_THUMBNAIL MTK_SPH_EHN_CTRL_SUPPORT MTK_IMAGE_LARGE_MEM_LIMIT MTK_FM_TX_SUPPORT MTK_BRAZIL_CUSTOMIZATION_VIVO MTK_BRAZIL_CUSTOMIZATION_CLARO HAVE_XLOG_FEATURE MTK_IPV6_SUPPORT MTK_AUTORAMA_SUPPORT MTK_EAP_SIM_AKA MTK_MATV_ANALOG_SUPPORT MTK_BSP_PACKAGE MTK_BRAZIL_CUSTOMIZATION MTK_NVRAM_SECURITY CUSTOM_KERNEL_MAGNETOMETER MTK_CAMERA_APP_3DHW_SUPPORT MTK_WLANBT_SINGLEANT MTK_WLAN_SUPPORT MTK_TETHERINGIPV6_SUPPORT MTK_AUTO_DETECT_ACCELEROMETER HAVE_CMMB_FEATURE MTK_MT8193_HDMI_SUPPORT MTK_EMMC_SUPPORT_OTP MTK_TB_APP_CALL_FORCE_SPEAKER_ON MTK_PRODUCT_INFO_SUPPORT MTK_QVGA_LANDSCAPE_SUPPORT MTK_FM_SHORT_ANTENNA_SUPPORT MTK_HDMI_SUPPORT MTK_M4U_SUPPORT MTK_BT_30_SUPPORT MTK_MT8193_NFI_SUPPORT MTK_ION_SUPPORT MTK_LCA_SUPPORT MTK_FSCK_MSDOS_MTK MTK_MAV_SUPPORT HAVE_AWBENCODE_FEATURE MTK_BQ24196_SUPPORT MTK_CAMERA_BSP_SUPPORT MTK_FM_RX_SUPPORT MTK_WB_SPEECH_SUPPORT MTK_VT3G324M_SUPPORT ENCRY_PARTITION_SUPPORT MTK_SD_REINIT_SUPPORT MTK_SENSOR_SUPPORT MTK_EMMC_SUPPORT MTK_BT_21_SUPPORT MTK_COMBO_CORE_DUMP_SUPPORT MTK_DHCPV6C_WIFI MTK_EMULATOR_SUPPORT MTK_NAND_UBIFS_SUPPORT MTK_YAML_SCATTER_FILE_SUPPORT MTK_CTPPPOE_SUPPORT MTK_WORLD_PHONE MTK_VIDEO_VP9_SUPPORT MTK_THERMAL_PA_VIA_ATCMD MTK_SWIP_VORBIS MTK_FLV_PLAYBACK_SUPPORT MTK_AUDIO_APE_SUPPORT MTK_AVI_PLAYBACK_SUPPORT USE_FRAUNHOFER_AAC MTK_DRM_APP MTK_OGM_PLAYBACK_SUPPORT MTK_MTKPS_PLAYBACK_SUPPORT MTK_SUPERUSER_EMBEDDED
+ AUTO_ADD_GLOBAL_DEFINE_BY_NAME_VALUE = MTK_IDC_SUPPORT MTK_MD_SBP_CUSTOM_VALUE MTK_ANTIBRICKING_LEVEL MTK_CAM_MFB_SUPPORT MTK_CAM_CONTINUOUS_SHOT_MODE MTK_ICUSB_SUPPORT MTK_FW_UPGRADE_APP MTK_FW_UPGRADE MTK_VIDEO_4KH264_SUPPORT MTK_HOTKNOT_SUPPORT MTK_TELEPHONY_BOOTUP_MODE_SLOT2 MTK_TELEPHONY_BOOTUP_MODE_SLOT1 MTK_NFC_SE_NUM MTK_OVERLAY_ENGINE_SUPPORT MTK_COMBO_PSM_RX_TH MTK_COMBO_PSM_TX_TH MTK_PCB_BATTERY_SENSOR MTK_SIM1_SOCKET_TYPE MTK_SIM2_SOCKET_TYPE CUSTOM_KERNEL_MAIN2_IMGSENSOR CUSTOM_KERNEL_SSW MTK_LCM_PHYSICAL_ROTATION LCM_WIDTH MTK_SHARE_MODEM_SUPPORT MTK_SINGLE_3DSHOT_SUPPORT MTK_EXTERNAL_MODEM_SLOT MTK_NEON_SUPPORT MTK_SHARE_MODEM_CURRENT LCM_HEIGHT
+ AUTO_ADD_GLOBAL_DEFINE_BY_VALUE = BOOT_LOGO MTK_AUDIO_BLOUD_CUSTOMPARAMETER_REV MTK_PLATFORM CUSTOM_KERNEL_LENS CUSTOM_KERNEL_MAIN_BACKUP_LENS CUSTOM_KERNEL_LCM MTK_MODEM_SUPPORT MTK_ATV_CHIP CUSTOM_KERNEL_MAIN_IMGSENSOR MTK_BT_CHIP MTK_WLAN_CHIP CUSTOM_KERNEL_SUB_BACKUP_IMGSENSOR CUSTOM_KERNEL_MAIN_BACKUP_IMGSENSOR CUSTOM_KERNEL_FLASHLIGHT CUSTOM_KERNEL_SUB_IMGSENSOR CUSTOM_KERNEL_SUB_LENS CUSTOM_KERNEL_IMGSENSOR MTK_FM_RX_AUDIO MTK_COMBO_CHIP MTK_GPS_CHIP CUSTOM_KERNEL_SUB_BACKUP_LENS CUSTOM_KERNEL_MAIN_LENS MTK_FM_TX_AUDIO MTK_FM_CHIP CUSTOM_KERNEL_MAIN2_IMGSENSOR BOOT_LOGO
+ BOOT_LOGO = cmcc_lte_fhd
+@@ -704,3 +704,4 @@ TRUSTONIC_TEE_SUPPORT = no
+ USE_FRAUNHOFER_AAC = yes
+ USE_OPENGL_RENDERER = true
+ WIFI_WEP_KEY_ID_SET = no
++MTK_SUPERUSER_EMBEDDED = yes
+diff --git a/mediatek/config/k95v2_1/init.rc b/mediatek/config/k95v2_1/init.rc
+index 3773035..8131b69 100755
+--- a/mediatek/config/k95v2_1/init.rc
++++ b/mediatek/config/k95v2_1/init.rc
+@@ -1190,6 +1190,18 @@ service adbd /sbin/adbd
+ on property:ro.kernel.qemu=1
+     start adbd
+ 
++# This property trigger has added to imitiate the previous behavior of "adb root".
++# The adb gadget driver used to reset the USB bus when the adbd daemon exited,
++# and the host side adb relied on this behavior to force it to reconnect with the
++# new adbd instance after init relaunches it. So now we force the USB bus to reset
++# here when adbd sets the service.adb.root property to 1.  We also restart adbd here
++# rather than waiting for init to notice its death and restarting it so the timing
++# of USB resetting and adb restarting more closely matches the previous behavior.
++on property:service.adb.root=1
++    write /sys/class/android_usb/android0/enable 0
++    restart adbd
++    write /sys/class/android_usb/android0/enable 1
++    
+ service drvbd /system/bin/drvbd
+     class main
+     user system
+diff --git a/packages/apps/Settings/Android.mk b/packages/apps/Settings/Android.mk
+index fa7f15a..bad0f08 100644
+--- a/packages/apps/Settings/Android.mk
++++ b/packages/apps/Settings/Android.mk
+@@ -49,7 +49,11 @@ LOCAL_PRIVILEGED_MODULE := true
+ LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+ 
+ LOCAL_AAPT_FLAGS += -c zz_ZZ
++LOCAL_AAPT_INCLUDE_ALL_RESOURCES := true
++LOCAL_AAPT_FLAGS := --extra-packages com.koushikdutta.superuser:com.koushikdutta.widgets --auto-add-overlay
+ 
++LOCAL_SRC_FILES += $(call all-java-files-under,../../../external/koush/Superuser/Superuser/src) $(call all-java-files-under,../../../external/koush/Widgets/Widgets/src)
++LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res $(LOCAL_PATH)/../../../external/koush/Widgets/Widgets/res $(LOCAL_PATH)/../../../external/koush/Superuser/Superuser/res
+ include $(BUILD_PACKAGE)
+ 
+ # Use the folloing include to make our test apk.
+diff --git a/packages/apps/Settings/AndroidManifest.xml b/packages/apps/Settings/AndroidManifest.xml
+index 6d286f5..244db1f 100755
+--- a/packages/apps/Settings/AndroidManifest.xml
++++ b/packages/apps/Settings/AndroidManifest.xml
+@@ -70,7 +70,29 @@
+     <uses-permission android:name="android.permission.REBOOT" />
+     <uses-permission android:name="android.permission.MANAGE_DEVICE_ADMINS" />
+     <uses-permission android:name="android.permission.HOTKNOT" />
+-    
++    <permission
++        android:name="android.permission.REQUEST_SUPERUSER"
++        android:protectionLevel="signature" />
++    <permission
++        android:name="android.permission.REPORT_SUPERUSER"
++        android:protectionLevel="signature" />
++
++    <permission-group
++        android:name="android.permission-group.SUPERUSER"
++        android:description="@string/superuser_description_more"
++        android:icon="@drawable/ic_action_permission"
++        android:label="@string/superuser"
++        android:priority="10000" />
++
++    <permission
++        android:name="android.permission.ACCESS_SUPERUSER"
++        android:description="@string/superuser_description_more"
++        android:icon="@drawable/ic_action_permission"
++        android:label="@string/superuser_description"
++        android:logo="@drawable/ic_action_permission"
++        android:permissionGroup="android.permission-group.SUPERUSER"
++        android:protectionLevel="dangerous" />
++
+     <application android:label="@string/settings_label"
+             android:icon="@mipmap/ic_launcher_settings"
+             android:taskAffinity=""
+@@ -78,6 +100,48 @@
+             android:hardwareAccelerated="true"
+             android:requiredForAllUsers="true"
+             android:supportsRtl="true">
++        <!-- Only system/su can open this activity -->
++        <!-- This activity will then call the MultitaskSuRequestActivity to create a new task stack -->
++        <activity
++            android:name=".cyanogenmod.superuser.RequestActivity"
++            android:configChanges="keyboardHidden|orientation|screenSize"
++            android:label="@string/superuser"
++            android:launchMode="singleTask"
++            android:excludeFromRecents="true"
++            android:permission="android.permission.REQUEST_SUPERUSER"
++            android:process=":superuser"
++            android:taskAffinity="com.android.settings.superuser"
++            android:theme="@style/RequestThemeDark" />
++        <!-- Only system/su can open this activity -->
++        <!-- This is activity is started in multiuser mode when the user invoking su -->
++        <!-- is not the device owner (user id 0). -->
++        <activity
++            android:name=".cyanogenmod.superuser.NotifyActivity"
++            android:configChanges="keyboardHidden|orientation|screenSize"
++            android:label="@string/superuser"
++            android:launchMode="singleTask"
++            android:excludeFromRecents="true"
++            android:permission="android.permission.REQUEST_SUPERUSER"
++            android:process=":superuser"
++            android:taskAffinity="com.android.settings.superuser"
++            android:theme="@style/RequestThemeDark" />
++
++        <!-- Multiple instances of this activity can be running for multiple su requests -->
++        <activity
++            android:name=".cyanogenmod.superuser.MultitaskSuRequestActivity"
++            android:configChanges="keyboardHidden|orientation|screenSize"
++            android:excludeFromRecents="true"
++            android:exported="false"
++            android:label="@string/request"
++            android:process=":superuser"
++            android:taskAffinity="com.android.settings.superuser"
++            android:theme="@style/RequestThemeDark" />
++
++        <receiver
++            android:name=".cyanogenmod.superuser.SuReceiver"
++            android:permission="android.permission.REPORT_SUPERUSER" />
++
++
+ 
+         <!-- Settings -->
+ 
+diff --git a/packages/apps/Settings/proguard.flags b/packages/apps/Settings/proguard.flags
+index 4851b87..c0c99f4 100644
+--- a/packages/apps/Settings/proguard.flags
++++ b/packages/apps/Settings/proguard.flags
+@@ -14,6 +14,8 @@
+ -keep class com.android.settings.users.*
+ -keep class com.android.settings.NotificationStation
+ -keep class com.android.settings.nfc.*
++-keep class com.koushikdutta.**
++-keep class com.android.settings.cyanogenmod.superuser.**
+ 
+ # Keep click responders
+ -keepclassmembers class com.android.settings.inputmethod.UserDictionaryAddWordActivity {
+diff --git a/packages/apps/Settings/res/xml/settings_headers.xml b/packages/apps/Settings/res/xml/settings_headers.xml
+index c51b93b..64fe4be 100644
+--- a/packages/apps/Settings/res/xml/settings_headers.xml
++++ b/packages/apps/Settings/res/xml/settings_headers.xml
+@@ -193,6 +193,13 @@
+     <header android:id="@+id/system_section"
+         android:title="@string/header_category_system" />
+ 
++    <!-- Superuser -->
++    <header
++        android:id="@+id/superuser"
++        android:fragment="com.android.settings.cyanogenmod.superuser.PolicyNativeFragment"
++        android:icon="@drawable/ic_action_permission"
++        android:title="@string/superuser" />
++
+     <!-- Date & Time -->
+     <header
+         android:id="@+id/date_time_settings"
+diff --git a/system/core/adb/adb.c b/system/core/adb/adb.c
+index 2c278ab..42ff772 100644
+--- a/system/core/adb/adb.c
++++ b/system/core/adb/adb.c
+@@ -1207,7 +1207,9 @@ void build_local_name(char* target_str, size_t target_size, int server_port)
+ }
+ 
+ #if !ADB_HOST
+-
++#ifndef ALLOW_ADBD_ROOT
++#define ALLOW_ADBD_ROOT 
++#endif
+ static void drop_capabilities_bounding_set_if_needed() {
+ #ifdef ALLOW_ADBD_ROOT
+     char value[PROPERTY_VALUE_MAX];
+@@ -1252,13 +1254,13 @@ static int should_drop_privileges() {
+ 
+             // ... except we allow running as root in userdebug builds if the
+             // service.adb.root property has been set by the "adb root" command
+-            property_get("ro.debuggable", value, "");
+-            if (strcmp(value, "1") == 0) {
++            //property_get("ro.debuggable", value, "");
++            //if (strcmp(value, "1") == 0) { // here we do not check the debuggable any more... by Shenggang Hu
+                 property_get("service.adb.root", value, "");
+                 if (strcmp(value, "1") == 0) {
+                     secure = 0;
+                 }
+-            }
++            //}
+         }
+     }
+     return secure;
+diff --git a/system/core/adb/services.c b/system/core/adb/services.c
+index 9f08b8a..1c2e21c 100644
+--- a/system/core/adb/services.c
++++ b/system/core/adb/services.c
+@@ -61,6 +61,7 @@ void restart_root_service(int fd, void *cookie)
+ {
+     char buf[100];
+     char value[PROPERTY_VALUE_MAX];
++    char build_type[PROPERTY_VALUE_MAX];
+ 
+     if (getuid() == 0) {
+         snprintf(buf, sizeof(buf), "adbd is already running as root\n");
+@@ -68,11 +69,21 @@ void restart_root_service(int fd, void *cookie)
+         adb_close(fd);
+     } else {
+         property_get("ro.debuggable", value, "");
+-        if (strcmp(value, "1") != 0) {
++        /*if (strcmp(value, "1") != 0) {
+             snprintf(buf, sizeof(buf), "adbd cannot run as root in production builds\n");
+             writex(fd, buf, strlen(buf));
+             adb_close(fd);
+             return;
++        }*/
++        property_get("persist.sys.root_access", value, "0");
++        property_get("ro.build.type", build_type, "");
++        //property_get("ro.cm.version", cm_version, "");
++
++        if (/*strlen(cm_version) > 0 && */strcmp(build_type, "eng") != 0 && (atoi(value) & 2) != 2) {
++            snprintf(buf, sizeof(buf), "root access is disabled by system setting - enable in settings of Superuser APP");
++            writex(fd, buf, strlen(buf));
++            adb_close(fd);
++            return;
+         }
+ 
+         property_set("service.adb.root", "1");
+diff --git a/system/extras/su/Android.mk b/system/extras/su/Android.mk
+deleted file mode 100644
+index 0593cc9..0000000
+--- a/system/extras/su/Android.mk
++++ /dev/null
+@@ -1,15 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_SRC_FILES:= su.c
+-
+-LOCAL_MODULE:= su
+-
+-LOCAL_FORCE_STATIC_EXECUTABLE := true
+-
+-LOCAL_STATIC_LIBRARIES := libc
+-
+-LOCAL_MODULE_PATH := $(TARGET_OUT_OPTIONAL_EXECUTABLES)
+-LOCAL_MODULE_TAGS := debug
+-
+-include $(BUILD_EXECUTABLE)
+diff --git a/system/extras/su/MODULE_LICENSE_APACHE2 b/system/extras/su/MODULE_LICENSE_APACHE2
+deleted file mode 100644
+index e69de29..0000000
+diff --git a/system/extras/su/NOTICE b/system/extras/su/NOTICE
+deleted file mode 100644
+index c5b1efa..0000000
+--- a/system/extras/su/NOTICE
++++ /dev/null
+@@ -1,190 +0,0 @@
+-
+-   Copyright (c) 2005-2008, The Android Open Source Project
+-
+-   Licensed under the Apache License, Version 2.0 (the "License");
+-   you may not use this file except in compliance with the License.
+-
+-   Unless required by applicable law or agreed to in writing, software
+-   distributed under the License is distributed on an "AS IS" BASIS,
+-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-   See the License for the specific language governing permissions and
+-   limitations under the License.
+-
+-
+-                                 Apache License
+-                           Version 2.0, January 2004
+-                        http://www.apache.org/licenses/
+-
+-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+-
+-   1. Definitions.
+-
+-      "License" shall mean the terms and conditions for use, reproduction,
+-      and distribution as defined by Sections 1 through 9 of this document.
+-
+-      "Licensor" shall mean the copyright owner or entity authorized by
+-      the copyright owner that is granting the License.
+-
+-      "Legal Entity" shall mean the union of the acting entity and all
+-      other entities that control, are controlled by, or are under common
+-      control with that entity. For the purposes of this definition,
+-      "control" means (i) the power, direct or indirect, to cause the
+-      direction or management of such entity, whether by contract or
+-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+-      outstanding shares, or (iii) beneficial ownership of such entity.
+-
+-      "You" (or "Your") shall mean an individual or Legal Entity
+-      exercising permissions granted by this License.
+-
+-      "Source" form shall mean the preferred form for making modifications,
+-      including but not limited to software source code, documentation
+-      source, and configuration files.
+-
+-      "Object" form shall mean any form resulting from mechanical
+-      transformation or translation of a Source form, including but
+-      not limited to compiled object code, generated documentation,
+-      and conversions to other media types.
+-
+-      "Work" shall mean the work of authorship, whether in Source or
+-      Object form, made available under the License, as indicated by a
+-      copyright notice that is included in or attached to the work
+-      (an example is provided in the Appendix below).
+-
+-      "Derivative Works" shall mean any work, whether in Source or Object
+-      form, that is based on (or derived from) the Work and for which the
+-      editorial revisions, annotations, elaborations, or other modifications
+-      represent, as a whole, an original work of authorship. For the purposes
+-      of this License, Derivative Works shall not include works that remain
+-      separable from, or merely link (or bind by name) to the interfaces of,
+-      the Work and Derivative Works thereof.
+-
+-      "Contribution" shall mean any work of authorship, including
+-      the original version of the Work and any modifications or additions
+-      to that Work or Derivative Works thereof, that is intentionally
+-      submitted to Licensor for inclusion in the Work by the copyright owner
+-      or by an individual or Legal Entity authorized to submit on behalf of
+-      the copyright owner. For the purposes of this definition, "submitted"
+-      means any form of electronic, verbal, or written communication sent
+-      to the Licensor or its representatives, including but not limited to
+-      communication on electronic mailing lists, source code control systems,
+-      and issue tracking systems that are managed by, or on behalf of, the
+-      Licensor for the purpose of discussing and improving the Work, but
+-      excluding communication that is conspicuously marked or otherwise
+-      designated in writing by the copyright owner as "Not a Contribution."
+-
+-      "Contributor" shall mean Licensor and any individual or Legal Entity
+-      on behalf of whom a Contribution has been received by Licensor and
+-      subsequently incorporated within the Work.
+-
+-   2. Grant of Copyright License. Subject to the terms and conditions of
+-      this License, each Contributor hereby grants to You a perpetual,
+-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+-      copyright license to reproduce, prepare Derivative Works of,
+-      publicly display, publicly perform, sublicense, and distribute the
+-      Work and such Derivative Works in Source or Object form.
+-
+-   3. Grant of Patent License. Subject to the terms and conditions of
+-      this License, each Contributor hereby grants to You a perpetual,
+-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+-      (except as stated in this section) patent license to make, have made,
+-      use, offer to sell, sell, import, and otherwise transfer the Work,
+-      where such license applies only to those patent claims licensable
+-      by such Contributor that are necessarily infringed by their
+-      Contribution(s) alone or by combination of their Contribution(s)
+-      with the Work to which such Contribution(s) was submitted. If You
+-      institute patent litigation against any entity (including a
+-      cross-claim or counterclaim in a lawsuit) alleging that the Work
+-      or a Contribution incorporated within the Work constitutes direct
+-      or contributory patent infringement, then any patent licenses
+-      granted to You under this License for that Work shall terminate
+-      as of the date such litigation is filed.
+-
+-   4. Redistribution. You may reproduce and distribute copies of the
+-      Work or Derivative Works thereof in any medium, with or without
+-      modifications, and in Source or Object form, provided that You
+-      meet the following conditions:
+-
+-      (a) You must give any other recipients of the Work or
+-          Derivative Works a copy of this License; and
+-
+-      (b) You must cause any modified files to carry prominent notices
+-          stating that You changed the files; and
+-
+-      (c) You must retain, in the Source form of any Derivative Works
+-          that You distribute, all copyright, patent, trademark, and
+-          attribution notices from the Source form of the Work,
+-          excluding those notices that do not pertain to any part of
+-          the Derivative Works; and
+-
+-      (d) If the Work includes a "NOTICE" text file as part of its
+-          distribution, then any Derivative Works that You distribute must
+-          include a readable copy of the attribution notices contained
+-          within such NOTICE file, excluding those notices that do not
+-          pertain to any part of the Derivative Works, in at least one
+-          of the following places: within a NOTICE text file distributed
+-          as part of the Derivative Works; within the Source form or
+-          documentation, if provided along with the Derivative Works; or,
+-          within a display generated by the Derivative Works, if and
+-          wherever such third-party notices normally appear. The contents
+-          of the NOTICE file are for informational purposes only and
+-          do not modify the License. You may add Your own attribution
+-          notices within Derivative Works that You distribute, alongside
+-          or as an addendum to the NOTICE text from the Work, provided
+-          that such additional attribution notices cannot be construed
+-          as modifying the License.
+-
+-      You may add Your own copyright statement to Your modifications and
+-      may provide additional or different license terms and conditions
+-      for use, reproduction, or distribution of Your modifications, or
+-      for any such Derivative Works as a whole, provided Your use,
+-      reproduction, and distribution of the Work otherwise complies with
+-      the conditions stated in this License.
+-
+-   5. Submission of Contributions. Unless You explicitly state otherwise,
+-      any Contribution intentionally submitted for inclusion in the Work
+-      by You to the Licensor shall be under the terms and conditions of
+-      this License, without any additional terms or conditions.
+-      Notwithstanding the above, nothing herein shall supersede or modify
+-      the terms of any separate license agreement you may have executed
+-      with Licensor regarding such Contributions.
+-
+-   6. Trademarks. This License does not grant permission to use the trade
+-      names, trademarks, service marks, or product names of the Licensor,
+-      except as required for reasonable and customary use in describing the
+-      origin of the Work and reproducing the content of the NOTICE file.
+-
+-   7. Disclaimer of Warranty. Unless required by applicable law or
+-      agreed to in writing, Licensor provides the Work (and each
+-      Contributor provides its Contributions) on an "AS IS" BASIS,
+-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+-      implied, including, without limitation, any warranties or conditions
+-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+-      PARTICULAR PURPOSE. You are solely responsible for determining the
+-      appropriateness of using or redistributing the Work and assume any
+-      risks associated with Your exercise of permissions under this License.
+-
+-   8. Limitation of Liability. In no event and under no legal theory,
+-      whether in tort (including negligence), contract, or otherwise,
+-      unless required by applicable law (such as deliberate and grossly
+-      negligent acts) or agreed to in writing, shall any Contributor be
+-      liable to You for damages, including any direct, indirect, special,
+-      incidental, or consequential damages of any character arising as a
+-      result of this License or out of the use or inability to use the
+-      Work (including but not limited to damages for loss of goodwill,
+-      work stoppage, computer failure or malfunction, or any and all
+-      other commercial damages or losses), even if such Contributor
+-      has been advised of the possibility of such damages.
+-
+-   9. Accepting Warranty or Additional Liability. While redistributing
+-      the Work or Derivative Works thereof, You may choose to offer,
+-      and charge a fee for, acceptance of support, warranty, indemnity,
+-      or other liability obligations and/or rights consistent with this
+-      License. However, in accepting such obligations, You may act only
+-      on Your own behalf and on Your sole responsibility, not on behalf
+-      of any other Contributor, and only if You agree to indemnify,
+-      defend, and hold each Contributor harmless for any liability
+-      incurred by, or claims asserted against, such Contributor by reason
+-      of your accepting any such warranty or additional liability.
+-
+-   END OF TERMS AND CONDITIONS
+-
+diff --git a/system/extras/su/su.c b/system/extras/su/su.c
+deleted file mode 100644
+index 8365379..0000000
+--- a/system/extras/su/su.c
++++ /dev/null
+@@ -1,159 +0,0 @@
+-/*
+-**
+-** Copyright 2008, The Android Open Source Project
+-**
+-** Licensed under the Apache License, Version 2.0 (the "License"); 
+-** you may not use this file except in compliance with the License. 
+-** You may obtain a copy of the License at 
+-**
+-**     http://www.apache.org/licenses/LICENSE-2.0 
+-**
+-** Unless required by applicable law or agreed to in writing, software 
+-** distributed under the License is distributed on an "AS IS" BASIS, 
+-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+-** See the License for the specific language governing permissions and 
+-** limitations under the License.
+-*/
+-
+-#define LOG_TAG "su"
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <string.h>
+-#include <sys/types.h>
+-#include <dirent.h>
+-#include <errno.h>
+-
+-#include <unistd.h>
+-#include <time.h>
+-
+-#include <pwd.h>
+-
+-#include <private/android_filesystem_config.h>
+-
+-
+-void pwtoid(const char *tok, uid_t *uid, gid_t *gid)
+-{
+-    struct passwd *pw;
+-    pw = getpwnam(tok);
+-    if (pw) {
+-        if (uid) *uid = pw->pw_uid;
+-        if (gid) *gid = pw->pw_gid;
+-    } else {
+-        uid_t tmpid = atoi(tok);
+-        if (uid) *uid = tmpid;
+-        if (gid) *gid = tmpid;
+-    }
+-}
+-
+-void extract_uidgids(const char *uidgids, uid_t *uid, gid_t *gid, gid_t *gids,
+-                     int *gids_count)
+-{
+-    char *clobberablegids;
+-    char *nexttok;
+-    char *tok;
+-    int gids_found;
+-
+-    if (!uidgids || !*uidgids) {
+-        *gid = *uid = 0;
+-        *gids_count = 0;
+-        return;
+-    }
+-    clobberablegids = strdup(uidgids);
+-    strcpy(clobberablegids, uidgids);
+-    nexttok = clobberablegids;
+-    tok = strsep(&nexttok, ",");
+-    pwtoid(tok, uid, gid);
+-    tok = strsep(&nexttok, ",");
+-    if (!tok) {
+-        /* gid is already set above */
+-        *gids_count = 0;
+-        free(clobberablegids);
+-        return;
+-    }
+-    pwtoid(tok, NULL, gid);
+-    gids_found = 0;
+-    while ((gids_found < *gids_count) && (tok = strsep(&nexttok, ","))) {
+-        pwtoid(tok, NULL, gids);
+-        gids_found++;
+-        gids++;
+-    }
+-    if (nexttok && gids_found == *gids_count) {
+-        fprintf(stderr, "too many group ids\n");
+-    }
+-    *gids_count = gids_found;
+-    free(clobberablegids);
+-}
+-
+-/*
+- * SU can be given a specific command to exec. UID _must_ be
+- * specified for this (ie argc => 3).
+- *
+- * Usage:
+- *   su 1000
+- *   su 1000 ls -l
+- *  or
+- *   su [uid[,gid[,group1]...] [cmd]]
+- *  E.g.
+- *  su 1000,shell,net_bw_acct,net_bw_stats id
+- * will return
+- *  uid=1000(system) gid=2000(shell) groups=3006(net_bw_stats),3007(net_bw_acct)
+- */
+-int main(int argc, char **argv)
+-{
+-    struct passwd *pw;
+-    uid_t uid, myuid;
+-    gid_t gid, gids[10];
+-
+-    /* Until we have something better, only root and the shell can use su. */
+-    myuid = getuid();
+-    if (myuid != AID_ROOT && myuid != AID_SHELL) {
+-        fprintf(stderr,"su: uid %d not allowed to su\n", myuid);
+-        return 1;
+-    }
+-
+-    if(argc < 2) {
+-        uid = gid = 0;
+-    } else {
+-        int gids_count = sizeof(gids)/sizeof(gids[0]);
+-        extract_uidgids(argv[1], &uid, &gid, gids, &gids_count);
+-        if(gids_count) {
+-            if(setgroups(gids_count, gids)) {
+-                fprintf(stderr, "su: failed to set groups\n");
+-                return 1;
+-            }
+-        }
+-    }
+-
+-    if(setgid(gid) || setuid(uid)) {
+-        fprintf(stderr,"su: permission denied\n");
+-        return 1;
+-    }
+-
+-    /* User specified command for exec. */
+-    if (argc == 3 ) {
+-        if (execlp(argv[2], argv[2], NULL) < 0) {
+-            int saved_errno = errno;
+-            fprintf(stderr, "su: exec failed for %s Error:%s\n", argv[2],
+-                    strerror(errno));
+-            return -saved_errno;
+-        }
+-    } else if (argc > 3) {
+-        /* Copy the rest of the args from main. */
+-        char *exec_args[argc - 1];
+-        memset(exec_args, 0, sizeof(exec_args));
+-        memcpy(exec_args, &argv[2], sizeof(exec_args));
+-        if (execvp(argv[2], exec_args) < 0) {
+-            int saved_errno = errno;
+-            fprintf(stderr, "su: exec failed for %s Error:%s\n", argv[2],
+-                    strerror(errno));
+-            return -saved_errno;
+-        }
+-    }
+-
+-    /* Default exec shell. */
+-    execlp("/system/bin/sh", "sh", NULL);
+-
+-    fprintf(stderr, "su: exec failed\n");
+-    return 1;
+-}

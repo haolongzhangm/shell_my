@@ -1,0 +1,97 @@
+diff --git a/mediatek/kernel/drivers/wdk/wd_common_drv.c b/mediatek/kernel/drivers/wdk/wd_common_drv.c
+index ef93159..253cdd8 100755
+--- a/mediatek/kernel/drivers/wdk/wd_common_drv.c
++++ b/mediatek/kernel/drivers/wdk/wd_common_drv.c
+@@ -384,16 +384,16 @@ static int kwdt_thread(void *arg)
+ 		
+ 		msleep((g_kinterval) * 1000);
+ 
+-		#ifdef CONFIG_MTK_AEE_POWERKEY_HANG_DETECT
+-		if( (cpu==0)&&(wk_tsk[cpu]->pid == current->pid))//only effect at cpu0
+-		{
+-			if(aee_kernel_wdt_kick_api(g_kinterval)==WDT_PWK_HANG_FORCE_HWT)
+-			{
+-				printk_sched("power key trigger HWT\n");
+-				cpus_kick_bit=0xFFFF; //Try to force to HWT
+-			}
+-		}
+-		#endif
++//		#ifdef CONFIG_MTK_AEE_POWERKEY_HANG_DETECT
++//		if( (cpu==0)&&(wk_tsk[cpu]->pid == current->pid))//only effect at cpu0
++//		{
++//			if(aee_kernel_wdt_kick_api(g_kinterval)==WDT_PWK_HANG_FORCE_HWT)
++//			{
++//				printk_sched("power key trigger HWT\n");
++//				cpus_kick_bit=0xFFFF; //Try to force to HWT
++//			}
++//		}
++//		#endif
+ 	}
+ 	printk("[WDK] WDT kicker thread stop, cpu:%d, pid:%d\n", cpu, current->pid);
+ 	return 0;
+diff --git a/mediatek/platform/mt6595/kernel/core/mt_cpufreq.c b/mediatek/platform/mt6595/kernel/core/mt_cpufreq.c
+index 1d9c5d3..d3638d6 100755
+--- a/mediatek/platform/mt6595/kernel/core/mt_cpufreq.c
++++ b/mediatek/platform/mt6595/kernel/core/mt_cpufreq.c
+@@ -110,20 +110,20 @@ extern void hp_limited_cpu_num(int num); // TODO: ask Marc to provide the head f
+ #define DVFS_BIG_F4 (1144000) /* KHz */
+ #define DVFS_BIG_F5 (1001000) /* KHz */
+ #define DVFS_BIG_F6 (806000)  /* KHz */
+-#define DVFS_BIG_F7 (403000)  /* KHz */
++#define DVFS_BIG_F7 (806000)  /* KHz */
+ 
+ #if defined(SLT_VMAX)
+-#define DVFS_BIG_V0 (1150)    /* mV */
++#define DVFS_BIG_V0 (1300)    /* mV */
+ #else
+-#define DVFS_BIG_V0 (1100)    /* mV */
++#define DVFS_BIG_V0 (1250)    /* mV */
+ #endif
+-#define DVFS_BIG_V1 (1079)    /* mV */
+-#define DVFS_BIG_V2 (1050)    /* mV */
+-#define DVFS_BIG_V3 (1032)    /* mV */
+-#define DVFS_BIG_V4 (1000)    /* mV */
+-#define DVFS_BIG_V5 (963)     /* mV */
+-#define DVFS_BIG_V6 (914)     /* mV */
+-#define DVFS_BIG_V7 (814)     /* mV */
++#define DVFS_BIG_V1 (1229)    /* mV */
++#define DVFS_BIG_V2 (1200)    /* mV */
++#define DVFS_BIG_V3 (1182)    /* mV */
++#define DVFS_BIG_V4 (1150)    /* mV */
++#define DVFS_BIG_V5 (1113)     /* mV */
++#define DVFS_BIG_V6 (1064)     /* mV */
++#define DVFS_BIG_V7 (1064)     /* mV */
+ 
+ #define DVFS_LITTLE_F0 (1690000) /* KHz */
+ #define DVFS_LITTLE_F1 (1495000) /* KHz */
+@@ -132,20 +132,20 @@ extern void hp_limited_cpu_num(int num); // TODO: ask Marc to provide the head f
+ #define DVFS_LITTLE_F4 (1144000) /* KHz */
+ #define DVFS_LITTLE_F5 (1001000) /* KHz */
+ #define DVFS_LITTLE_F6 (806000)  /* KHz */
+-#define DVFS_LITTLE_F7 (403000)  /* KHz */
++#define DVFS_LITTLE_F7 (806000)  /* KHz */
+ 
+ #if defined(SLT_VMAX)
+-#define DVFS_LITTLE_V0 (1150)    /* mV */
++#define DVFS_LITTLE_V0 (1300)    /* mV */
+ #else
+-#define DVFS_LITTLE_V0 (1125)    /* mV */
++#define DVFS_LITTLE_V0 (1275)    /* mV */
+ #endif
+-#define DVFS_LITTLE_V1 (1079)    /* mV */
+-#define DVFS_LITTLE_V2 (1050)    /* mV */
+-#define DVFS_LITTLE_V3 (1023)    /* mV */
+-#define DVFS_LITTLE_V4 (1000)    /* mV */
+-#define DVFS_LITTLE_V5 (963)     /* mV */
+-#define DVFS_LITTLE_V6 (914)     /* mV */
+-#define DVFS_LITTLE_V7 (814)     /* mV */
++#define DVFS_LITTLE_V1 (1229)    /* mV */
++#define DVFS_LITTLE_V2 (1200)    /* mV */
++#define DVFS_LITTLE_V3 (1173)    /* mV */
++#define DVFS_LITTLE_V4 (1150)    /* mV */
++#define DVFS_LITTLE_V5 (1113)     /* mV */
++#define DVFS_LITTLE_V6 (1064)     /* mV */
++#define DVFS_LITTLE_V7 (1064)     /* mV */
+ 
+ #define PWR_THRO_MODE_LBAT_1365MHZ	BIT(0)
+ #define PWR_THRO_MODE_BAT_OC_806MHZ	BIT(1)

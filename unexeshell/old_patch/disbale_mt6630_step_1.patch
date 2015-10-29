@@ -1,0 +1,130 @@
+diff --git a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_mrgrx.c b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_mrgrx.c
+index b91a925..7c615ac 100644
+--- a/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_mrgrx.c
++++ b/kernel/sound/soc/mediatek/mt_soc_audio_v1/mt_soc_pcm_mrgrx.c
+@@ -118,7 +118,7 @@ static int Audio_Wcn_Cmb_Set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_
+ {
+     mAudio_Wcn_Cmb = ucontrol->value.integer.value[0];
+     printk("%s mAudio_Wcn_Cmb = 0x%x \n", __func__, mAudio_Wcn_Cmb);
+-    mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X)mAudio_Wcn_Cmb);
++    //mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X)mAudio_Wcn_Cmb);
+     return 0;
+ }
+ 
+@@ -261,7 +261,7 @@ static int mtk_pcm_mrgrx_prepare(struct snd_pcm_substream *substream)
+ 
+     if (mPrepareDone == false)
+     {
+-        mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X)CMB_STUB_AIF_3);
++        //mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X)CMB_STUB_AIF_3);
+ 
+         // interconnection setting
+         SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I15, Soc_Aud_InterConnectionOutput_O13);
+diff --git a/mediatek/config/ckt95_lw_kk/ProjectConfig.mk b/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
+index c2bbbd3..afa09c4 100755
+--- a/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
++++ b/mediatek/config/ckt95_lw_kk/ProjectConfig.mk
+@@ -1331,7 +1331,7 @@ MTK_WIRELESS_CHARGER_SUPPORT=no
+ MTK_WLANBT_SINGLEANT=no
+ 
+ # Define the wlan chip type
+-MTK_WLAN_CHIP=MT6630
++#MTK_WLAN_CHIP=MT6630
+ MTK_WMA_PLAYBACK_SUPPORT=no
+ 
+ # This feature option is used for displaying wml web page or not. If MTK_WML_SUPPORT=true, browse can display simple wml web page normally. This feature option only is used for cmcc streaming test.
+diff --git a/mediatek/config/common/ProjectConfig.mk b/mediatek/config/common/ProjectConfig.mk
+index 5356984..dc82c70 100755
+--- a/mediatek/config/common/ProjectConfig.mk
++++ b/mediatek/config/common/ProjectConfig.mk
+@@ -97,7 +97,7 @@ MTK_NAND_PAGE_SIZE=2K
+ MTK_NAND_UBIFS_SUPPORT = no
+ MTK_EMMC_SUPPORT=yes
+ MTK_EMMC_DISCARD = no
+-MTK_WLAN_CHIP=MT6620
++#MTK_WLAN_CHIP=MT6620
+ MTK_GPS_CHIP=MTK_GPS_MT6620
+ MTK_CHIP_VER=S01
+ MTK_FM_CHIP=MT6620_FM
+diff --git a/mediatek/config/mt6595/ProjectConfig.mk b/mediatek/config/mt6595/ProjectConfig.mk
+index d570f52..f5d150a 100755
+--- a/mediatek/config/mt6595/ProjectConfig.mk
++++ b/mediatek/config/mt6595/ProjectConfig.mk
+@@ -56,7 +56,7 @@ MTK_COMBO_CORE_DUMP_SUPPORT=no
+ MTK_COMBO_QUICK_SLEEP_SUPPORT=no
+ 
+ 
+-MTK_WLAN_CHIP=MT6630
++#MTK_WLAN_CHIP=MT6630
+ 
+ #
+ # MTK Chip
+diff --git a/mediatek/kernel/drivers/Makefile b/mediatek/kernel/drivers/Makefile
+index 09b61e8..9c99674 100644
+--- a/mediatek/kernel/drivers/Makefile
++++ b/mediatek/kernel/drivers/Makefile
+@@ -79,64 +79,6 @@ obj-$(CONFIG_MTK_IN_HOUSE_TEE_SUPPORT)  +=  trustzone/
+ obj-y   +=  wmt_ccci/
+ 
+ 
+-ifneq ($(CONFIG_MTK_COMBO),)
+-	subdir-ccflags-y += -D MTK_WCN_WMT_STP_EXP_SYMBOL_ABSTRACT
+-	subdir-ccflags-y += -D MTK_WCN_REMOVE_KERNEL_MODULE
+-
+-	ifeq ($(MTK_LTE_SUPPORT),yes)
+-	subdir-ccflags-y += -DWMT_IDC_SUPPORT=1
+-	else
+-	subdir-ccflags-y += -DWMT_IDC_SUPPORT=0
+-	endif
+-
+-	BUILD_COMBO := no
+-	BUILD_SOC := no
+-
+-	ifneq ($(filter MT6620E3,$(MTK_COMBO_CHIP)),)
+-		BUILD_COMBO := yes
+-	endif
+-
+-	ifneq ($(filter MT6628,$(MTK_COMBO_CHIP)),)
+-		BUILD_COMBO := yes
+-	endif
+-
+-	ifneq ($(filter MT6630,$(MTK_COMBO_CHIP)),)
+-		BUILD_COMBO := yes
+-	endif
+-
+-	ifeq ($(BUILD_COMBO), yes)
+-		obj-y   +=  combo/
+-		subdir-ccflags-y += -D MTK_WCN_COMBO_CHIP_SUPPORT
+-	endif
+-
+-	ifneq ($(filter CONSYS_6572,$(MTK_COMBO_CHIP)),)
+-		BUILD_SOC := yes
+-	endif
+-
+-	ifneq ($(filter CONSYS_6582,$(MTK_COMBO_CHIP)),)
+-		BUILD_SOC := yes
+-	endif
+-
+-	ifneq ($(filter CONSYS_6592,$(MTK_COMBO_CHIP)),)
+-		BUILD_SOC := yes
+-	endif
+-
+-	ifneq ($(filter CONSYS_6571,$(MTK_COMBO_CHIP)),)
+-		BUILD_SOC := yes
+-	endif
+-
+-	ifneq ($(filter CONSYS_8127,$(MTK_COMBO_CHIP)),)
+-		BUILD_SOC := yes
+-	endif
+-
+-	ifeq ($(BUILD_SOC), yes)
+-		obj-y   +=  conn_soc/
+-	endif
+-
+-	obj-y   +=  common_detect/
+-
+-endif
+-
+ obj-y += conn_md/
+ 
+ #ifeq ($(MTK_NFC_SUPPORT),yes)

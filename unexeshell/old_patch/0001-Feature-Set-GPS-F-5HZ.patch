@@ -1,0 +1,77 @@
+From 8c231ddf447a93d7045a8976ed6c85a147d239ae Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Tue, 13 Jan 2015 09:43:11 +0800
+Subject: [PATCH 1/2] [Feature] Set GPS F=5HZ
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+    [id]:77598
+
+    [TYPE]
+       FEATURE
+    [Products]
+       hicam_baseline
+    [Requirement]
+       N/A
+    [Solution Description]
+       N/A
+    [Other info]
+ 要提交的变更：
+	修改:         mediatek/config/mt6595/init.rc
+	修改:         mediatek/external/mnl/mnl_aosp/mnld/src/mnld.c
+
+Change-Id: I313b66b3f270af7240a90983d827fbd6d3665ab5
+---
+ mediatek/config/mt6595/init.rc                 | 8 ++++----
+ mediatek/external/mnl/mnl_aosp/mnld/src/mnld.c | 4 +++-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/mediatek/config/mt6595/init.rc b/mediatek/config/mt6595/init.rc
+index accf551..95a73f2 100755
+--- a/mediatek/config/mt6595/init.rc
++++ b/mediatek/config/mt6595/init.rc
+@@ -1678,10 +1678,10 @@ service agpsd /system/bin/mtk_agpsd
+     group gps ccci inet sdcard_r sdcard_rw misc
+ 
+ service mnld /system/xbin/mnld
+-    class main
+-    user gps
+-    group nvram gps inet misc sdcard_rw sdcard_r media_rw
+-    socket mnld stream 660 gps system
++	class main
++	user root
++	group nvram gps inet misc sdcard_rw sdcard_r media_rw
++	socket mnld stream 660 gps system
+ 
+ service ipod /system/bin/ipod
+     user root
+diff --git a/mediatek/external/mnl/mnl_aosp/mnld/src/mnld.c b/mediatek/external/mnl/mnl_aosp/mnld/src/mnld.c
+index ca1a07f..a0b8dfc 100644
+--- a/mediatek/external/mnl/mnl_aosp/mnld/src/mnld.c
++++ b/mediatek/external/mnl/mnl_aosp/mnld/src/mnld.c
+@@ -1641,10 +1641,12 @@ linux_gps_init (void)
+ 	if(g_is_1Hz)
+ 	{
+ 		init_cfg.fix_interval = 1000;               // 1Hz update rate
++		MND_MSG("#####into 1HZ mode ...\n");
+ 	}
+ 	else 
+ 	{
+ 		init_cfg.fix_interval = 200;               // 5Hz update rate
++		MND_MSG("#####into 5HZ mode ...\n");
+ 	}
+ 
+ 
+@@ -2062,7 +2064,7 @@ static int launch_daemon_thread(void)
+ 
+     MND_MSG("chip_id is %s\n", chip_id);
+ 
+-    g_is_1Hz = 1;
++    g_is_1Hz = 0;
+ 
+     /* adjust priority when 5 Hz Mode */        
+     policy = sched_getscheduler(0);
+-- 
+1.9.1
+

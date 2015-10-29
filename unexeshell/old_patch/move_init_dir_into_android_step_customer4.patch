@@ -1,0 +1,74 @@
+diff --git a/goldsand/packages/apps/HiCam/src/com/hicam/gallery/filemanager/ImageCacheService.java b/goldsand/packages/apps/HiCam/src/com/hicam/gallery/filemanager/ImageCacheService.java
+index 801fdf3..472620e 100755
+--- a/goldsand/packages/apps/HiCam/src/com/hicam/gallery/filemanager/ImageCacheService.java
++++ b/goldsand/packages/apps/HiCam/src/com/hicam/gallery/filemanager/ImageCacheService.java
+@@ -102,7 +102,7 @@ public class ImageCacheService {
+             return;
+         }
+ //        String path = cacheDir.getAbsolutePath() + "/" + DIR_NAME;
+-        String path = cacheDir.getAbsolutePath() + "/" + DIR_NAME;
++        String path = cacheDir.getAbsolutePath() + "/Android/" + DIR_NAME;
+         mImageCacheDir = path;
+         File imgCacheDir = new File(path);
+         if(imgCacheDir.exists())
+diff --git a/packages/apps/ContactsCommon/src/com/android/contacts/common/vcard/ImportVCardActivity.java b/packages/apps/ContactsCommon/src/com/android/contacts/common/vcard/ImportVCardActivity.java
+index 565117d..94ccbbe 100644
+--- a/packages/apps/ContactsCommon/src/com/android/contacts/common/vcard/ImportVCardActivity.java
++++ b/packages/apps/ContactsCommon/src/com/android/contacts/common/vcard/ImportVCardActivity.java
+@@ -115,7 +115,7 @@ public class ImportVCardActivity extends Activity {
+     /* package */ final static int VCARD_VERSION_V21 = 1;
+     /* package */ final static int VCARD_VERSION_V30 = 2;
+ 
+-    private static final String SECURE_DIRECTORY_NAME = ".android_secure";
++    private static final String SECURE_DIRECTORY_NAME = "Android/.android_secure";
+ 
+     /**
+      * Notification id used when error happened before sending an import request to VCardServer.
+diff --git a/system/core/sdcard/sdcard.c b/system/core/sdcard/sdcard.c
+index 761ae32..9f55f8f 100644
+--- a/system/core/sdcard/sdcard.c
++++ b/system/core/sdcard/sdcard.c
+@@ -571,8 +571,8 @@ static bool check_caller_access_to_name(struct fuse* fuse,
+     /* Always block security-sensitive files at root */
+     if (parent_node && parent_node->perm == PERM_ROOT) {
+         if (!strcasecmp(name, "autorun.inf")
+-                || !strcasecmp(name, ".android_secure")
+-                || !strcasecmp(name, "android_secure")) {
++                || !strcasecmp(name, "Android/.android_secure")
++                || !strcasecmp(name, "Android/android_secure")) {
+             return false;
+         }
+     }
+@@ -1576,7 +1576,7 @@ static int handle_readdir(struct fuse* fuse, struct fuse_handler* handler,
+       if (!de) {
+         return 0;
+       }
+-    }while(!strcasecmp(de->d_name, ".android_secure")|| !strcasecmp(de->d_name, "android_secure"));
++    }while(!strcasecmp(de->d_name, "Android/.android_secure")|| !strcasecmp(de->d_name, "Android/android_secure"));
+     fde->ino = FUSE_UNKNOWN_INO;
+     /* increment the offset so we can detect when rewinddir() seeks back to the beginning */
+     fde->off = req->offset + 1;
+diff --git a/system/vold/Volume.cpp b/system/vold/Volume.cpp
+index d92c0fd..dab519c 100755
+--- a/system/vold/Volume.cpp
++++ b/system/vold/Volume.cpp
+@@ -70,7 +70,7 @@ const char *Volume::SEC_STGDIR        = "/mnt/secure/staging";
+  * asec imagefiles. This path will be obscured before the mount is
+  * exposed to non priviledged users.
+  */
+-const char *Volume::SEC_STG_SECIMGDIR = "/mnt/secure/staging/.android_secure";
++const char *Volume::SEC_STG_SECIMGDIR = "/mnt/secure/staging/Android/.android_secure";
+ 
+ /*
+  * Media directory - stuff that only media_rw user can see
+@@ -902,8 +902,8 @@ int Volume::mountAsecExternal(const char *target_path) {
+     char legacy_path[PATH_MAX];
+     char secure_path[PATH_MAX];
+ 
+-    snprintf(legacy_path, PATH_MAX, "%s/android_secure", target_path);
+-    snprintf(secure_path, PATH_MAX, "%s/.android_secure", target_path);
++    snprintf(legacy_path, PATH_MAX, "%s/Android/android_secure", target_path);
++    snprintf(secure_path, PATH_MAX, "%s/Android/.android_secure", target_path);
+ 
+     // Recover legacy secure path
+     if (!access(legacy_path, R_OK | X_OK) && access(secure_path, R_OK | X_OK)) {

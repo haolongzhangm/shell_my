@@ -1,0 +1,104 @@
+diff --git a/packages/apps/Settings/src/com/android/settings/wifi/WifiEnabler.java b/packages/apps/Settings/src/com/android/settings/wifi/WifiEnabler.java
+index 138c10b..28dc04d 100644
+--- a/packages/apps/Settings/src/com/android/settings/wifi/WifiEnabler.java
++++ b/packages/apps/Settings/src/com/android/settings/wifi/WifiEnabler.java
+@@ -37,7 +37,7 @@ import com.android.settings.WirelessSettings;
+ import com.mediatek.settings.ext.IWifiExt;
+ import com.mediatek.settings.PDebug;
+ import com.mediatek.xlog.Xlog;
+-
++import android.util.Log;
+ import java.util.concurrent.atomic.AtomicBoolean;
+ 
+ public class WifiEnabler implements CompoundButton.OnCheckedChangeListener  {
+@@ -49,7 +49,8 @@ public class WifiEnabler implements CompoundButton.OnCheckedChangeListener  {
+     private final WifiManager mWifiManager;
+     private boolean mStateMachineEvent;
+     private final IntentFilter mIntentFilter;
+-
++	private static boolean CheckTheadRunning = false;
++	private static boolean WifiStatusCharged = false;
+     /// M: plug in
+     IWifiExt mExt;
+ 
+@@ -159,28 +160,58 @@ public class WifiEnabler implements CompoundButton.OnCheckedChangeListener  {
+     }
+ 
+     private void handleWifiStateChanged(int state) {
+-        switch (state) {
+-            case WifiManager.WIFI_STATE_ENABLING:
+-                mSwitch.setEnabled(false);
+-                break;
+-            case WifiManager.WIFI_STATE_ENABLED:
+-                setSwitchChecked(true);
+-                /// M: get state of switch
+-                mSwitch.setEnabled(mExt.getSwitchState());
+-                break;
+-            case WifiManager.WIFI_STATE_DISABLING:
+-                mSwitch.setEnabled(false);
+-                break;
+-            case WifiManager.WIFI_STATE_DISABLED:
+-                setSwitchChecked(false);
+-                /// M: get state of switch
+-                mSwitch.setEnabled(mExt.getSwitchState());
+-                break;
+-            default:
+-                setSwitchChecked(false);
+-                /// M: get state of switch
+-                mSwitch.setEnabled(mExt.getSwitchState());
+-                break;
++		Log.d(TAG, "################################");
++	switch (state) {
++		case WifiManager.WIFI_STATE_ENABLING:
++			mSwitch.setEnabled(false);
++			new Thread() {
++				public void run() {
++					if (CheckTheadRunning == true)
++					{
++						Log.d(TAG, "old CheckTheadRunning running, just return ");
++						return ;
++					} else {
++						WifiStatusCharged = false;
++						CheckTheadRunning = true;
++						try{
++							sleep(5000);
++						} catch (InterruptedException e) {
++							e.printStackTrace();
++						}
++						if ((WifiStatusCharged == false) && (WifiManager.WIFI_STATE_ENABLING == mWifiManager.getWifiState())){
++							Log.d(TAG, "### We find keep enabling status too long, reset it.... ");
++							mWifiManager.setWifiEnabled(false);
++							setSwitchChecked(false);
++							mSwitch.setEnabled(true);
++						} else {
++							Log.d(TAG, "#### it's ok return ");
++						}
++						CheckTheadRunning = false;
++					}
++				}
++			}.start();
++			break;
++		case WifiManager.WIFI_STATE_ENABLED:
++			WifiStatusCharged = true;
++			setSwitchChecked(true);
++			/// M: get state of switch
++			mSwitch.setEnabled(mExt.getSwitchState());
++			break;
++		case WifiManager.WIFI_STATE_DISABLING:
++			WifiStatusCharged = true;
++			mSwitch.setEnabled(false);
++			break;
++		case WifiManager.WIFI_STATE_DISABLED:
++			WifiStatusCharged = true;
++			setSwitchChecked(false);
++			/// M: get state of switch
++			mSwitch.setEnabled(mExt.getSwitchState());
++			break;
++		default:
++			setSwitchChecked(false);
++			/// M: get state of switch
++			mSwitch.setEnabled(mExt.getSwitchState());
++			break;
+         }
+     }
+ 

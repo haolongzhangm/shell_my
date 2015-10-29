@@ -1,0 +1,290 @@
+diff --git a/frameworks/base/api/current.txt b/frameworks/base/api/current.txt
+index 57db077..7fab2e2 100644
+--- a/frameworks/base/api/current.txt
++++ b/frameworks/base/api/current.txt
+@@ -26909,6 +26909,7 @@ package android.view {
+     field public static final int KEYCODE_VOLUME_DOWN = 25; // 0x19
+     field public static final int KEYCODE_VOLUME_MUTE = 164; // 0xa4
+     field public static final int KEYCODE_VOLUME_UP = 24; // 0x18
++    field public static final int KEYCODE_HOTSPOT = 231; // 0xe7
+     field public static final int KEYCODE_W = 51; // 0x33
+     field public static final int KEYCODE_WINDOW = 171; // 0xab
+     field public static final int KEYCODE_X = 52; // 0x34
+diff --git a/frameworks/base/core/java/android/view/KeyEvent.java b/frameworks/base/core/java/android/view/KeyEvent.java
+index 05beeb5..630c928 100755
+--- a/frameworks/base/core/java/android/view/KeyEvent.java
++++ b/frameworks/base/core/java/android/view/KeyEvent.java
+@@ -666,7 +666,9 @@ public class KeyEvent extends InputEvent implements Parcelable {
+     public static final int KEYCODE_GALLERY        = 228;
+     
+ 
+-    private static final int LAST_KEYCODE           = KEYCODE_GALLERY;
++	public static final int KEYCODE_HOTSPOT    = 231;
++
++    private static final int LAST_KEYCODE           = KEYCODE_HOTSPOT;
+ 
+     // NOTE: If you add a new keycode here you must also add it to:
+     //  isSystem()
+@@ -917,6 +919,7 @@ public class KeyEvent extends InputEvent implements Parcelable {
+         names.append(KEYCODE_IME_TOGGLE, "KEYCODE_IME_TOGGLE");
+         names.append(KEYCODE_MESSAGING, "KEYCODE_MESSAGING");
+         names.append(KEYCODE_GALLERY, "KEYCODE_GALLERY");
++		names.append(KEYCODE_HOTSPOT, "KEYCODE_HOTSPOT");
+     };
+ 
+     // Symbolic names of all metakeys in bit order from least significant to most significant.
+diff --git a/frameworks/base/core/res/res/values/attrs.xml b/frameworks/base/core/res/res/values/attrs.xml
+index 42e3b50..109b4ab 100755
+--- a/frameworks/base/core/res/res/values/attrs.xml
++++ b/frameworks/base/core/res/res/values/attrs.xml
+@@ -1567,6 +1567,7 @@
+         <enum name="KEYCODE_BRIGHTNESS_DOWN" value="220" />
+         <enum name="KEYCODE_BRIGHTNESS_UP" value="221" />
+         <enum name="KEYCODE_MEDIA_AUDIO_TRACK" value="222" />
++	<enum name="KEYCODE_HOTSPOT" value="231" />
+     </attr>
+ 
+     <!-- ***************************************************************** -->
+diff --git a/frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java b/frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+index f47cb8a..faeb2b8 100755
+--- a/frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
++++ b/frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+@@ -449,6 +449,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+     private boolean mSecureDismissingKeyguard;
+     /// @}
+ 
++    /**
++    *Broadcast Action:  This broadcast use to distinction switch SoftAp from key  or  from APK
++    *
++    */
++    public static final String ACTION_SWTICH_SOTFAP_FROM_KEY_OPEN =
++            "android.intent.action.SWTICH_SOTFAP_FROM_KEY_OPEN";
++    public static final String ACTION_SWTICH_SOTFAP_FROM_KEY_CLOSE=
++            "android.intent.action.SWTICH_SOTFAP_FROM_KEY_CLOSE";
++
+     boolean mShowingLockscreen;
+     boolean mShowingDream;
+     boolean mDreamingLockscreen;
+@@ -2155,6 +2164,59 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+             WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
+         };
+ 
++    public int KeySetSoftapSwith() {
++	boolean enable = true;
++	WifiManager mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
++        final ContentResolver cr = mContext.getContentResolver();
++        /**
++         * Disable Wifi if enabling tethering
++         */
++        int wifiState = mWifiManager.getWifiState();
++	int wifiApState = mWifiManager.getWifiApState();
++	if((wifiApState == WifiManager.WIFI_AP_STATE_ENABLING) ||
++		(wifiApState == WifiManager.WIFI_AP_STATE_DISABLING) ) {
++		Log.d(TAG,"Please wait : ENANLING OR DISABLING .......");
++		return -1;
++	}
++	if(wifiApState == WifiManager.WIFI_AP_STATE_ENABLED)
++		enable = !enable;
++        if (enable && ((wifiState == WifiManager.WIFI_STATE_ENABLING) ||
++                    (wifiState == WifiManager.WIFI_STATE_ENABLED))) {
++            mWifiManager.setWifiEnabled(false);
++            Settings.Global.putInt(cr, Settings.Global.WIFI_SAVED_STATE, 1);
++        }
++	if(enable){
++		Intent intent = new Intent(ACTION_SWTICH_SOTFAP_FROM_KEY_OPEN);
++		mContext.sendBroadcast(intent);
++	}else{
++		Intent intent = new Intent(ACTION_SWTICH_SOTFAP_FROM_KEY_CLOSE);
++		mContext.sendBroadcast(intent);
++	}
++        if (mWifiManager.setWifiApEnabled(null, enable)) {
++            /* Disable here, enabled on receiving success broadcast */
++        } else {
++		/* do nothing*/
++        }
++        /**
++         *  If needed, restore Wifi on tether disable
++         */
++        if (!enable) {
++            int wifiSavedState = 0;
++            try {
++                wifiSavedState = Settings.Global.getInt(cr, Settings.Global.WIFI_SAVED_STATE);
++            } catch (Settings.SettingNotFoundException e) {
++               Log.d(TAG,"SettingNotFoundException");
++            }
++            if (wifiSavedState == 1) {
++                mWifiManager.setWifiEnabled(true);
++                Settings.Global.putInt(cr, Settings.Global.WIFI_SAVED_STATE, 0);
++            }
++        }
++		return 1;
++    }
++
++
++
+     /** {@inheritDoc} */
+     @Override
+     public long interceptKeyBeforeDispatching(WindowState win, KeyEvent event, int policyFlags) {
+@@ -2179,6 +2241,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+                 return -1;
+             }
+         }
++	//// this test hotpots key 
++	if(keyCode == KeyEvent.KEYCODE_HOTSPOT)
++		KeySetSoftapSwith();
+ 
+         // If we think we might have a volume down & power key chord on the way
+         // but we're not sure, then tell the dispatcher to wait a little while and
+diff --git a/frameworks/base/services/java/com/android/server/wifi/WifiService.java b/frameworks/base/services/java/com/android/server/wifi/WifiService.java
+index e659432..521e980 100644
+--- a/frameworks/base/services/java/com/android/server/wifi/WifiService.java
++++ b/frameworks/base/services/java/com/android/server/wifi/WifiService.java
+@@ -55,6 +55,7 @@ import android.os.AsyncTask;
+ import android.provider.Settings;
+ import android.util.Log;
+ import android.util.Slog;
++import android.widget.Toast;
+ 
+ import java.io.FileNotFoundException;
+ import java.io.BufferedReader;
+@@ -162,6 +163,10 @@ public final class WifiService extends IWifiManager.Stub {
+      */
+     private AsyncChannel mWifiStateMachineChannel;
+ 
++    public static final String ACTION_SWTICH_SOTFAP_FROM_KEY_OPEN =
++            "android.intent.action.SWTICH_SOTFAP_FROM_KEY_OPEN";
++    public static final String ACTION_SWTICH_SOTFAP_FROM_KEY_CLOSE=
++            "android.intent.action.SWTICH_SOTFAP_FROM_KEY_CLOSE";
+     /**
+      * Handles client connections
+      */
+@@ -388,6 +393,27 @@ public final class WifiService extends IWifiManager.Stub {
+         // can result in race conditions when apps toggle wifi in the background
+         // without active user involvement. Always receive broadcasts.
+         registerForBroadcasts();
++	//add below for hotap switch from key
++        mContext.registerReceiver(
++                new BroadcastReceiver() {
++                    @Override
++                    public void onReceive(Context context, Intent intent) {
++                        SXlog.i(TAG, "ACTION_SWTICH_SOTFAP_FROM_KEY_OPEN  " + intent.getAction());
++			Toast.makeText(mContext, "WiFi Hot Ap Enabling.......", Toast.LENGTH_SHORT).show();
++                    }
++                },
++                new IntentFilter(ACTION_SWTICH_SOTFAP_FROM_KEY_OPEN));
++        registerForBroadcasts();
++        mContext.registerReceiver(
++                new BroadcastReceiver() {
++                    @Override
++                    public void onReceive(Context context, Intent intent) {
++                        SXlog.i(TAG, "ACTION_SWTICH_SOTFAP_FROM_KEY_CLOSE  " + intent.getAction());
++			Toast.makeText(mContext, "WiFi Hot Ap Disabling.......", Toast.LENGTH_SHORT).show();
++                    }
++                },
++                new IntentFilter(ACTION_SWTICH_SOTFAP_FROM_KEY_CLOSE));
++        registerForBroadcasts();
+ 
+         ///M:
+         initializeExtra();
+diff --git a/frameworks/native/include/android/keycodes.h b/frameworks/native/include/android/keycodes.h
+index a8701e1..e108448 100644
+--- a/frameworks/native/include/android/keycodes.h
++++ b/frameworks/native/include/android/keycodes.h
+@@ -273,6 +273,7 @@ enum {
+     AKEYCODE_IME_TOGGLE      = 226,
+     AKEYCODE_MESSAGING       = 227,
+     AKEYCODE_GALLERY         = 228,
++    AKEYCODE_HOTSPOT    = 231,
+     /// @}
+ 
+ 
+diff --git a/frameworks/native/include/input/KeycodeLabels.h b/frameworks/native/include/input/KeycodeLabels.h
+index c1a1268..3caca3b 100644
+--- a/frameworks/native/include/input/KeycodeLabels.h
++++ b/frameworks/native/include/input/KeycodeLabels.h
+@@ -254,6 +254,7 @@ static const KeycodeLabel KEYCODES[] = {
+     { "IME_TOGGLE", 226 },
+     { "MESSAGING", 227 },
+     { "GALLERY", 228 },
++	{ "HOTSPOT", 231 },
+     /// @}
+ 
+     // NOTE: If you add a new keycode here you must also add it to several other files.
+diff --git a/frameworks/native/libs/input/Input.cpp b/frameworks/native/libs/input/Input.cpp
+index 54fc762..bcddd9b 100644
+--- a/frameworks/native/libs/input/Input.cpp
++++ b/frameworks/native/libs/input/Input.cpp
+@@ -71,6 +71,7 @@ bool KeyEvent::hasDefaultAction(int32_t keyCode) {
+         case AKEYCODE_BRIGHTNESS_DOWN:
+         case AKEYCODE_BRIGHTNESS_UP:
+         case AKEYCODE_MEDIA_AUDIO_TRACK:
++	case AKEYCODE_HOTSPOT:
+             return true;
+     }
+     
+@@ -117,6 +118,7 @@ bool KeyEvent::isSystemKey(int32_t keyCode) {
+         case AKEYCODE_IME_TOGGLE:
+         case AKEYCODE_MESSAGING:
+         case AKEYCODE_GALLERY:
++	case AKEYCODE_HOTSPOT:
+         /// @}
+             return true;
+     }
+diff --git a/mediatek/config/k95v2_1/ProjectConfig.mk b/mediatek/config/k95v2_1/ProjectConfig.mk
+index e384782..29e158d 100755
+--- a/mediatek/config/k95v2_1/ProjectConfig.mk
++++ b/mediatek/config/k95v2_1/ProjectConfig.mk
+@@ -229,7 +229,7 @@ MTK_BT_40_LE_STANDALONE = no
+ MTK_BT_40_SUPPORT = yes
+ MTK_BT_BLE_MANAGER_SUPPORT = yes
+ MTK_BT_CHIP = MTK_MT6630
+-MTK_BT_FM_OVER_BT_VIA_CONTROLLER = yes
++#MTK_BT_FM_OVER_BT_VIA_CONTROLLER = yes
+ MTK_BT_POWER_EFFICIENCY_ENHANCEMENT = yes
+ MTK_BT_SUPPORT = yes
+ MTK_BUILD_VERNO = ALPS.KK1.MP11.p57
+@@ -347,16 +347,16 @@ MTK_FILEMANAGER_APP = yes
+ MTK_FIRST_MD = 1
+ MTK_FLIGHT_MODE_POWER_OFF_MD = no
+ MTK_FLV_PLAYBACK_SUPPORT = yes
+-MTK_FMRADIO_APP = yes
+-MTK_FM_50KHZ_SUPPORT = no
+-MTK_FM_CHIP = MT6630_FM
+-MTK_FM_RECORDING_SUPPORT = yes
+-MTK_FM_RX_AUDIO = FM_DIGITAL_INPUT
+-MTK_FM_RX_SUPPORT = yes
+-MTK_FM_SHORT_ANTENNA_SUPPORT = yes
+-MTK_FM_SUPPORT = yes
+-MTK_FM_TX_AUDIO = FM_DIGITAL_OUTPUT
+-MTK_FM_TX_SUPPORT = yes
++#MTK_FMRADIO_APP = yes
++#MTK_FM_50KHZ_SUPPORT = no
++#MTK_FM_CHIP = MT6630_FM
++#MTK_FM_RECORDING_SUPPORT = yes
++#MTK_FM_RX_AUDIO = FM_DIGITAL_INPUT
++#MTK_FM_RX_SUPPORT = yes
++#MTK_FM_SHORT_ANTENNA_SUPPORT = yes
++#MTK_FM_SUPPORT = yes
++#MTK_FM_TX_AUDIO = FM_DIGITAL_OUTPUT
++#MTK_FM_TX_SUPPORT = yes
+ MTK_FORCE_CLUSTER1 = yes
+ MTK_FOTA_ENTRY = no
+ MTK_FOTA_SUPPORT = no
+diff --git a/mediatek/config/k95v2_1/mtk-kpd.kl b/mediatek/config/k95v2_1/mtk-kpd.kl
+index cdfed53..42ff94c 100755
+--- a/mediatek/config/k95v2_1/mtk-kpd.kl
++++ b/mediatek/config/k95v2_1/mtk-kpd.kl
+@@ -29,11 +29,10 @@ key 103   DPAD_UP
+ key 102   HOME
+ key 105   DPAD_LEFT
+ key 106   DPAD_RIGHT
+-key 115   VOLUME_UP         WAKE_DROPPED
+-key 114   VOLUME_DOWN       WAKE_DROPPED
++key 115   CAMERA         WAKE_DROPPED
++key 114   HOTSPOT       WAKE_DROPPED
+ key 113   MUTE              WAKE_DROPPED
+ key 116   POWER             WAKE
+-key 212   CAMERA
+ key 211   FOCUS
+ 
+ key 16    Q
