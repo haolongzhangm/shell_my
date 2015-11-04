@@ -66,7 +66,7 @@ then
 
 elif [ $1 == "kernel_arm64_cscope" ]
 then
-	echo "gen cscope tags for ARCH=arm64 kernel: make cscope ARCH=arm"
+	echo "gen cscope tags for ARCH=arm64 kernel: make cscope ARCH=arm64"
 	make cscope ARCH=arm64
 	echo "done........................................."
 else 

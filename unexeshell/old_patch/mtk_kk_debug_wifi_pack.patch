@@ -1,0 +1,20 @@
+diff --git a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/nic/nic_tx.c b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/nic/nic_tx.c
+index bf52091..9759571 100644
+--- a/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/nic/nic_tx.c
++++ b/mediatek/kernel/drivers/combo/drv_wlan/mt6630/wlan/nic/nic_tx.c
+@@ -2370,6 +2370,15 @@ nicTxMsduQueue (
+             prNativePacket = prMsduInfo->prPacket;
+ 
+             ASSERT(prNativePacket);
++			{
++				struct sk_buff *skb = (struct sk_buff *)prMsduInfo->prPacket;
++				UINT_8 *ptr = skb->data;
++
++				if ((ptr[12] == 0x08) && (ptr[13] == 0x00))
++				{
++					printk(" IP ID=0x%x %x\n",	ptr[18], ptr[19]);
++				}
++			}
+             
+ #if CFG_SUPPORT_MULTITHREAD
+             nicTxCopyDesc(prAdapter, 
