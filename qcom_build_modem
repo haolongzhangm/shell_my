@@ -1,18 +1,168 @@
 #!/bin/bash
+#func usage
+function print_usage(){
+echo Usage:
+echo "$0 [build_function] [build_project]"
+echo "build_function can be:---------"
+echo "n_all : first clear old build obj and then build"
+echo "r_all : just rebuild proj"
+echo "build_project can be:---------"
+echo "mirageplus : for mirageplus"
+echo "mobeeplus : for mobeeplus_imobile"
+echo "mobeeplus_reliance : for mobeeplus_reliance"
+echo "if you want to update for this shell for more project"
+echo "you need modify : function_print_usage and function_check_parameter_number and function_check_first_parameter and function_check_and_set_proj"
+#by haolong
+echo "Nothing NONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+}
+
+#func check parameter number
+#need two paramters, check first
+function check_parameter_number(){
+if [ ! $# -eq 2 ]
+then
+	echo ">>>>>>>>>>>>>>>>>>Need two paramters<<<<<<<<<<<<<<<"
+	echo "just show usage"
+	print_usage
+	exit 0
+fi
+}
+
+#func check fisrt parameter
+#check fisrt  parameters should be n_all or r_all
+function check_first_parameter(){
+if [[ ! $1 == "n_all" && ! $1 == "r_all" ]]
+then
+echo "first parameter should be n_all or r_all"
+echo "just show Usage"
+print_usage
+exit 0
+fi
+}
+
+#func check_and_set_proj
+#check build proj :now support mirageplus mobeeplus adb mobeeplus_reliance
+#second parameter should be mirageplus mobeeplus or mobeeplus_reliance
+function check_and_set_proj()
+{
+if [[ ! $2 == "mirageplus" && ! $2 == "mobeeplus_imobile" && ! $2 == "mobeeplus_reliance" ]]
+then
+echo "second  parameter should be mirageplus mobeeplus_imobile or mobeeplus_reliance"
+echo "just show Usage"
+print_usage
+exit 0
+fi
+
+if [ $2 == "mirageplus" ]
+then 
+qcom_platform=msm8916_64
+proj_sed=mirageplus01a_msm8916_64
 proj_dir=/media/zhl/second/qcom/msm8939-la-2-1
-echo ===============================================================
-echo "Now into qcom build modem project just for 8939 mirageplus proj!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+elif [ $2 == "mobeeplus_imobile" ]
+then
+qcom_platform=msm8916_64
+proj_sed=mobeeplus01a_msm8916_64
+proj_dir=/media/zhl/second/2qcom/msm8939-la-2-1
+
+elif [ $2 == "mobeeplus_reliance" ]
+then
+qcom_platform=msm8916_64
+proj_sed=mobeeplus00b_msm8916_64
+proj_dir=/media/zhl/second/3qcom/msm8939-la-2-1
+
+fi
+}
+
+#func print env
+#for debug print 
+function print_env(){
 echo proj_dir = $proj_dir
-echo ===============================================================
+echo proj_sed= $proj_sed
+echo qcom_platform = $qcom_platform
+}
+#build func
+#really build modem
+function build_really(){
+echo "=============================================================="
+echo "=======================Now build begin========================"
+echo proj_dir = $proj_dir
+echo proj_sed= $proj_sed
+echo qcom_platform = $qcom_platform
+echo "=============================================================="
 cd $proj_dir/modem_proc/build/ms
 pwd
-#./build.sh 8936.gen.prod -c
-./build.sh 8936.gen.prod -k
+
+if [ $1 == "n_all" ]
+then
+	echo "clean old build first, rm old clear_build log"
+rm clear_build.log
+./build.sh 8936.gen.prod -c | tee clear_build.log
+
+if [ ! -f "clear_build.log" ]; then
+	echo ">>>>>>>>>>>>can not find clear_build log<<<<<<<<<<"
+	exit 0
+fi
+
+grep "returned code 0" clear_build.log > /dev/null
+
+if [ $? -eq 0 ]; then
+	echo "clear build log ok ,will build later"
+else
+	echo ">>>>>>>>>>>>clear build log Err , please check err first<<<<<<<<<<<<"
+	exit 0
+fi
+
+fi
+
+if [[ $1 == "n_all"  ||  $1 == "r_all" ]]
+then
+echo "rm old build log"
+rm build_modem.log
+./build.sh 8936.gen.prod -k | tee build_modem.log
+
+if [ ! -f "build_modem.log" ]; then
+	echo "can not find build log !!!!!!!!!!!!!!!!!!!!!!"
+	exit 0
+fi
+
+grep "returned code 0" build_modem.log > /dev/null
+
+if [ $? -eq 0 ]; then
+	echo "modem build_ok ,will package later"
+else
+	echo "modem build err happened, please check err first!!!!!!!!!!!"
+	exit 0
+fi
+
 cd $proj_dir
-#p ~/shell_my/unexeshell/contents8936_mirageplus01a_msm8916_64.xml contents.xml
 git checkout contents.xml
 cp contents_VG_8939_64.xml contents.xml
-sed 's/msm8916_64/mirageplus01a_msm8916_64/g' -i contents.xml
+sed 's/$qcom_platform/$proj_sed/g' -i contents.xml
 cd $proj_dir/common/build
 python update_common_info.py
 cd $proj_dir/common/build/bin
+echo "=====================second print build result=============="
+
+if [ $1 == "n_all" ]
+then
+echo "==================clear log result=========================="
+grep "returned code" $proj_dir/modem_proc/build/ms/clear_build.log
+fi
+
+echo "==================build log result==========================="
+grep "returned code" $proj_dir/modem_proc/build/ms/build_modem.log
+else 
+	print_usage
+	exit 0
+fi
+}
+
+
+#########################shell start here######################
+check_parameter_number $@
+check_first_parameter $@
+check_and_set_proj $@
+print_env $@
+build_really $@
+
