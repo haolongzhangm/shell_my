@@ -138,7 +138,7 @@ fi
 cd $proj_dir
 git checkout contents.xml
 cp contents_VG_8939_64.xml contents.xml
-sed 's/$qcom_platform/$proj_sed/g' -i contents.xml
+sed s/$qcom_platform/$proj_sed/g -i contents.xml
 cd $proj_dir/common/build
 python update_common_info.py
 cd $proj_dir/common/build/bin
