@@ -1,0 +1,22 @@
+1. 单卡配置 
+NV4398->1 
+NV6876->1 
+NV6907->0 
+NV70266->0 
+NV70210: 
+FALSE for hw_config.UIM[0].DISABLE_UIM 
+TRUE for hw_config.UIM[1].DISABLE_UIM 
+
+adb shell setprop persist.radio.multisim.config ssss 
+
+2. 双卡配置 
+NV4398->0 
+NV6876->5 
+NV6907->1 
+NV70266->1/2 DSDS/DSDA 
+NV70210: 
+FALSE for hw_config.UIM[0].DISABLE_UIM 
+FALSE for hw_config.UIM[1].DISABLE_UIM 
+
+adb shell setprop persist.radio.multisim.config dsds/dsda
+
