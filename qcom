@@ -20,6 +20,6 @@ echo command ----------------:-----meaning
 echo "add command at here"
 echo =================================================================
 echo =====================modem command ==============================
-cat ~/shell_my/qcom_build_modem
+#cat ~/shell_my/qcom_build_modem
 }
  print_usage

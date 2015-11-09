@@ -11,7 +11,7 @@ echo "mirageplus : for mirageplus"
 echo "mobeeplus : for mobeeplus_imobile"
 echo "mobeeplus_reliance : for mobeeplus_reliance"
 echo "if you want to update for this shell for more project"
-echo "you need modify : function_print_usage and function_check_parameter_number and function_check_first_parameter and function_check_and_set_proj"
+echo "you need modify : function_print_usage and function_check_parameter_number and function_check_first_parameter and function_check_and_set_proj and qcom_platform "
 #by haolong
 echo "Nothing NONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 }
