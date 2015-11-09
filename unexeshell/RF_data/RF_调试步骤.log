@@ -1,0 +1,149 @@
+RFMD1656    天线开关
+RFMD1496A      天线开关  MIPI接口需要申明
+SKY13317-373LF  天线开关    不需要申明，用GPIO 控制
+SKY13373-460LF  天线开关    不需要申明，用GPIO 控制
+SKY77631   PA
+SKY77781-11   PA
+RFMD1496A 
+
+DCS就是GSM 1800
+
+PCS 是GSM 1900
+************************************************
+常见的USID 分配
+PA – 0xF
+
+ASM(PRX) – 0xB
+
+ASM(DRX) – 0xA
+
+QFE110x – 0x4
+
+Address – Refer to [Q3]
+
+0x1D – PID (Product ID/Read only)
+
+0x1E – MID (Manufacture ID/Read only)
+
+0x1F – MID + USID
+************************************************
+              1496 天线开关规律    
+0x0134, /* PHY_DEVICE_MANUFACTURER_ID */ 
+0x20, /* PHY_DEVICE_PRODUCT_ID */ 
+port mapping
+1：RFX --------->prt(X+1)
+2：LB PROT0
+3：HB PORT1
+
+************************************************
+             RF1656  天线开关规律
+0x0134, /* PHY_DEVICE_MANUFACTURER_ID */ 
+0x24, /* PHY_DEVICE_PRODUCT_ID */ 
+port mapping
+1：RFX  -------> port(X-1) 
+
+************************************************
+             SKY77781-11  PA 开关规律
+0x01A5, /* PHY_DEVICE_MANUFACTURER_ID */ 
+0x15, /* PHY_DEVICE_PRODUCT_ID */ 
+只有一个port 所有是均是0
+
+××××××××××××××××××××××××××××××××××××××××××××××××
+             SKY77631   PA  开关规律
+0x01A5, /* PHY_DEVICE_MANUFACTURER_ID */ 
+0x0F, /* PHY_DEVICE_PRODUCT_ID */
+port mapping
+22: RFOUT_GSM_LB    (2.5G)8 -- (2G)6 
+24: RFOUT_GSM_HB    (2.5G)9 -- (2G)7
+29: RFOUT_B17       4
+31: RFOUT_B5_B26    5
+32: RFOUT_B2        1
+33: RFOUT_B4        3
+34: RFOUT_B3        2
+35: RFOUT_B1        0
+
+×××××××××××××××××××××××××××××××××××××××××××××××
+           SKY13317  GPIO 天线开关规律
+通
+RF1           V1高，其他低
+RF2           V2高，其他低
+RF3           V3高，其他低
+
+××××××××××××××××××××××××××××××××××××××××××××××××
+1：media/zhl/second/qcom/msm8939-la-2-0/modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_mirageplus01ap00/common/inc/rfc_wtr4905_mirageplus01ap00_cmn_ag.h 根据原理图，写上所有使用的GPIO
+固定的几个：
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_PA_CTL,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_PA_RANGE,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_ASM_CTL,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_PAPM_CTL,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_PAPM_MULTISLOT_CTL,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_TX_TX_RF_ON0,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_TX_RX_RF_ON0,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_ASM_TRIGGER,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_PAPM_TX_TX_TRIGGER,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_PAPM_OFF_TX_RX_TX_TRIGGER,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_PA_TRIGGER,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_PAPM_OFF_TX_RX_TX_CTL,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TIMING_PAPM_TX_TX_CTL,
+
+从原理图上General RF control 部分，依赖填入下表，对照GPIO 表  rfc_msm_signal_info_ag.c
+
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_00,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_04,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_03,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_10,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_20,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_06,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_14,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_07,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_23,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_12,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RF_PATH_SEL_05,
+  RFC_WTR4905_MIRAGEPLUS01AP00_GPDATA0_0,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RFFE5_CLK,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RFFE5_DATA,
+再对照原理图 RF_REFFEL 对照GPIO表rfc_msm_signal_info_ag.c 
+
+  RFC_WTR4905_MIRAGEPLUS01AP00_RFFE1_CLK,
+  RFC_WTR4905_MIRAGEPLUS01AP00_RFFE1_DATA,
+
+再填上固定的
+  RFC_WTR4905_MIRAGEPLUS01AP00_INTERNAL_GNSS_BLANK,
+  RFC_WTR4905_MIRAGEPLUS01AP00_INTERNAL_GNSS_BLANK_CONCURRENCY,
+  RFC_WTR4905_MIRAGEPLUS01AP00_TX_GTR_TH,
+  RFC_WTR4905_MIRAGEPLUS01AP00_PA_IND,
+  RFC_WTR4905_MIRAGEPLUS01AP00_SIG_NUM,
+  RFC_WTR4905_MIRAGEPLUS01AP00_SIG_INVALID,
+
+        (0x01A5 << 22)/*mfg_id*/ | (0x0F << 14)/*prd_id*/ | (8 << 7)/*sec_port_num*/2g EDGE  | (6)/*port_num*/, 2g GSM /* PORT_NUM */
+
+************************************************************************************************************
+第二步：将第一步得到的GPIO 在下面函数进行初始化：
+rfc_wtr4905_spirit01ap00_sig_info[]   file: modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_spirit01ap00/common/src/rfc_wtr4905_spirit01ap00_cmn_ag.cpp
+
+**************************************************************************************************
+第三步：修改HWID 和支持的基带
+a:rfc_wtr4905_spirit01ap00_logical_device_properties
+file: modem_proc/rfc_dimepm/rf_card/rfc_wtr4905_spirit01ap00/common/src/rfc_wtr4905_spirit01ap00_cmn_ag.cpp
+
+**************************************************************************************************
+
+第四步：用QRCT 验证path 状态
+见80-NM846-29_A_RF_Bringup_DPM20_BO20.pdf 28和29页
+注释：RF Front End Read/Write 填写规范
+channel 是指 MIPI 的第几组总线
+Slave ID 为芯片的USID
+Address 一般填写寄存器0
+Half Speed选中 Half Speed
+然后get Device Info 看看配置正确与否
+Read 出来的值 Data表示 寄存器的值，然后观察对应的状态是否正确
+
+==========================================================================
+调试无源PA软件准备
+1： xxx_cmn_ag.cpp 中去掉PA 配置
+2：在rfc_msm_signal_info_ag.c中找RFC_PA_ON type 的GPIO 且 原理图中没有使用的GPIO
+3：在xxx_cmn_ag.h 和 xxx_cmn_ag.cpp中配置step 2 找到的GPIO
+4：在具体的band 通路中，去掉mipi PA 配置，然后加上
+{ (int)RFC_WTR4905_MOBEEPLUS01A_SOOB_V2_PA_ON_19,   { RFC_HIGH, 0 }, {RFC_LOW, 0 }  },
+==========================================================================
+80-N0611-1_B_WCDMA_Circuit_Packet-Switched_Call  //CS PS CALL FOLLOW 

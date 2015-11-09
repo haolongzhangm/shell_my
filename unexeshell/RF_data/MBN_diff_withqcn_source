@@ -1,0 +1,64 @@
+5.0-------------------
+71
+409
+562
+850
+855
+880
+881
+882
+441
+946
+2954
+3532
+3533
+4366
+6907
+10
+4228
+4229
+4722
+1920
+
+
+5.1------------------
+
+71: ?????  SW_DEFAULT  96 运营商名称 确认<<<<<<<<<<ok
+850 :SUB0:2, SUB1:0该项用于配置SIM卡的CS及PS业务。其中“2”表示支持CS+PS，“0”表示CS only，而PS由默认的移动数据卡决定。另外如果要使用LTE，则需要支持PS业务。 >>>>>待确认 ？？？？？
+855： ????  现状是1  ，待确认
+
+880: ???现状是1 ，却确认 <<<<<<<<<<<ok
+881:  ???现状是1 ，却确认 <<<<<<<<<<<ok
+882:???现状是0 ，却确认 <<<<<<<<<<<ok
+
+**************************************
+441: 频道配置，保留现状
+946: 频道配置，保留现状
+2954: 频道配置，保留现状
+*************************************
+
+3532: 短信相关，使用MBN 
+3533: 短信相关，使用MBN
+4366: 一样的，使用MBN ，却确认  <<<<<<<<<<<<<<<<<<ok 
+6907:双卡配置，保留现状， 使用MBN ，却确认  <<<<<<<<<<<<<<<<<<ok 
+6876:双卡配置，保留现状，使用MBN ，却确认 ，没有被MBN 替换
+10:此NV项用于配置首选网络模式，“31”表示GWL，"13"表示GSM only，而具体的搜网顺序由Modem配置的RAT order list决定 保留现状---使用MBN ，却确认   没有被MBN 替换
+4722: 用于配置UE的行为，另外如果需要使能WB-AMR 待考证????  --使用MBN ，却确认
+1920: 一样的，
+
+EFSITEM ----------------------------
+<NvEfsItem fullpathname="/nv/item_files/gps/cgps/sm/gnss_lpp_enable" name="/nv/item_files/gps/cgps/sm/gnss_lpp_enable" mapping="direct" encoding="dec" index="0" useProvisioningStore ="true">0</NvEfsItem>
+使用MBN ，却确认
+
+<NvEfsItem fullpathname="/nv/item_files/modem/mmode/device_mode" name="/nv/item_files/modem/mmode/device_mode" mapping="direct" encoding="dec" index="0" useProvisioningStore ="true">1</NvEfsItem>
+
+一样的
+
+
+
+
+-O modem_proc/rftarget_dimepm/qcn/wtr4905_mirage01a_v2/MSM8916_CHILE_MIRAGE01A_Reference_QCN.xml /media/zhl/second/5.1_tmp/msm8939-la-2-1/modem_proc/mcfg/mcfg_gen/generic/APAC/Reliance/mcfg_sw_gen_Commercial.xml
+
+
+
+
