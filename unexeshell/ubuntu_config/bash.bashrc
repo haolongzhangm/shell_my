@@ -88,6 +88,6 @@ export HEXAGON_RTOS_RELEASE=6.4.01
 export ARMTOOLS=QDSP6GCC
 #add for other shell command compelte
 complete -W "normal_proj_tags_update mtk_kk_old_kernel_tags_update kernel_arm32_cscope kernel_arm64_cscope" other_shell
-complete -W "n_all r_all , mirageplus mobeeplus_imobile mobeeplus_reliance" qcom_build_modem
+complete -W "n_all r_all , mirageplus mobeeplus_imobile mobeeplus_reliance mobeeplus_custmer_imobie" qcom_build_modem
 
 
