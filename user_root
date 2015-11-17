@@ -9,6 +9,7 @@ adb shell setprop ro.debuggable 1
 echo =========plug out usb and then plugn in===========================================
 adb root
 echo =========plug out usb and then plugn in===========================================
+sleep 1
 adb shell
 exit
 
