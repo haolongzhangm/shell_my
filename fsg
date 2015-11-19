@@ -1,2 +1,2 @@
 #!/bin/bash
-less /home/zhl/桌面/Share/RF/FSG/制作fsg步奏.txt
+less ~/shell_my/unexeshell/RF_data/FSG/fsg.txt
