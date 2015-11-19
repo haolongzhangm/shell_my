@@ -1,0 +1,2 @@
+//PDC USB
+adb shell setprop sys.usb.config diag,serial_smd,rmnet_bam,adb
