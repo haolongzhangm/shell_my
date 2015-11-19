@@ -1,7 +1,7 @@
 #!/bin/bash
 echo ===============================================================
 #. sun_java
-echo "Now into qcom a android project !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo "Now into qcom a android project mobeeplus for reliance"
 echo ===============================================================
 echo "[into factory] : input text *#*#13646633#*#*                    "
 echo "[pdf key]:       9621073404                                          "
@@ -19,6 +19,5 @@ echo command ----------------:-----meaning
 echo "add command at here"
 echo =================================================================
 echo =====================modem command ==============================
-#cat ~/shell_my/3qcom_build_modem
 }
  print_usage

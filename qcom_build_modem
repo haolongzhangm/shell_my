@@ -7,7 +7,7 @@ echo "build_function can be:---------"
 echo "n_all : first clear old build obj and then build"
 echo "r_all : just rebuild proj"
 echo "build_project can be:---------"
-echo "mirageplus : for mirageplus"
+echo "mobeeplus_customer_reliance : for mobeeplus_customer_reliance"
 echo "mobeeplus_imobile : for mobeeplus_imobile"
 echo "mobeeplus_reliance : for mobeeplus_reliance"
 echo "mobeeplus_custmer_imobie : for mobeeplus_custmer_imobie"
@@ -42,22 +42,20 @@ fi
 }
 
 #func check_and_set_proj
-#check build proj :now support mirageplus mobeeplus adb mobeeplus_reliance
-#second parameter should be mirageplus mobeeplus or mobeeplus_reliance
 function check_and_set_proj()
 {
-if [[ ! $2 == "mirageplus" && ! $2 == "mobeeplus_imobile" && ! $2 == "mobeeplus_reliance" && ! $2 == "mobeeplus_custmer_imobie" ]]
+if [[ ! $2 == "mobeeplus_customer_reliance" && ! $2 == "mobeeplus_imobile" && ! $2 == "mobeeplus_reliance" && ! $2 == "mobeeplus_custmer_imobie" ]]
 then
-echo "second  parameter should be mirageplus mobeeplus_imobile or mobeeplus_reliance"
+echo "second  parameter should be mobeeplus_customer_reliance mobeeplus_imobile or mobeeplus_reliance"
 echo "just show Usage"
 print_usage
 exit 0
 fi
 
-if [ $2 == "mirageplus" ]
+if [ $2 == "mobeeplus_customer_reliance" ]
 then 
 qcom_platform=msm8916_64
-proj_sed=mirageplus01a_msm8916_64
+proj_sed=mobeeplus00b_msm8916_64
 proj_dir=/media/zhl/second/qcom/msm8939-la-2-1
 
 elif [ $2 == "mobeeplus_imobile" ]
