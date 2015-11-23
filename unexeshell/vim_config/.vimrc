@@ -88,7 +88,7 @@ let NERDTreeShowFiles=1
 let NERDTreeShowHidden=1
 let NERDTreeHightCursorline=1
 let NERDTreeShowLineNumbers=1
-let g:ycm_collect_identifiers_from_tag_files = 1
+let g:ycm_collect_identifiers_from_tags_files = 1
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
 set showmatch
 "add for vim { < ( match
