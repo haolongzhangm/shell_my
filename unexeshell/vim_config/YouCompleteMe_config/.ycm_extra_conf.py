@@ -62,6 +62,8 @@ flags = [
 '-isystem',
 '../BoostParts',
 '-isystem',
+'/home/zhl/mycode/linux/include',
+'-isystem',
 # This path will only work on OS X, but extra paths that don't exist are not
 # harmful
 '/System/Library/Frameworks/Python.framework/Headers',
@@ -81,31 +83,6 @@ flags = [
 './tests/gmock',
 '-isystem',
 './tests/gmock/include',
-'-isystem',
-'/usr/include',
-'-isystem',
-'/usr/local/include',
-'-isystem',
-'/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1',
-'-isystem',
-'/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include',
-# add for linux kernel tree
-'-I',
-'/home/zhl/.vim/bundle/YouCompleteMe/linux_kernel_tree/linux/include',
-'-I',
-'/home/zhl/.vim/bundle/YouCompleteMe/linux_kernel_tree/linux/include/asm-generic/',
-'-I',
-'/home/zhl/.vim/bundle/YouCompleteMe/linux_kernel_tree/linux/security/selinux/include',
-'-I',
-'/home/zhl/.vim/bundle/YouCompleteMe/linux_kernel_tree/linux/security/apparmor/include',
-'-I',
-'/home/zhl/.vim/bundle/YouCompleteMe/linux_kernel_tree/linux/arch/tile/include',
-'-I',
-'/home/zhl/.vim/bundle/YouCompleteMe/linux_kernel_tree/linux/arch/arm/include',
-'-I',
-'/home/zhl/.vim/bundle/YouCompleteMe/linux_kernel_tree/linux/',
-'-I',
-'/home/zhl/.vim/bundle/YouCompleteMe/linux_kernel_tree/linux/tools/perf/util/include/linux',
 ]
 
 
