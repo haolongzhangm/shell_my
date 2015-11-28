@@ -66,9 +66,15 @@ filetype plugin indent on    " required
 """"""""""syntastic"""""""""""" 
 "F2 use to cs find f, caused by F8 to youdao
 "nmap <F2> :YcmDiags<CR>
+"below for YouCompleteMe config
 let g:ycm_global_ycm_extra_conf = '/home/zhl/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
 "let g:ycm_global_ycm_extra_conf = '/home/zhl/.vim/bundle/YouCompleteMe/haolong_test.py'
+let g:ycm_key_invoke_completion = '<C-/>'
 let g:ycm_seed_identifiers_with_syntax=1
+let g:ycm_collect_identifiers_from_tags_files = 1
+"let g:ycm_add_preview_to_completeopt = 1
+"'let g:ycm_error_symbol = 'Er'
+"end for YouCompleteMe config
 "grep"
 "nnoremap <silent> <F6> :Grep<CR>"
 "for cscope"
@@ -78,7 +84,6 @@ nmap <F7> :cs find d <C-R>=expand("<cword>")<CR><CR>
 nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
 nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR>
 nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
-let g:ycm_key_invoke_completion = '<C-/>'
 " add this for chinese
 let &termencoding=&encoding
 set fileencodings=utf-8,gbk
@@ -88,7 +93,6 @@ let NERDTreeShowFiles=1
 let NERDTreeShowHidden=1
 let NERDTreeHightCursorline=1
 let NERDTreeShowLineNumbers=1
-let g:ycm_collect_identifiers_from_tag_files = 1
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
 set showmatch
 "add for vim { < ( match
