@@ -67,9 +67,8 @@ filetype plugin indent on    " required
 "F2 use to cs find f, caused by F8 to youdao
 "nmap <F2> :YcmDiags<CR>
 "below for YouCompleteMe config
-let g:ycm_global_ycm_extra_conf = '/home/zhl/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
-"let g:ycm_global_ycm_extra_conf = '/home/zhl/.vim/bundle/YouCompleteMe/haolong_test.py'
-let g:ycm_key_invoke_completion = '<C-/>'
+let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+"let g:ycm_key_invoke_completion = '<C-/>'
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_collect_identifiers_from_tags_files = 1
 "let g:ycm_add_preview_to_completeopt = 1
