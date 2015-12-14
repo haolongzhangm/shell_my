@@ -1,28 +1,43 @@
 #!/bin/bash
+#by haolong.zhang@ck-telecom.com
 #func usage
 function print_usage(){
 echo Usage:
-echo "$0 [build_function] [build_project]"
+echo "$0 [build_function]" 
+echo "eg:"
+echo "$0 r_all "
 echo "build_function can be:---------"
 echo "n_all : first clear old build obj and then build"
 echo "r_all : just rebuild proj"
-echo "build_project can be:---------"
-echo "mobeeplus_customer_reliance : for mobeeplus_customer_reliance"
-echo "mobeeplus_imobile : for mobeeplus_imobile"
-echo "mobeeplus_reliance : for mobeeplus_reliance"
-echo "mobeeplus_custmer_imobie : for mobeeplus_custmer_imobie"
-echo "if you want to update for this shell for more project"
-echo "you need modify : function_print_usage and function_check_parameter_number and function_check_first_parameter and function_check_and_set_proj and qcom_platform "
-#by haolong
 echo "Nothing NONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 }
 
-#func check parameter number
-#need two paramters, check first
-function check_parameter_number(){
-if [ ! $# -eq 2 ]
+#func check build env
+function check_lunch(){
+if [ "$TARGET_PRODUCT" = "" ]
 then
-	echo ">>>>>>>>>>>>>>>>>>Need two paramters<<<<<<<<<<<<<<<"
+	echo ">>>>>>>>>>>>>>>>>>>lunch android first<<<<<<<<<<<<<<<<<<<<"
+	print_usage
+	exit 0
+fi
+}
+
+#func check android alrady build
+function check_android_already_build(){
+if [ ! -d "$PWD/LINUX/android/out/target/product/$TARGET_PRODUCT" ]
+then
+	echo ">>>>>>>>>>>>>>>>>>>>build android first<<<<<<<<<<<<<<<<<<<"
+	echo "$PWD/LINUX/android/out/target/product/$TARGET_PRODUCT dir not exit"
+	print_usage
+	exit 0
+fi
+}
+#func check parameter number
+#need one paramters, check first
+function check_parameter_number(){
+if [ ! $# -eq 1 ]
+then
+	echo ">>>>>>>>>>>>>>>>>>Need one paramters<<<<<<<<<<<<<<<"
 	echo "just show usage"
 	print_usage
 	exit 0
@@ -44,39 +59,9 @@ fi
 #func check_and_set_proj
 function check_and_set_proj()
 {
-if [[ ! $2 == "mobeeplus_customer_reliance" && ! $2 == "mobeeplus_imobile" && ! $2 == "mobeeplus_reliance" && ! $2 == "mobeeplus_custmer_imobie" ]]
-then
-echo "second  parameter should be mobeeplus_customer_reliance mobeeplus_imobile or mobeeplus_reliance"
-echo "just show Usage"
-print_usage
-exit 0
-fi
-
-if [ $2 == "mobeeplus_customer_reliance" ]
-then 
-qcom_platform=msm8916_64
-proj_sed=mobeeplus00b_msm8916_64
-proj_dir=/media/zhl/second/qcom/msm8939-la-2-1
-
-elif [ $2 == "mobeeplus_imobile" ]
-then
-qcom_platform=msm8916_64
-proj_sed=mobeeplus01a_msm8916_64
-proj_dir=/media/zhl/second/2qcom/msm8939-la-2-1
-
-elif [ $2 == "mobeeplus_reliance" ]
-then
-qcom_platform=msm8916_64
-proj_sed=mobeeplus00b_msm8916_64
-proj_dir=/media/zhl/second/3qcom/msm8939-la-2-1
-
-elif [ $2 == "mobeeplus_custmer_imobie" ]
-then
-qcom_platform=msm8916_64
-proj_sed=mobeeplus01a_msm8916_64
-proj_dir=/media/zhl/second/mobeeplus_imobile_customer_tmp/msm8939-la-2-1
-
-fi
+qcom_platform=msm8952_64
+proj_sed=$TARGET_PRODUCT
+proj_dir=$PWD
 }
 
 #func print env
@@ -167,6 +152,8 @@ fi
 #########################shell start here######################
 check_parameter_number $@
 check_first_parameter $@
+check_lunch $@
+check_android_already_build $@
 check_and_set_proj $@
 print_env $@
 build_really $@
