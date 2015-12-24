@@ -6,6 +6,7 @@ echo "other_shell mtk_kk_old_kernel_tags_update : update mtk old android kernel 
 echo ===================================================================================
 echo ==================calltree use command 1 ==========================================
 echo "find . -name '*.c' -o -name '*.h' -o -name '*.java' -o -name '*.cpp' -o -name '*.cc' |  xargs calltree -gb -np -m  > tmp.dot"
+echo "calltree -b -dot -gb -np -m *.c > tmp.dot"
 echo ===================================================================================
 echo ==================calltree use command 2 ==========================================
 echo "calltree -gb -np lf=start_kernel KERNEL_DIR/init/*.c  > tmp.dot"
