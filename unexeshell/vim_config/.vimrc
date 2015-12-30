@@ -67,7 +67,8 @@ filetype plugin indent on    " required
 "F2 use to cs find f, caused by F8 to youdao
 "nmap <F2> :YcmDiags<CR>
 "below for YouCompleteMe config
-let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+let g:ycm_global_ycm_extra_conf = '~/shell_my/unexeshell/vim_config/YouCompleteMe_config/.default_ycm_extra_conf.py'
+autocmd BufNewFile,BufRead *.c let g:ycm_global_ycm_extra_conf = '~/shell_my/unexeshell/vim_config/YouCompleteMe_config/.c99_ycm_extra_conf.py'
 "let g:ycm_key_invoke_completion = '<C-/>'
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_collect_identifiers_from_tags_files = 1
@@ -113,3 +114,23 @@ inoremap ' ''<ESC>i
 " find result to quickfix
 command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
 command -nargs=1 Vgallfile :vimgrep /<args>/ **/*.* | copen
+"auto load ctags file
+function! AddCtagsDatabase()
+    let max = 30
+    let dir = './'
+    let i = 0
+    let break = 0
+    while isdirectory(dir) && i < max
+        if filereadable(dir . 'tags')
+            execute 'set tags =' . dir . 'tags'
+            let break = 1
+        endif
+        if break == 1
+            execute 'lcd ' . dir
+            break
+        endif
+        let dir = dir . '../'
+        let i = i + 1
+    endwhile
+endfunction
+call AddCtagsDatabase()
