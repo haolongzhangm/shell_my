@@ -1,0 +1,127 @@
+From dc1ba81649721f9e948535bab1fcc984b9d26365 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Tue, 22 Dec 2015 20:28:19 +0800
+Subject: [PATCH 2/3] add file check
+
+Change-Id: I0ca10b9f107483ed40ba5195268db33867f345e2
+---
+ src/com/android/server/telecom/Ringer.java | 82 +++++++++++++++++++-----------
+ 1 file changed, 52 insertions(+), 30 deletions(-)
+
+diff --git a/src/com/android/server/telecom/Ringer.java b/src/com/android/server/telecom/Ringer.java
+index 9b98a8a..4d31733 100755
+--- a/src/com/android/server/telecom/Ringer.java
++++ b/src/com/android/server/telecom/Ringer.java
+@@ -42,7 +42,7 @@ import android.content.pm.PackageManager;
+ import org.xmlpull.v1.XmlPullParser;
+ import org.xmlpull.v1.XmlPullParserException;
+ import org.xmlpull.v1.XmlPullParserFactory;
+-
++import java.io.File;
+ /**
+  * Controls the ringtone player.
+  */
+@@ -221,6 +221,20 @@ final class Ringer extends CallsManagerListenerBase {
+         return exist;
+     }
+ 
++	private  boolean modeFileIsExists(){
++		try{
++			File f=new File("/data/data/com.android.contacts/shared_prefs/modeSharedPreferences.xml");
++			if(!f.exists()){
++				return false;
++			}
++
++		}catch (Exception e) {
++			// TODO: handle exception
++			return false;
++		}
++		return true;
++	}
++
+     private void startRingingOrCallWaiting() {
+         Call foregroundCall = mCallsManager.getForegroundCall();
+         Log.v(this, "startRingingOrCallWaiting, foregroundCall: %s.", foregroundCall);
+@@ -248,42 +262,50 @@ final class Ringer extends CallsManagerListenerBase {
+ 
+ 			int mode = 2;
+ 
+-			try {
+-				XmlPullParserFactory pullParserFactory = XmlPullParserFactory.newInstance();
+-				XmlPullParser xmlPullParser = pullParserFactory.newPullParser();
+-				xmlPullParser.setInput(Thread.currentThread().getContextClassLoader().getResourceAsStream("/data/data/com.android.contacts/shared_prefs/modeSharedPreferences.xml"), "UTF-8");
+-
+-				int eventType = xmlPullParser.getEventType();
+-
++			if (modeFileIsExists())
++			{
++				Log.v(this, "find modeFileIsExists");
+ 				try {
+-					while(eventType  != XmlPullParser.END_DOCUMENT){
+-						String nodeName = xmlPullParser.getName();
+-						Log.v(this, "nodeName = %s", nodeName);
+-						if ("int".equals(nodeName)){
+-							if (phoneNum.equals(xmlPullParser.getAttributeValue(0))){
+-								Log.v(this, "Find %s  mode_val = %d", phoneNum, Integer.parseInt(xmlPullParser.getAttributeValue(1)));
+-								mode = Integer.parseInt(xmlPullParser.getAttributeValue(1));
++					XmlPullParserFactory pullParserFactory = XmlPullParserFactory.newInstance();
++					XmlPullParser xmlPullParser = pullParserFactory.newPullParser();
++					xmlPullParser.setInput(Thread.currentThread().getContextClassLoader().getResourceAsStream("/data/data/com.android.contacts/shared_prefs/modeSharedPreferences.xml"), "UTF-8");
++
++					int eventType = xmlPullParser.getEventType();
++
++					try {
++						while(eventType  != XmlPullParser.END_DOCUMENT){
++							String nodeName = xmlPullParser.getName();
++							Log.v(this, "nodeName = %s", nodeName);
++							if ("int".equals(nodeName)){
++								if (phoneNum.equals(xmlPullParser.getAttributeValue(0))){
++									Log.v(this, "Find %s  mode_val = %d", phoneNum, Integer.parseInt(xmlPullParser.getAttributeValue(1)));
++									mode = Integer.parseInt(xmlPullParser.getAttributeValue(1));
++								}
+ 							}
++							switch (eventType) {
++								case XmlPullParser.START_TAG:
++									Log.v(this, "getAttributeValue");
++									break;
++								case XmlPullParser.END_TAG:
++									break;
++								default:
++									break;
++							}
++							eventType=xmlPullParser.next();
+ 						}
+-						switch (eventType) {
+-							case XmlPullParser.START_TAG:
+-								Log.v(this, "getAttributeValue");
+-								break;
+-							case XmlPullParser.END_TAG:
+-								break;
+-							default:
+-								break;
+-						}
+-						eventType=xmlPullParser.next();
++					} catch (NumberFormatException e) {
++						e.printStackTrace();
++					} catch (IOException e) {
++						e.printStackTrace();
+ 					}
+-				} catch (NumberFormatException e) {
+-					e.printStackTrace();
+-				} catch (IOException e) {
++				} catch (XmlPullParserException e) {
+ 					e.printStackTrace();
+ 				}
+-			} catch (XmlPullParserException e) {
+-				e.printStackTrace();
++
++			} else {
++				Log.v(this, "modeFileIsExists return false");
+ 			}
++
+ 			Log.v(this, "get mode = %d", mode);
+ 
+ 			if (1 == mode)
+-- 
+1.9.1
+

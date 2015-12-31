@@ -1,0 +1,110 @@
+From b608beb18f19b402c547ae63605c500192a94150 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Sat, 26 Dec 2015 14:34:16 +0800
+Subject: [PATCH 3/3] add Vibrati and ring
+
+Change-Id: I9e19a0cce9eaba5f197301dab1f6ca78c7f2136c
+---
+ src/com/android/server/telecom/Ringer.java | 35 +++++++++++++++++++++++-------
+ 1 file changed, 27 insertions(+), 8 deletions(-)
+
+diff --git a/src/com/android/server/telecom/Ringer.java b/src/com/android/server/telecom/Ringer.java
+index 4d31733..c4f4f2a 100755
+--- a/src/com/android/server/telecom/Ringer.java
++++ b/src/com/android/server/telecom/Ringer.java
+@@ -43,6 +43,8 @@ import org.xmlpull.v1.XmlPullParser;
+ import org.xmlpull.v1.XmlPullParserException;
+ import org.xmlpull.v1.XmlPullParserFactory;
+ import java.io.File;
++import android.os.Handler;
++import android.media.AudioManager;
+ /**
+  * Controls the ringtone player.
+  */
+@@ -87,6 +89,7 @@ final class Ringer extends CallsManagerListenerBase {
+      * Used to track the status of {@link #mVibrator} in the case of simultaneous incoming calls.
+      */
+     private boolean mIsVibrating = false;
++ private int currentVolume = 0;
+ 
+     /** Initializes the Ringer. */
+     Ringer(
+@@ -187,6 +190,18 @@ final class Ringer extends CallsManagerListenerBase {
+         }
+     }
+ 
++
++	final Handler handler = new Handler();
++	Runnable setMaxRingVolume = new Runnable() {
++            public void run() {
++			Log.d(this, "startRingingOrCallWaiting, setMaxRingVolume");
++            AudioManager audioManager =
++                    (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
++				int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
++			Log.d(this, "startRingingOrCallWaiting, currentVolume = " + currentVolume + ", maxVolume = " + maxVolume);
++                      audioManager.setStreamVolume(AudioManager.STREAM_RING, maxVolume, 0);
++            }
++        };
+     /**
+      * [enyu.xie-Add-Bug85386]
+      * 2015/04/16
+@@ -312,17 +327,14 @@ final class Ringer extends CallsManagerListenerBase {
+ 			{
+ 				Log.v(this, "isIncoming contact is super");
+ 				// our logic will be implement at here 
+-				/*
+ 				//1: call timer  for max vol 
++				handler.postDelayed(setMaxRingVolume, 10000);
+ 				//2: call times  for max shake
++				 mVibrator.vibrate(new long[] {0,1000},0);
++				 mIsVibrating = true;
+ 				//3：call alarm  remind
+-				*/
+-			}else if(0 == mode) {
+-				Log.v(this, "isIncoming contact is black mode, just retrun for quiet");
+-				return;
+ 			}
+ 
+-
+             stopCallWaiting();
+             try {
+                 // LightsManager.LIGHT_ID_BUTTONS = 2
+@@ -337,11 +349,13 @@ final class Ringer extends CallsManagerListenerBase {
+ 
+             AudioManager audioManager =
+                     (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
++			currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
++			Log.d(this, "startRingingOrCallWaiting, currentVolume = " + currentVolume);
+             final Uri ringtoneUri = foregroundCall.getRingtone();
+             boolean contastExists = foregroundCall.getCallerInfo() == null ? false: foregroundCall.getCallerInfo().contactExists;
+             boolean shouldNotRing = contastExists && (ringtoneUri == null || TextUtils.isEmpty(ringtoneUri.toString()));
+ 
+-            if (audioManager.getStreamVolume(AudioManager.STREAM_RING) >= 0 && !shouldNotRing) {
++            if (audioManager.getStreamVolume(AudioManager.STREAM_RING) >= 0 && !shouldNotRing && mode != 0) {
+                 Log.v(this, "startRingingOrCallWaiting");
+                 mCallAudioManager.setIsRinging(true);
+ 
+@@ -367,7 +381,7 @@ final class Ringer extends CallsManagerListenerBase {
+                 Log.v(this, "startRingingOrCallWaiting, skipping because volume is 0 Or the contact rington is null");
+             }
+ 
+-            if (shouldVibrate(mContext) && !mIsVibrating) {
++            if (shouldVibrate(mContext) && !mIsVibrating && mode == 2) {
+                 mVibrator.vibrate(VIBRATION_PATTERN, VIBRATION_PATTERN_REPEAT,
+                         VIBRATION_ATTRIBUTES);
+                 mIsVibrating = true;
+@@ -405,6 +419,11 @@ final class Ringer extends CallsManagerListenerBase {
+ 
+         mRingtonePlayer.stop();
+ 
++        AudioManager audioManager =
++                (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
++		if (currentVolume != audioManager.getStreamVolume(AudioManager.STREAM_RING)) {
++			audioManager.setStreamVolume(AudioManager.STREAM_RING, currentVolume, 0);
++		}
+         try {
+             mLight.setBrightness(2,0x0);
+         } catch(RemoteException e) {
+-- 
+1.9.1
+
