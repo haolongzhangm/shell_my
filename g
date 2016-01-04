@@ -1,2 +1,2 @@
 #!/bin/sh
-git log --stat
+git log --author=haolong.zhang --stat
