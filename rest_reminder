@@ -4,7 +4,7 @@
 #osd_fake_translucent_bg : on off
 #osd_vposition : top bottom center
 #osd_halignmen : left right
-for i in `seq 20`
+for i in `seq 40`
 do
 gnome-osd-client -f "<message id='rest' osd_fake_translucent_bg='on' osd_vposition='center' animations='on' hide_timeout='2000' osd_halignment='center' >休息一下</message>"
 echo $i
