@@ -1,0 +1,23 @@
+#!/bin/bash
+echo ===============================================================
+#. sun_java
+echo "Now into qcom a android project =====8976 msm proj"
+echo ===============================================================
+echo "[into factory] : input text *#*#13646633#*#*                    "
+echo "[pdf key]:       9621073404                                          "
+echo "[touch i2c] :    /sys/devices/platform/mt-i2c.2/i2c-2/2-0015       "
+echo "[touch force up]: elan_iap /system/etc/14f0_1103.ekt 0x15 2k   "
+echo "[WLAN] iperf -c 192.168.1.100 -i 3 -t 120 –P 2 ; iperf -s -P 2"
+echo "hicam it push command : git push origin hicam-baseline:refs/for/hicam-baseline"
+echo ===============================================================
+cd /home/zhl/mycode/8976_qcom_2/msm8976/LINUX/android
+pwd
+function print_usage(){
+echo Usage!!
+echo =================================================================
+echo command ----------------:-----meaning
+echo "add command at here"
+echo =================================================================
+echo =====================modem command ==============================
+}
+ print_usage
