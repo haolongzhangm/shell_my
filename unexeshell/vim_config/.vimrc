@@ -114,6 +114,8 @@ inoremap ' ''<ESC>i
 " find result to quickfix
 command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
 command -nargs=1 Vgallfile :vimgrep /<args>/ **/*.* | copen
+nmap <C-K> :Vgthisfile <C-R>=expand("<cword>")<CR><CR>
+nmap <C-l> :Vgallfile <C-R>=expand("<cword>")<CR><CR>
 command -nargs=0 Clearblank :%s/\s\+$//
 "auto load ctags file
 function! AddCtagsDatabase()
