@@ -55,3 +55,7 @@
  Batch Clear blank:
  sed -i 's/\s\+$//g' `grep -r "\s\+$" -rl .`
  ===================================================================================
+ format code style
+ find . -name *.c -o -name *.cpp -o -name *.h  | xargs indent [x]
+ [x] maybe: indent -npro -gnu -i4 -ts4 -sob -l200 -ss -bl -bli 0 -npsl
+ ===================================================================================
