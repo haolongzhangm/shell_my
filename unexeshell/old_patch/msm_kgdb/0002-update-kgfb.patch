@@ -1,0 +1,35 @@
+From 33322c450a000da4d38ac5dec2889fdefca2148b Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Fri, 8 Jan 2016 18:27:36 +0800
+Subject: [PATCH 2/4] update kgfb
+
+Change-Id: Iea920670ff0c522aaabf7324a19da77af6ce9366
+---
+ drivers/tty/serial/msm_serial_hs_lite.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/tty/serial/msm_serial_hs_lite.c b/drivers/tty/serial/msm_serial_hs_lite.c
+index edfe86b..e74fda8 100644
+--- a/drivers/tty/serial/msm_serial_hs_lite.c
++++ b/drivers/tty/serial/msm_serial_hs_lite.c
+@@ -1296,7 +1296,17 @@ static void msm_hsl_power(struct uart_port *port, unsigned int state,
+ 		pr_err("Unknown PM state %d\n", state);
+ 	}
+ }
++static inline unsigned int msm_hs_read(struct uart_port *uport,
++				       unsigned int index)
++{
++	return readl_relaxed(uport->membase + index);
++}
+ 
++static inline void msm_hs_write(struct uart_port *uport, unsigned int index,
++				 unsigned int value)
++{
++	writel_relaxed(value, uport->membase + index);
++}
+  #ifdef CONFIG_CONSOLE_POLL
+  static int msm_poll_get_char_dm(struct uart_port *port)
+  {
+-- 
+1.9.1
+
