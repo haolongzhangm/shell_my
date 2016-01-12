@@ -59,7 +59,7 @@ fi
 #func check_and_set_proj
 function check_and_set_proj()
 {
-qcom_platform=msm8952_64
+qcom_platform=msm8916_64
 proj_sed=$TARGET_PRODUCT
 proj_dir=$PWD
 }
