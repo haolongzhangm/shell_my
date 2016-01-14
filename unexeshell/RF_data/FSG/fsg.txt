@@ -1,2 +1,15 @@
 //PDC USB
 adb shell setprop sys.usb.config diag,serial_smd,rmnet_bam,adb
+
+====================================
+fsg step :
+
+1: git apply ~/shell_my/unexeshell/old_patch/modem_fsg.patch
+
+2: make modem
+
+3: open EFS explorer: mmgsdi/perso 替换 ; sd/替换
+
+4: perl 1.pl -z
+
+5: ./make_efs.sh

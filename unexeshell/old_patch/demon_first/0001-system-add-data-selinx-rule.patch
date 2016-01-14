@@ -1,0 +1,26 @@
+From c7062d03a26521bd89a88f6046a2cb7fc916b0d6 Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Tue, 22 Dec 2015 21:03:02 +0800
+Subject: [PATCH] system add data selinx rule
+
+Change-Id: I01e20f6b42a86a51f19ceb0ef991f1046e527383
+---
+ system_server.te | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/system_server.te b/system_server.te
+index 645ed8e..7fc9718 100644
+--- a/system_server.te
++++ b/system_server.te
+@@ -33,6 +33,8 @@ allow system_server zygote:process sigkill;
+ # Read /system/bin/app_process.
+ allow system_server zygote_exec:file r_file_perms;
+ 
++allow system_server app_data_file:file { open read write };
++
+ # Needed to close the zygote socket, which involves getopt / getattr
+ allow system_server zygote:unix_stream_socket { getopt getattr };
+ 
+-- 
+1.9.1
+

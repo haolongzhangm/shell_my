@@ -82,13 +82,14 @@ export ARMINC=/home/zhl/ARM_Compiler_5/include
 complete -W "n_pr n_kernel n_bootimage n_recovery n_lk n_all r_pr r_kernel r_bootimage r_recovery r_lk r_all" hicam
 complete -W "n_pr n_kernel n_bootimage n_recovery n_lk n_all r_pr r_kernel r_bootimage r_recovery r_lk r_all" xs
 complete -W "n_pr n_kernel n_bootimage n_recovery n_lk n_all r_pr r_kernel r_bootimage r_recovery r_lk r_all" 2hicam
+complete -W "3qcom 2qcom qcom 8976_1_qcom 2hicam 8976_2_qcom" sourcemy
 #add for qcom modem build tool env
 export HEXAGON_ROOT=/home/zhl/Qualcomm/HEXAGON_Tools
 export HEXAGON_RTOS_RELEASE=6.4.01
 export ARMTOOLS=QDSP6GCC
 #add for other shell command compelte
 complete -W "normal_proj_tags_update mtk_kk_old_kernel_tags_update kernel_arm32_cscope kernel_arm64_cscope" other_shell
-complete -W "n_all r_all , mobeeplus_customer_reliance mobeeplus_imobile mobeeplus_reliance mobeeplus_custmer_imobie" qcom_build_modem
 alias gitlog='git log --pretty=format:'\''%h : %an : %ad : %s'\'' --topo-order --graph --date=short'
 alias v=vim
 alias V=vim
+alias sourcemy=source

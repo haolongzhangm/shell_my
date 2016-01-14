@@ -5,7 +5,7 @@ GITCONFIG_FILE=~/.gitconfig
 
 # Used by email-address, the result is : ${USERNAME}@ck-telecom.com
 # which will be used as the commit owner,such as => Author: junhu.fan <junhu.fan@ck-telecom.com>
-USERNAME=ying.han
+USERNAME=haolong.zhang
 
 function backup_and_get_username
 {

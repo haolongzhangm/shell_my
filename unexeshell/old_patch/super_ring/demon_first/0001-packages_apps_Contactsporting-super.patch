@@ -1,0 +1,144 @@
+From 3d2d4b0e47ba267e29b9fd5199fa811ad2207c1b Mon Sep 17 00:00:00 2001
+From: "haolong.zhang" <haolong.zhang@ck-telecom.com>
+Date: Tue, 22 Dec 2015 16:06:25 +0800
+Subject: [PATCH] packages_apps_Contactsporting super
+
+Change-Id: I767af7f2f57a9c95718221f475ec3c951d06374c
+---
+ res/menu/quickcontact.xml                          |  9 ++++
+ res/values-zh-rCN/rcs_string.xml                   |  2 +
+ res/values/strings.xml                             |  2 +
+ .../quickcontact/QuickContactActivity.java         | 54 ++++++++++++++++++++++
+ 4 files changed, 67 insertions(+)
+
+diff --git a/res/menu/quickcontact.xml b/res/menu/quickcontact.xml
+index f3960ee..8bd2e2a 100644
+--- a/res/menu/quickcontact.xml
++++ b/res/menu/quickcontact.xml
+@@ -57,6 +57,15 @@
+         android:title="@string/menu_sendViaSMS" />
+ 
+     <item
++        android:id="@+id/high_Level"
++        android:title="@string/highlevel" />
++
++
++    <item
++        android:id="@+id/low_Level"
++        android:title="@string/lowlevel" />
++
++    <item
+         android:id="@+id/menu_copy_to_phone"
+         android:title="@string/menu_copyTo" />
+ 
+diff --git a/res/values-zh-rCN/rcs_string.xml b/res/values-zh-rCN/rcs_string.xml
+index 002b8cf..2f95799 100644
+--- a/res/values-zh-rCN/rcs_string.xml
++++ b/res/values-zh-rCN/rcs_string.xml
+@@ -99,4 +99,6 @@
+     <string name="last_name_max_length">名字不能超过二十个字节。</string>
+     <string name="full_name_max_length">姓名不能超过四十个字节。</string>
+     <string name="Unformatted_profile_phone_number">当前联系人不支持增强屏显!</string>
++    <string name="highlevel">超级联系人</string>
++    <string name="lowlevel">超级黑名单</string>
+ </resources>
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 5fff446..e889698 100755
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -809,4 +809,6 @@
+     <string name="delete_call_alert">Sure to delete the call logs selected?</string>
+     <string name="title_del_call">Delete</string>
+     <string name="title_add_members">Add members</string>
++    <string name="highlevel">super mode</string>
++    <string name="lowlevel">black mode</string>
+ </resources>
+diff --git a/src/com/android/contacts/quickcontact/QuickContactActivity.java b/src/com/android/contacts/quickcontact/QuickContactActivity.java
+index e0c555a..68d81a1 100755
+--- a/src/com/android/contacts/quickcontact/QuickContactActivity.java
++++ b/src/com/android/contacts/quickcontact/QuickContactActivity.java
+@@ -185,6 +185,9 @@ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.concurrent.ConcurrentHashMap;
++import android.content.SharedPreferences;
++import android.content.pm.PackageManager;
++
+ 
+ /**
+  * Mostly translucent {@link Activity} that shows QuickContact dialog. It loads
+@@ -470,6 +473,7 @@ public class QuickContactActivity extends ContactsActivity {
+             }
+             final EntryContextMenuInfo info = (EntryContextMenuInfo) menuInfo;
+             menu.setHeaderTitle(info.getCopyText());
++	    Log.d(TAG,"just do a test!!!! " + info.getCopyText());
+             menu.add(ContextMenu.NONE, ContextMenuIds.COPY_TEXT,
+                     ContextMenu.NONE, getString(R.string.copy_text));
+ 
+@@ -2408,6 +2412,48 @@ public class QuickContactActivity extends ContactsActivity {
+                 .queryBroadcastReceivers(createShortcutIntent, 0);
+         return receivers != null && receivers.size() > 0;
+    }
++
++     private void setmode(int mode_val) {
++        // Get name string
++        String name = mContactData.getDisplayName();
++        String phone = null;
++
++        Log.d(TAG, "Contact name: " + name);
++
++        for (RawContact raw: mContactData.getRawContacts()) {
++            for (DataItem dataItem : raw.getDataItems()) {
++                final ContentValues entryValues = dataItem.getContentValues();
++                final String mimeType = dataItem.getMimeType();
++
++                Log.d(TAG, "    entryValues:" + entryValues);
++
++                if (mimeType == null) continue;
++
++                if (Phone.CONTENT_ITEM_TYPE.equals(mimeType)) { // Get phone string
++                    if (phone == null) {
++                        phone = entryValues.getAsString(Phone.NUMBER);
++                    } else {
++                        phone = phone + ", " + entryValues.getAsString(Phone.NUMBER);
++                    }
++                }
++				break;
++            }
++			break;
++        }
++		if (0 == mode_val)
++		{
++			Toast.makeText(QuickContactActivity.this,"phonenum:" + phone + "set to balck mode",Toast.LENGTH_LONG).show();
++		}else if(1 == mode_val)
++		{
++			Toast.makeText(QuickContactActivity.this,"phonenum:" + phone + "set to super mode",Toast.LENGTH_LONG).show();
++		}
++
++		//write val
++		SharedPreferences.Editor editor = getSharedPreferences("modeSharedPreferences", Context.MODE_WORLD_READABLE + Context.MODE_WORLD_WRITEABLE).edit();
++		editor.putInt(phone, mode_val);
++		editor.commit();
++    }
++
+      private void sendContactViaSMS() {
+         // Get name string
+         String name = mContactData.getDisplayName();
+@@ -2721,6 +2767,14 @@ public class QuickContactActivity extends ContactsActivity {
+                 sendContactViaSMS();
+                 return true;
+             }
++            case R.id.high_Level: {
++				setmode(1);
++                return true;
++            }
++            case R.id.low_Level: {
++				setmode(0);
++                return true;
++            }
+             case R.id.menu_copy_to_phone: {
+                 if (mContactData == null) return false;
+                 copyToPhone();
+-- 
+1.9.1
+

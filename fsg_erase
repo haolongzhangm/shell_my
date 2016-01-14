@@ -1,9 +1,9 @@
 echo "======================================================="
-fastboot flash modemst1 /media/zhl/second/qcom/msm8939-la-2-1/modem_proc/rftarget_dimepm/zero.bin
+fastboot flash modemst1 ~/shell_my/unexeshell/RF_data/zero.bin
 echo "======================================================="
 sleep 1
-fastboot flash modemst2 /media/zhl/second/qcom/msm8939-la-2-1/modem_proc/rftarget_dimepm/zero.bin
+fastboot flash modemst2 ~/shell_my/unexeshell/RF_data/zero.bin
 echo "======================================================="
 sleep 1
-fastboot flash fsg /media/zhl/second/qcom/msm8939-la-2-1/modem_proc/rftarget_dimepm/zero.bin
+fastboot flash fsg ~/shell_my/unexeshell/RF_data/zero.bin
 echo "======================================================="
