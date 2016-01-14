@@ -1,4 +1,5 @@
 " below add by haolng test 20140819
+"===================misc for vim================
 set nu
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
 syntax on
@@ -10,7 +11,9 @@ set smartindent
 set tabstop=4
 set shiftwidth=4
 set hlsearch incsearch ignorecase
+"==================end for vim misc==============
 
+"==========for TlistToggle and Nerdtree===================
 nnoremap <silent> <F4> :TlistToggle<CR>
 let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Auto_Open = 1
@@ -20,7 +23,15 @@ nn <silent><F3> :exec("NERDTree ".expand('%:h'))<CR>
 let NERDTreeWinPos='right'
 set nocompatible              " be iMproved, required
 filetype off                  " required
+let NERDChristmasTree=1
+let NERDTreeAutoCenter=1
+let NERDTreeShowFiles=1
+let NERDTreeShowHidden=1
+let NERDTreeHightCursorline=1
+let NERDTreeShowLineNumbers=1
+"==========end for TlistToggle and Nerdtree=============
 
+""==========for bundle====================================
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
@@ -37,7 +48,7 @@ Plugin 'tpope/vim-fugitive'
 " plugin from http://vim-scripts.org/vim/scripts.html
 Plugin 'L9'
 " Git plugin not hosted on GitHub
-Plugin 'git://git.wincent.com/command-t.git'
+Plugin 'wincent/command-t'
 " git repos on your local machine (i.e. when working on your own plugin)
 Plugin 'file:///home/gmarik/path/to/plugin'
 " The sparkup vim script is in a subdirectory of this repo called vim.
@@ -49,6 +60,15 @@ Bundle 'scrooloose/syntastic'
 Plugin 'user/L9', {'name': 'newL9'}
 "YouCompleteMe"
 Bundle 'Valloric/YouCompleteMe'
+"nerdtree"
+Bundle 'scrooloose/nerdtree'
+"cctree"
+Bundle 'hari-rangarajan/CCTree'
+"ctrip"
+Bundle 'kien/ctrlp.vim'
+"vim-powerline""same no use for me"
+"Bundle 'Lokaltog/vim-powerline'
+"install plugn : PluginInstall"
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -63,7 +83,10 @@ filetype plugin indent on    " required
 "
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
-""""""""""syntastic"""""""""""" 
+"=======================end bundle=================
+
+"===================for YouCompleteMe==============
+""""""""""syntastic""""""""""""
 "F2 use to cs find f, caused by F8 to youdao
 "nmap <F2> :YcmDiags<CR>
 "below for YouCompleteMe config
@@ -74,26 +97,24 @@ let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_collect_identifiers_from_tags_files = 1
 "let g:ycm_add_preview_to_completeopt = 1
 "'let g:ycm_error_symbol = 'Er'
-"end for YouCompleteMe config
-"grep"
-"nnoremap <silent> <F6> :Grep<CR>"
-"for cscope"
+"======================end for YouCompleteMe config=======
+
+"===============for cscope===========================
 nmap <F5> :cs find c <C-R>=expand("<cword>")<CR><CR>
 nmap <F6> :cs find s <C-R>=expand("<cword>")<CR><CR>
 nmap <F7> :cs find d <C-R>=expand("<cword>")<CR><CR>
 nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
 nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR>
 nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
-" add this for chinese
+"set cscopequickfix=s-,c-,d-,i-,t-,e-
+"===============end cscope===========================
+
+"=========== add this for chinese====================
 let &termencoding=&encoding
 set fileencodings=utf-8,gbk
-let NERDChristmasTree=1
-let NERDTreeAutoCenter=1
-let NERDTreeShowFiles=1
-let NERDTreeShowHidden=1
-let NERDTreeHightCursorline=1
-let NERDTreeShowLineNumbers=1
-"set cscopequickfix=s-,c-,d-,i-,t-,e-
+"===========end for chinese=========================
+
+"===========add for match===========================
 set showmatch
 "add for vim { < ( match
 inoremap ( ()<ESC>i
@@ -104,14 +125,9 @@ inoremap [ []<ESC>i
 ""inoremap ] <c-r>=ClosePair(']')<CR>
 inoremap " ""<ESC>i
 inoremap ' ''<ESC>i
-"function! ClosePair(char)
-"    if getline('.')[col('.') - 1] == a:char
-"        return "\<Right>"
-"    else
-"        return a:char
-"    endif
-"endfunction
-" find result to quickfix
+"=============end for match==========================
+
+"=========add for comman=============================
 command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
 command -nargs=1 Vgallfile :vimgrep /<args>/ **/*.* | copen
 noremap <C-K> :Vgthisfile <C-R>=expand("<cword>")<CR><CR>
@@ -142,7 +158,9 @@ noremap y "+y
 noremap Y "+Y
 "map C-j to show buffers
 nnoremap <C-j> :buffers<CR>:b<Space>
-"add for config ctrlp.vim
+"=================end for add command===========
+
+"=========add for config ctrlp.vim=============
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_custom_ignore = {
@@ -155,4 +173,22 @@ let g:ctrlp_max_height=2000
 let g:ctrlp_match_window_reversed=0
 let g:ctrlp_mruf_max=50000
 let g:ctrlp_follow_symlinks=1
-let g:ctrlp_max_depth = 20
+let g:ctrlp_max_depth = 40
+"=================end for ctrip================
+
+"==================add for cctree========
+""cctree have some issue, leave for later
+"==================end for cctree========
+
+"=================add for command-t======
+let g:CommandTMaxFiles=110000
+let g:CommandTMaxDepth=40
+let g:CommandTMaxHeight=200
+let g:CommandTInputDebounce=100
+"let g:CommandTMinHeight=50
+let g:CommandTMatchWindowAtTop=0
+let g:CommandTMatchWindowReverse=0
+"let g:CommandTCancelMap='<Esc>'
+nnoremap <C-h> :CommandT .
+"if you want to find file from git root dir ,you can use :CommandT
+"==================end for command-t=====
