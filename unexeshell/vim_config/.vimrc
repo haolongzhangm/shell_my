@@ -29,6 +29,7 @@ let NERDTreeShowFiles=1
 let NERDTreeShowHidden=1
 let NERDTreeHightCursorline=1
 let NERDTreeShowLineNumbers=1
+nnoremap <C-a> :let Tlist_WinWidth=45
 "==========end for TlistToggle and Nerdtree=============
 
 ""==========for bundle====================================
@@ -189,6 +190,7 @@ let g:CommandTInputDebounce=100
 let g:CommandTMatchWindowAtTop=0
 let g:CommandTMatchWindowReverse=0
 "let g:CommandTCancelMap='<Esc>'
+let g:CommandTWildIgnore="*.o,*.obj"
 nnoremap <C-h> :CommandT .
 "if you want to find file from git root dir ,you can use :CommandT
 "==================end for command-t=====
