@@ -209,6 +209,8 @@ nmap <F7> :cs find d <C-R>=expand("<cword>")<CR><CR>
 nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
 nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR>
 nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
+nmap <C-u> :tn<CR><CR>
+nmap <C-y> :tp<CR><CR>
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
 "===============end cscope===========================
 
