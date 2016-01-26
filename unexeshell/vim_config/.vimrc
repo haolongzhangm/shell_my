@@ -131,7 +131,7 @@ let NERDTreeShowFiles=1
 let NERDTreeShowHidden=1
 let NERDTreeHightCursorline=1
 let NERDTreeShowLineNumbers=1
-nnoremap <C-a> :let Tlist_WinWidth=45
+nnoremap <C-a> :let Tlist_WinWidth=43
 "==========end for TlistToggle and Nerdtree=============
 
 ""==========for bundle====================================
