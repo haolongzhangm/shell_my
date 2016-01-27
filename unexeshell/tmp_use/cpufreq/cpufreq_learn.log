@@ -1,0 +1,260 @@
+core 框架：
+kernel/drivers/cpufreq/cpufreq.c
+1:提供msm_cpufreq_register-->cpufreq_register_driver(qcom-cpufreq.c)注册：　实现平台话差异参数cpufreq_driver
+2:提供governor　注册 cpufreq_register_governor：　实现调频策略注册:参数cpufreq_governor
+3:提供通知链表cpufreq_register_notifier注册　最常见实例msm_thermal.c　和　charge　
+4:管理一个cpufreq_policy　update　work　　　对应的work时handle_update，　
+
+5:创建文件节点，cpufreq_add_dev－－－__cpufreq_add_dev－－－cpufreq_add_policy_cpu－－－－sysfs_create_link
+6:注册register_syscore_ops　注册resume和supend　callback，核心驱动休眠和唤醒
+目前常用的策略：
+a:cpufreq_interactive.c
+b:cpufreq_performance.c
+c:cpufreq_ondemand.c
+d:cpufreq_conservative.c
+e:cpufreq_userspace.c
+f:cpufreq_powersave.c
+
+
+核心cpufreq_policy->governor
+
+interactive　交互式的；相互作用的
+参看文章:http://blog.csdn.net/droidphone/article/details/9346981
+
+http://blog.chinaunix.net/uid-9185047-id-5051623.html
+
+http://blog.csdn.net/droidphone/article/details/9385745
+
+
+cpufreq_frequency_table
+
+cpufreq_policy
+
+cpufreq_governor
+
+cpufreq_driver
+
+cpufreq notifiers
+
+
+
+
+
+
+
+======================管理一个cpufreq_policy　update　work　　　对应的work时handle_update，　====================
+handle_update　步骤：
+更新一个policy cpufreq_policy, 其实是更新一个governor　,调用cpufreq_update_policy
+被唤醒的两种接口：
+1:对外接口：cpufreq_get－－＞__cpufreq_get:　schedule_work(&policy->update);，很少模块用到
+2:.resume     = cpufreq_bp_resume:schedule_work(&policy->update)
+---------
+work的建立流程：
+1:　(subsys_interface_register/bus_probe_device) --->  cpufreq_add_dev　__cpufreq_add_dev:INIT_WORK(&policy->update, handle_update); 
+2:  cpufreq_add_dev　__cpufreq_add_dev:INIT_WORK(&policy->update, handle_update);
+
+policy的实施，cpufreq_update_policy----cpufreq_set_policy－－－__cpufreq_governor．．(governor->governor)
+ps每次实施都是：apply　是new_policy（会把上次的policy赋值给这次的new_policy），本轮被governor更新的是policy
+详细分析：
+cpufreq_update_policy：
+１：把上次得到的policy　赋值给即将实施的new_policy
+２：通过cpufreq_driver　获得当前cpu频率cur
+３：调用cpufreq_set_policy
+
+cpufreq_set_policy：
+１：把上次得到的cpuinfo　复制给　new_policy　的ｃｐｕｉｎｆｏ
+２：通过cpufreq_driver　的verify来验证即将实施的频率的最大值和最小值是否符合要求
+３：通过通知链来和关心cpufreq变化的模块交互：
+a:CPUFREQ_ADJUST
+典型模块:
+>>>u_ether:usb以太网卡-->把cpu min最小频率设置到UINT_MAX最大，目地是提高中断响应频率（事与愿违，这个设置最后都会被其他模块冲掉）
+>>>thermal:模块收到这个通知后，会把max　freq限定在　notify_device->cpufreq_val，这个属于thermal　自己维护的最大频率，保护cpu等
+>>>msm_performance: 目地是让msm自己的performance模式可以覆盖所有的governor<<<＂自私的手动＂
+>>>其他模块：eg vedio 播放驱动等
+
+b:CPUFREQ_INCOMPATIBLE
+典型模块：
+>>>battery_current_limit模块：当电池温度超过门限后（高温和低温），把cpu　freq最大值限制到charger想要的值:max_freq = (gbcl->bcl_monitor_type== BCL_IBAT_MONITOR_TYPE) ? gbcl->btm_freq_max: gbcl->bcl_p_freq_max;
+
+>>>msm_thermal模块:设置到这个模块自己维护的max和min值去
+>>>其他模块：eg vedio 播放驱动等
+
+c:CPUFREQ_NOTIFY
+典型模块：
+>>>其他模块：eg vedio 播放驱动等
+
+４：给cpufreq_driver设置policy的机会　cpufreq_driver->setpolicy　-<<<<<已经抛弃了，现在的cpufreq_driver基本上都没有实现这个callback了
+
+５：如果governor发生变化，则实施新的governor
+
+６：__cpufreq_governor．．(governor->governor)　更新policy的governor　以便给下次循环复制给new_policy实施(governor回调是governor最重要的函数)
+
+
+==================================================================================================================================
+
+========================governor章节==============================================================================================
+1:cpufreq_register_governor
+a:实现结构体：
+struct cpufreq_governor {
+	char	name[CPUFREQ_NAME_LEN];
+	int	initialized;
+	int	(*governor)	(struct cpufreq_policy *policy,　　　
+				 unsigned int event);
+	ssize_t	(*show_setspeed)	(struct cpufreq_policy *policy,
+					 char *buf);
+	int	(*store_setspeed)	(struct cpufreq_policy *policy,
+					 unsigned int freq);
+	unsigned int max_transition_latency; /* HW must be able to switch to
+			next freq faster than this value in nano secs or we
+			will fallback to performance governor */
+	struct list_head	governor_list;
+	struct module		*owner;
+};
+主要是方法governor的实现，．governor　主要实现
+>>>响应三种事件CPUFREQ_GOV_POLICY_INIT(分配资源，创建sys文件，注册通知CPUFREQ_TRANSITION_NOTIFIER响应callback)
+CPUFREQ_GOV_POLICY_EXIT，　CPUFREQ_GOV_START(启动一些线程或者timer，来维护load更新)，CPUFREQ_GOV_STOP
+>>>维护一个load更新timer
+>>>根据load和此governor特性，计算一个下一组频点范围
+
+b:把注册的governor的链表注册到全局cpufreq_governor_list，供后面查询和使用，
+
+ps: cpufreq_governor 抽象了一些公共的服务，诸如timer的调度，三种事件的调度，可以只向cpufreq_governor提供callback即可，比如conservative，ondemand,
+只需要通过把common_dbs_data　填充好，然后.governor指向cpufreq_governor_dbs即可
+　(interactive搞特殊，google工程师为android设备引入的)
+2：几个关联结点：
+a：scaling_available_governors　读
+遍历list_for_each_entry　cpufreq_governor_list链表把，已经注册的governor　名字打印出来
+
+b：scaling_governor　读／写
+读(show_scaling_governor)>>>打印出当前使用的governor:policy->governor->name
+写(store_scaling_governor)>>>使能governor的接口,调用cpufreq_parse_governor找到将要使能的governor，调用cpufreq_set_policy实施新的governor
+
+3:：六种常见的governor：interactive ondemand userspace powersave performance (conservative, msm没有enable)
+a:interactive (目前android使用的)
+开始流程：init.qcom.rc　被init解析
+service qcom-post-boot /system/bin/sh /system/etc/init.qcom.post_boot.sh
+    class late_start
+    user root
+    disabled
+    oneshot
+...
+...
+on property:sys.boot_completed=1
+    start qcom-post-boot
+    start config-zram
+    start getinfo
+
+system/etc/init.qcom.post_boot.sh:
+                echo "interactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+                echo "interactive" > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor
+                echo "interactive" > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor
+                echo "interactive" > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
+
+
+
+
+
+
+Performance：持續將CPU頻率控制在最高時脈。
+Ondemand：只要CPU的使用率超過1個固定的百分比，就直接將CPU頻率拉到最高，之後再依負載情形降頻，這也是絕大多數Linux預設的管理策略，平时以低速方式运行，当系统负载提高时候自动提高频率。以这种模式运行不会因为降频造成性能降低，同时也能节约电能和降低温度
+Conservative：與Ondemand相似，但是提升時脈的行為較為消極，會在CPU可運作的時脈中一階一階往上跳，反應比較緩慢但省電。
+Powersave：將CPU頻率直接固定在最低頻率。
+除此之外，還有其它延伸出來的管理模式，並不一定每一台Android裝置裡都有支援，在此簡述如下：
+。
+Interactive：這個為Nexus 7的預設模式，基本上也與Ondemand相似，但在CPU負載的取樣率更快，且在不同頻率下的升降頻策略有所不同；同時保持CPU負載取樣程序的高優先性，因此比Ondemand的反應速度快。
+
+这里在整理一下，系统负载是怎么采集的：
+调用get_cpu_idle_time　获取系统负载
+cpufreq_governor　封装了一个need_load_eval函数
+
+=======================================cpufreq_register_driver===================================================
+cpufreq　core　通过governor得到新的policy，新的policy　最后需要实施到cpu硬件上（所谓的target或者setplicy）
+因为没有平台差异化话原因，cpufreq　core提供一个公共的注册函数cpufreq_register_driver，　各个厂商只需要把相应
+的callback　注册到cpufreq　core　即可
+
+重要结构体：
+struct cpufreq_driver {
+	char			name[CPUFREQ_NAME_LEN];　－－－－－－－－－－－－－－－－驱动的名字
+	u8			flags;　－－－－－－－－－－－－－－－－－－－－－－－－－特殊flag,用于告知cpufreq core对此驱动做特殊处理，比如如何相应通知，　是否相应ＰＭ系统，是否每个cpu都实例化一个驱动等
+
+	/* needed by all drivers */
+	int	(*init)		(struct cpufreq_policy *policy);－－－－－－－－－－－－cpufreq_driver初始化需要准备的事务，比如寻找自己的freq表等
+	int	(*verify)	(struct cpufreq_policy *policy);－－－－－－－－－－－－
+
+	/* define one out of two */
+	int	(*setpolicy)	(struct cpufreq_policy *policy);－－－－－－－－－－－－//setplicy实现设置电压，设置晶体分频等，属于老接口，
+	int	(*target)	(struct cpufreq_policy *policy,	/* Deprecated */－－－－//已经被target取代，新驱动都使用target
+				 unsigned int target_freq,
+				 unsigned int relation);
+	int	(*target_index)	(struct cpufreq_policy *policy,　－－－－－－－－－－－－//和target类似，新的驱动也抛弃了这个接口
+				 unsigned int index);
+
+	/* should be defined, if possible */
+	unsigned int	(*get)	(unsigned int cpu);－－－－－－－－－－－－－－－－－－－获取cpu实际运行的频率
+
+	/* optional */
+	int	(*bios_limit)	(int cpu, unsigned int *limit);－－－－－－－－－－－－－获取bios设置的cpu最大频率，一般只在通用PC平台才会实现这个回调
+
+	int	(*exit)		(struct cpufreq_policy *policy);－－－－－－－－－－－－－和init相反的事务处理，现在一般都是build_in方式，所有基本上都没有实现这个回调
+	int	(*suspend)	(struct cpufreq_policy *policy);－－－－－－－－－－－－//休眠唤醒callback，由于现状CPU的休眠唤醒有单独的PM流程
+	int	(*resume)	(struct cpufreq_policy *policy);－－－－－－－－－－－－－//所以在cpufreq_driver中基本上都没有在实现这两个callback
+	struct freq_attr	**attr;－－－－－－－－－－－－－－－－－－－－－－－－－－cpu　freq table表属性
+};
+
+
+把上述平台差异化callback实现，注册到cpufreq core即可
+
+这里在整理一下，cpu freq table是如何从dts中获得的：
+这些API都实现在freq_table.c文件中
+a:(cpufreq_driver:probe)qcom-cpufreq.c:msm_cpufreq_probe ---> (cpufreq_driver:cpufreq_parse_dt)
+--->(of_api:of_find_property/of_property_read_u32_array)得到结果保存到ftbl　--->通过per_cpu保存结果到freq_table变量
+per_cpu(freq_table, cpu)
+b:(cpufreq core:调用cpufreq_driver->init)--->msm_cpufreq_init--->(得到freq_table）struct cpufreq_frequency_table *table =　per_cpu(freq_table, policy->cpu)--->(调用cpufreq_frequency_table_get_attr保持freq tab到公共per_cpu变量)per_cpu(cpufreq_show_table, cpu) = table
+c:之后所以对cpu freq table的查询都通过freq_table.c　对外的API来间接查询cpufreq_show_table中的值，eg api:cpufreq_frequency_get_table
+
+在整理一下，　cpu voltage是如何更新的：
+
+a:常规做法，把cpu voltage table　放在和coufreq　table放在dts中，　cpufreq_driver->init的时候去初始化一份cpu voltage table
+然后后面cpufreq core调用cpufreq_driver->target系列函数时，根据policy中的新的频率和当前cpu频率进行比较
+>>>如果当前频率小于新的频率，则先根据cpu voltage table找到一个电压值，通过regulator_set_voltage　设置arm core电压，然后再通过clk_set_rate设置频率
+>>>如果当前频率大于新的频率，则先通过clk_set_rate设置频率，再根据cpu voltage table找到一个电压值，通过regulator_set_voltage　设置arm core电压
+
+b:qcom做法(不太赞同qcom的做法)
+cpufreq core调用cpufreq_driver->target系列函数时，直接调用clk_set_rate(这个函数和标准的drivers/clk/clk.c中的有差异，qcom用的实现在drivers/clk/qcom/clock.c)，　通过qcom自己实现的vote_rate_vdd　的函数来处理　freq和 voltage
+具体的频率和电压对于表如下：(第一列去掉三个０就是频率)
+kernel/drivers/clk/qcom/clock-gcc-8936.c
+static struct pll_freq_tbl apcs_c1_pll_freq[] = {
+	F_APCS_PLL( 652800000, 34, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL( 691200000, 36, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL( 729600000, 38, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL( 806400000, 42, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL( 844800000, 44, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL( 883200000, 46, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL( 960000000, 50, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL( 998400000, 52, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1036800000, 54, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1113600000, 58, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1209600000, 63, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1190400000, 62, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1267200000, 66, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1344000000, 70, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1363200000, 71, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1420800000, 74, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1459200000, 76, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1497600000, 78, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1536000000, 80, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1574400000, 82, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1612800000, 84, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1632000000, 85, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1651200000, 86, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1689600000, 88, 0x0, 0x1, 0x0, 0x0, 0x0),
+	F_APCS_PLL(1708800000, 89, 0x0, 0x1, 0x0, 0x0, 0x0),
+};
+
+比如更加需要，可以来实际优化这张表(由于欠压不稳定性，可以适当提高一点电压，由于arm过热可以，可以适当降低一点电压)
+
+============================================================================
+
+
+
+
