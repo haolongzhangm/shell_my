@@ -1,0 +1,49 @@
+#!/bin/bash
+function print_usage(){
+echo Usage:
+echo "$0 [from_branch] [need_dir] ...[need_file]..."
+echo "eg:"
+echo "$0 master modem_proc/ contents.xml "
+echo "Nothing NONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+}
+
+function check_parameter_number(){
+if [  $# -eq 0 ]
+then
+	echo ">>>>>>>>>>>>>>>>>>Need some paramters<<<<<<<<<<<<<<<"
+	echo "find args="$#
+	echo "just show usage"
+	print_usage
+	exit 0
+fi
+}
+
+function get_commit_really(){
+rm input_for_cherry_pick.pre
+echo  "args="$@
+git log --pretty=format:'%h  ' $@  > just_commit.pre
+n=$(awk 'END{print NR}'  just_commit.pre)
+for i in `seq $n`
+do
+	echo $i
+	echo $n
+	hande_line=$(($n-$i+1))
+	echo "hande_line=$hande_line"
+	sed -n "$hande_line""p" just_commit.pre >> input_for_cherry_pick.pre
+done
+echo "resut below"
+echo "orgin:"
+echo "==============================================="
+cat just_commit.pre
+echo "==============================================="
+echo "input for cherry pick:"
+echo "==============================================="
+cat input_for_cherry_pick.pre
+echo "==============================================="
+echo "you can use command to cherry-pick: cat input_for_cherry_pick.pre  | xargs git cherry-pick"
+}
+
+
+#########################shell start here######################
+check_parameter_number $@
+get_commit_really $@
