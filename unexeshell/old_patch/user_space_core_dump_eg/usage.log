@@ -1,0 +1,12 @@
+1:enable coredump for native process
+ulimit -c 1024 ; or ulimit -c unlimited
+
+2:mkdir dir and config for store core-file 
+mkdir /sdcard/native_coredump
+echo "/sdcard/native_coredump/core-%e-%p" > /proc/sys/kernel/core_pattern
+
+3:wait process crash 
+
+4:get core-file at dir /sdcard/native_coredump
+
+ps: use more command : ulimit -a 

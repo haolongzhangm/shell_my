@@ -1,0 +1,50 @@
+内核同步有如下方式：
+per_cpu
+原子操作
+内存屏障
+自旋锁
+信号量
+顺序锁
+禁止本地中断
+禁止本地软件中断
+RCU
+completion
+
+
+参考blog:http://blog.chinaunix.net/uid-23767307-id-186029.html
+
+
+///////////////////////
+
+1:per_cpu
+---------------------------------
+2:原子操作
+用途：保证一个变量的指被并发访问（修改和读）
+原型：
+typedef struct {
+	int counter;
+} atomic_t;
+定义和声明
+void atomic_set(atomic_t *v, int i);
+atomic_t v = ATOMIC_INIT(0);
+常见的API位于相应体系目录下的atomic.h　文件中
+
+
+---------------------------------
+3:内存屏障
+作用：内存屏障，可以保证在此之前的代码全部执行完才开始执行在此之后的代码，主要是指数据读写的指令（原因：现代cpu为了提高性能，会有＂乱序执行＂）
+常见的API位于相应体系目录下的barrier.h　文件中
+比如ARM SMP的定义
+#define smp_mb()	barrier()
+#define smp_rmb()	barrier()
+#define smp_wmb()	barrier()
+
+---------------------------------
+自旋锁
+信号量
+顺序锁
+禁止本地中断
+禁止本地软件中断
+RCU
+completion
+
