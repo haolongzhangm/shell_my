@@ -1,4 +1,5 @@
 #!/bin/bash
+#by haolong.zhang v0.1
 function print_usage(){
 echo Usage:
 echo "$0 [from_branch] [need_dir] ...[need_file]..."
@@ -22,6 +23,8 @@ function get_commit_really(){
 rm input_for_cherry_pick.pre
 echo  "args="$@
 git log --pretty=format:'%h  ' $@  > just_commit.pre
+#need a blank line at the end of just_commit.pre, so add below
+echo >> just_commit.pre
 n=$(awk 'END{print NR}'  just_commit.pre)
 for i in `seq $n`
 do
