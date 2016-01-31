@@ -1,0 +1,254 @@
+内核同步有如下方式：
+per_cpu
+原子操作
+内存屏障
+自旋锁
+信号量
+禁止本地中断
+禁止本地软件中断
+RCU
+completion
+
+
+参考blog:http://blog.chinaunix.net/uid-23767307-id-186029.html
+
+
+///////////////////////
+
+1:per_cpu
+per_cpu的原理就是一个变量结构在所有CPU cache上都存一份，这样每次读写就可以避免锁开销，
+上下文切换和cache miss等一系列问题，一般来说，最好把per_cpu变量声明为CPU cache对齐的
+使用：
+a：通过DEFINE_PER_CPU
+static DEFINE_PER_CPU(struct cs_cpu_dbs_info_s, cs_cpu_dbs_info);
+通过per_cpu获取
+	struct cs_cpu_dbs_info_s *dbs_info = &per_cpu(cs_cpu_dbs_info, cpu);
+
+此种方式不可以释放，标识符在（静态）全局变量区
+
+b：通过alloc_percpu
+static struct acpi_processor_performance __percpu *acpi_perf_data;
+	acpi_perf_data = alloc_percpu(struct acpi_processor_performance);
+通过per_cpu_ptr 获得
+	perf = per_cpu_ptr(acpi_perf_data, cpu);
+可以通过	free_percpu(acpi_perf_data);
+释放
+
+ps：更多的api include/linux/percpu-defs.h
+
+---------------------------------
+2:原子操作
+用途：保证一个变量的指被并发访问（修改和读）
+原型：
+typedef struct {
+	int counter;
+} atomic_t;
+定义和声明
+void atomic_set(atomic_t *v, int i);
+atomic_t v = ATOMIC_INIT(0);
+常见的API位于相应体系目录下的atomic.h　文件中
+
+
+---------------------------------
+3:内存屏障
+作用：内存屏障，可以保证在此之前的代码全部执行完才开始执行在此之后的代码，主要是指数据读写的指令（原因：现代cpu为了提高性能，会有＂乱序执行＂）
+常见的API位于相应体系目录下的barrier.h　文件中
+比如ARM SMP的定义
+#define smp_mb()	barrier()
+#define smp_rmb()	barrier()
+#define smp_wmb()	barrier()
+
+---------------------------------
+4:自旋锁
+关键字：不能阻塞，不可中断, 多CPU架构/*{{{*/
+
+		大部分的锁，底层都是通过自旋锁实现的。自旋锁只能在不能休眠的代码中使用！
+		自旋锁的性能要比信号量更高！一个自旋锁只有两个值：“锁定”和“解锁”！
+		
+		在自旋锁的实现中，一般都是通过某个整数值中的单个位，所以最重要的是 test_and_set 的原子执行！
+
+		自旋锁可以应用在多处理器架构上，这也是它的设计初衷。非抢占内核运行在单处理器上的时候，
+		Linux 自旋锁实际上什么都不作。
+		
+		自旋锁使用原则：
+			任何拥有自旋锁的代码，都不能休眠，不能因为任何原因放弃CPU。除了服务中断！
+
+			自旋锁会禁止当前CPU上的抢占，即使在单处理器架构上。
+
+			拥有锁的时间越短越好！
+
+			在中断中使用自旋锁，那么这个自旋锁必须是通过禁止中断形式上锁的。
+
+			在软件中断中使用自旋锁，那么这个自旋锁必须是通过关闭软件中断形式上锁的
+API：<linux/spinlock.h>
+		声明和定义：
+			spinlock_t my_lock = SPIN_LOCK_UNLOCKED;	静态
+
+			void spin_lock_init(spinlock_t *lock);		动态
+
+		上锁：
+			void spin_lock(spinlock_t *lock);
+			void spin_lock_irqsave(spinlock_t *lock, unsigned long flags);	/* 保存中断状态，关闭中断 */
+			void spin_lock_irq(spinlock_t *lock);							/* 关闭中断，但是不保存中断状态，解锁的时候，直接开中断 */
+			void spin_lock_bh(spinlock_t *lock);							/* 关闭软件中断 */
+
+		解锁：
+			void spin_unlock(spinlock_t *lock);
+			void spin_unlock_irqrestored(spinlock_t *lock, unsigned long flags);
+			void spin_unlock_irq(spinlock_t *lock);
+			void spin_unlock_bh(spinlock_t *lock);
+		
+		非阻塞形：成功获得自旋锁的时候，返回非零值！
+			int spin_trylock(spinlock_t *lock);
+			int spin_trylock_bh(spinlock_t *lock);/*}}}*/
+
+	变体>>> 读写自旋锁：
+		允许任意数量的读者，但是写者必须互斥！/*{{{*/
+		
+		声明和定义：<linux/spinlock.h>
+			rwlock_t my_rwlock = RW_LOCK_UNLOCKED; /* Static way */
+			rwlock_t my_rwlock;
+			rwlock_init(&my_rwlock);  /* Dynamic way */
+		
+		读者：
+			上锁：
+				void read_lock(rwlock_t *lock);
+				void read_lock_irqsave(rwlock_t *lock, unsigned long flags);
+				void read_lock_irq(rwlock_t *lock);
+				void read_lock_bh(rwlock_t *lock);
+		
+			解锁：
+				void read_unlock(rwlock_t *lock);
+				void read_unlock_irqrestore(rwlock_t *lock, unsigned long flags);
+				void read_unlock_irq(rwlock_t *lock);
+				void read_unlock_bh(rwlock_t *lock);
+
+		写者：
+			上锁：
+				void write_lock(rwlock_t *lock);
+				void write_lock_irqsave(rwlock_t *lock, unsigned long flags);
+				void write_lock_irq(rwlock_t *lock);
+				void write_lock_bh(rwlock_t *lock);
+				int write_trylock(rwlock_t *lock);
+
+			解锁：
+				void write_unlock(rwlock_t *lock);
+				void write_unlock_irqrestore(rwlock_t *lock, unsigned long flags);
+				void write_unlock_irq(rwlock_t *lock);
+				void write_unlock_bh(rwlock_t *lock);/*}}}*/
+
+	变体>>>顺序锁
+		适用情况：/*{{{*/
+			1. 当要保护的资源很小，很简单
+			2. 会被频繁读取访问并且很少发生写入访问
+			3. 访问会很快
+		这种情况下就可以使用 seqlock
+
+		使用限制：
+			通常，seqlock不能保护包含指针的数据结构。
+			因为，seqlock会允许读者自由的访问资源，但是需要读者自己检查
+			是否和写者发生了冲突，如果发生了，就需要对资源重新访问。所以，
+			如果数据结构中包含指针，那么读者有可能会访问一个无效的指针。
+			当读取访问的时候，会首先获得一个整数值，然后进入临界区，当退出
+			临界区的时候会将这个值和当前值进行比较，如果不相等，那么需要重新
+			读取。
+
+		API: <linux/seqlock.h>
+			声明和定义：
+				seqlock_t lock = SEQLOCK_UNLOCKED;
+
+				seqlock_t lock;
+				seqlock_init(&lock);
+			读者:
+				unsigned int read_seqbegin(seqlock_t *lock);
+				int read_seqretry(seqlock_t *lock, unsigned int seq);
+
+				unsigned int read_seqbegin_irqsave(seqlock_t *lock, unsigned long flags);
+				int read_seqretry_irqrestore(seqlock_t *lock, unsigned int seq, unsigned long flags);
+
+			写者：
+				写顺序锁通过自旋锁实现，所以自旋锁的限制也适用于顺序锁
+				void write_seqlock(seqlock_t *lock);
+				void write_sequnlock(seqlock_t *lock);
+				
+				void write_seqlock_irqsave(seqlock_t *lock, unsigned long flags);
+				void write_seqlock_irq(seqlock_t *lock);
+				void write_seqlock_bh(seqlock_t *lock);
+
+				void write_sequnlock_irqrestore(seqlock_t *lock, unsigned long flags);
+				void write_sequnlock_irq(seqlock_t *lock);
+				void write_sequnlock_bh(seqlock_t *lock);
+
+
+
+---------------------------------
+信号量
+信号量本质上是一个整数和一个等待队列，和一对函数一起使用！也就是通常说的P，V操作。/*{{{*/
+		
+		信号量的最大特点就是拥有信号量的内核路径可以阻塞！！！而拥有自旋锁的路径不能够休眠！
+
+		信号量API：<asm/semaphore.h>
+				struct semaphore sem;
+				
+			声明初始化：
+				void sema_init(struct semaphore *sem, int val);
+				DECLARE_MUTEX(sem);				初始化一个信号量，使之能够向互斥锁一样使用。
+				DECLARE_MUTEX_LOCKED(sem);		初始化一个信号量，类似于一个已经上锁的互斥量。
+				void init_MUTEX(struct semaphore *sem);
+				void init_MUTEX_LOCKED(struct semaphore *sem);
+
+			P操作：
+				void down(struct semaphore *sem);
+				int down_interruptible(struct semaphore *sem);	返回非零值，表明在等待锁的过程中被中断了！
+				int down_trylock(struct semaphore *sem);		返回非零值，表明没有获得锁！
+
+			V操作：
+				void up(struct semaphore *sem);/*}}}*/
+
+	 读写信号量：
+		一个读写信号量允许一个写者或者多个读者拥有信号量！写者拥有更高的优先级别，/*{{{*/
+		读写信号量适合于：写入的情况很少，而且很快就会写完！
+
+		API:<linux/rwsem.h>
+			声明和定义：
+				struct rw_semaphore rwsem;
+				void init_rwsem(struct rw_semaphore *rwsem);		只能动态初始化，不能静态
+
+			读访问：
+				void down_read(struct rw_semaphore *rwsem);
+				int down_read_trylock(struct rw_semaphore *rwsem);
+				void up_read(struct rw_semaphore *rwsem);
+
+			写访问：
+				void down_write(struct rw_semaphore *rwsem);
+				int down_write_trylock(struct rw_semaphore *rwsem);
+				void up_write(struct rw_semaphore *rwsem);
+				void downgrade_write(struct rw_semaphore *rwsem);
+---------------------------------------------------------------------
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+*. 互斥量用于线程的互斥，信号量用于线程的同步。
+
+这是互斥量和信号量的根本区别，也就是互斥和同步之间的区别。
+
+互斥：是指某一资源同时只允许一个访问者对其进行访问，具有唯一性和排它性。但互斥无法限制访问者对资源的访问顺序，即访问是无序的。
+
+同步：是指在互斥的基础上（大多数情况），通过其它机制实现访问者对资源的有序访问。在大多数情况下，同步已经实现了互斥，特别是所有写入资源的情况必定是互斥的。少数情况是指可以允许多个访问者同时访问资源
+
+以上区别是主要想记住的。
+
+note:信号量可以用来实现互斥量的功能
+
+*. 互斥量值只能为0/1，信号量值可以为非负整数。
+
+也就是说，一个互斥量只能用于一个资源的互斥访问，它不能实现多个资源的多线程互斥问题。信号量可以实现多个同类资源的多线程互斥和同步。当信号量为单值信号量是，也可以完成一个资源的互斥访问。
+
+*. 互斥量的加锁和解锁必须由同一线程分别对应使用，信号量可以由一个线程释放，另一个线程得到。
+
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+禁止本地中断
+禁止本地软件中断
+RCU
+completion(替代信号量)
+
