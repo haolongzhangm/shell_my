@@ -97,7 +97,10 @@ autocmd BufNewFile,BufRead *.c let g:ycm_global_ycm_extra_conf = '~/shell_my/une
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_collect_identifiers_from_tags_files = 1
 "let g:ycm_add_preview_to_completeopt = 1
-"'let g:ycm_error_symbol = 'Er'
+let g:ycm_error_symbol = 'Er'
+let g:ycm_warning_symbol = 'Wr'
+highlight YcmErrorSection guibg=#000000
+highlight YcmWarningSection guibg=#000000
 "======================end for YouCompleteMe config=======
 
 "===============for cscope===========================
