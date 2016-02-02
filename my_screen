@@ -4,14 +4,16 @@ adb wait-for-device
 echo ===find adb devices=====
 adb devices
 echo haolong test android screencap reflash time 1:s........................................................
-for((i=1;i<100;))
+for((i=1;i<10000;i++))
 do
 	echo ==="wait devices first"=======================================
 	time=` date +%Y_%m_%d_%H_%M_%S`
 	adb wait-for-device
-	adb shell screencap -p | sed 's/\r$//' > screen_${time}.png
+	adb shell screencap -p | sed 's/\r$//' > /tmp/wait_shell.png
+	cp /tmp/wait_shell.png /tmp/ok_show.png
+	eog /tmp/ok_show.png &
 echo =======================================================================================================
-sleep 1
+#sleep 1
 echo
 echo
 echo
