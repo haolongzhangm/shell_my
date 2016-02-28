@@ -4,7 +4,8 @@
 ========================================================
 名词：ISA: instruction-set architecture :指令体系结构
 每种处理器家族（Arch）使用不同的ISA
-
+RISC(精简指令集计算机):Reduced Instruction Set Computer
+CISC(复杂指令集计算机)Complex Instruction Set Computer
 =======================================================
 常见的Arch包含了：
 RISC：
@@ -42,7 +43,7 @@ CISC:
 x86/IA32/x64    CISC
 =================================================================
 
-RISC(精简指令集计算机)和CISC(复杂指令集计算机)
+
 CISC与RISC的区别　
 CISC与RISC到底有何区别？
 　　从硬件角度来看CISC处理的是不等长指令集，它必须对不等长指令进行分割，因此在执行单一指令的时候需要进行较多的处理工作。
@@ -64,4 +65,109 @@ cpu流水线技术是一种将指令分解为多步，并让不同指令的各步操作重叠，
 注意：流水线深度和条数，
 ===============================================================
 补充ARM 处理器代数
+
+1：目前有8个大版本 所谓的v7 v6 v8 
+2: 64bit AArch64从v8版本开始支持
+3：ARM变种
+T变种：所谓的支持Thumb指令v4开始支持
+M变种：长乘法指令支持v3开始支持
+E变种：DSP数据高效指令v5开始支持
+J变种：硬件层支持java虚拟机，特点较纯java虚拟机快80%，v4开始支持
+S变种：集成多媒体加速单元
+
+命名特点：
+M变种中v4版本模式支持，故命名不在把M列出来
+用x字母排斥支持某种功能：比如ARMv4xM
+
+基本命令和ARM版本对于关系：
+ARM3        v2
+ARM5        v3
+ARM7        v4 (没有MMU)
+ARM9        v5
+ARM11       v6
+ARM-Cortex  v7/v8
+
+Cortex-A、移动领域的CPU，面向尖端的基于虚拟内存的操作系统和用户应用
+Cortex-R、针对实时系统,比如vxworks，r-linux,军工方向
+Cortex-M 微控领域
+v7典型：Cortex-A7/A8/A9
+v8典型：Cortex-A15/A53/A57/A72
+
 ===============================================================
+ARM 处理器模式：32BIT 
+用户模式(User):ARM处理器正常的程序执行状态
+快速中断模式(FIQ):用于高速数据传输或通道处理
+外部中断模式(IRQ):用于通用的中断处理
+管理模式(Supervisor):操作系统使用的保护模式
+数据访问终止模式(Abort):当数据或指令预取终止时进入该模式,可用于虚拟存储及存储保护
+系统模式(System):运行具有特权的操作系统任务
+未定义指令中止模式(Undifined):当未定义的指令执行时进入该模式,可用于支持硬件协处理器的软件仿真
+===========================================================
+ARM寄存器：32BIT
+37个寄存器：大体名称有18个
+R0-R7   8个
+R8-R12   5*2 = 10个  快中断一个，其他模式共用一个
+R13-R14  6*2 = 12个    用户模式和系统模式共用一个， 其他模式各自一个 R13（SP）堆栈指针，R14 LR指针
+R15 PC 一个
+CPSP 一个 current program status register
+SPSR  用户模式和系统模式没有SPSR， 其他模式各自一个 5个，退出这些模式时，用SPSR还原CPSR
+saved program status register
+
+SPSR格式
+31 30 29 28 27 26       7 6 5 4  3  2  1  0
+N  Z  C  V  Q  DNM(RAZ) I F T M4 M3 M2 M1 M0
+
+N——本位设置成当前指令运算结果的bit[31]的值。当两个表示的有符号整数运算时，n=1表示运算结果为负数，n=0表示结果为正数或零。
+z——z=1表示运算的结果为零；z=0表示运算的结果不为零。对于CMP指令，Z=1表示进行比较的两个数大小相等。
+C——下面分四种情况讨论C的设置方法：
+在加法指令中（包括比较指令CMN），当结果产生了进位,则C=1,表示无符号运算发生溢出(overflow)；其他情况C=0。
+在减法指令中（包括比较指令CMP），当运算中发生借位，则C=0，表示无符号运算数发生进位；其他情况下C=1。
+对于包含移位操作的非加减运算指令，C中包含最后一次溢出的位的数值
+对于其他非加减运算指令，C位的值通常不受影响
+V——对于加减运算指令，当操作数和运算结果为二进制的补码表示的带符号数时，V=1表示符号位溢出；通常其他指令不影响V位。
+***Q标识位***
+在ARM V5的E系列处理器中，CPSR的bit[27]称为q标识位，主要用于指示增强的dsp指令是否发生了溢出。同样的spsr的bit[27]位也称为q标识位，用于在异常中
+断发生时保存和恢复CPSR中的Q标识位。
+在ARM V5以前的版本及ARM V5的非E系列的处理器中，Q标识位没有被定义。
+***CPSR中的控制位***
+CPSR的低八位I、F、T、M[4:0]统称为控制位。当异常中断发生时这些位发生变化。在特权级的处理器模式下，软件可以修改这些控制位。
+**中断禁止位：当I=1时禁止IRQ中断，当F=1时禁止FIQ中断
+**T控制位：T控制位用于控制指令执行的状态，即说明本指令是ARM指令还是Thumb指令。对于ARM V4以更高版本的T系列ARM处理器，T控制位含义如下：
+T=0表示执行ARM指令
+T=1表示执行Thumb指令
+对于ARM V5以及更高版本的非T系列处理器，T控制位的含义如下
+T=0表示执行ARM指令
+T=1表示强制下一条执行的指令产生未定指令中断
+***M控制位***
+M控制位控制处理器模式，具体含义如下：
+M[4:0] 处理器模式 可访问的寄存器
+ob10000 user pc,r14~r0,CPSR
+0b10001 FIQ PC,R14_FIQ-R8_FIQ,R7~R0,CPSR,SPSR_FIQ
+0b10010 IRQ PC,R14_IRQ-R13_IRQ,R12~R0,CPSR,SPSR_IRQ
+0B10011 SUPERVISOR PC,R14_SVC-R13_SVC,R12~R0,CPSR,SPSR_SVC
+0b10111 ABORT PC,R14_ABT-R13_ABT,R12~R0,CPSR,SPSR_ABT
+0b11011 UNDEFINEED PC,R14_UND-R8_UND,R12~R0,CPSR,SPSR_UND
+0b11111 SYSTEM PC,R14-R0,CPSR(ARM V4以及更高版本）
+=======================================================================
+ARM 处理器模式：64BIT 
+User
+FIQ 
+IRQ 
+Supervisor 
+Monitor Secure EL3 If EL3 implemented and using AArch32 
+Abort abc 10111 Non-secure
+Hyp   Non-secure EL2 If EL2 implemented and using AArch32
+Undefined und 11011 Non-secure
+System
+==================================================
+ARM寄存器：64BIT ()
+31个通用寄存器：x0-x30  64bit   x30 是LR
+一个PC  64bit
+一个SP   64bit
+一个ELRs   64bit  exception link registers
+一个SIMD  128BIT
+一个A64
+一组EL0 - EL3
+一组Process state
+一组hold PE state
+33页
