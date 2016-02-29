@@ -11,13 +11,13 @@ CISC(复杂指令集计算机)Complex Instruction Set Computer
 RISC：
 alpha---- DEC  RISC 3-D图象处理和计算机辅助设计,指令预测能力强和很高的存储系统带宽
 arc ---- Synopsys RISC  主要用于微控领域：固态硬盘、联网设备、汽车控制器，工业微控制器，也有一些高端用于图像处理
-arm
-/arm64 --- arm [Advanced RISC Machines] ,消费电子，通用嵌入式设备，服务器等
+arm/arm64 --- arm [Advanced RISC Machines] ,消费电子，通用嵌入式设备，服务器等
 avr32 ---ATMEL ，RISC精简指令集的高速8位单片机 ， 替代51 [Intel 8031] 单片机；
 blackfin
   ADI/Intel  RISC  嵌入式音频、视频和通信应用
 c[num]x
   TI RISC   DSP 音频，无限通信，国防
+
 cris -- Axis  RISC   网络
 frv -- 富士通 RISC 数码刻录机、数码相机
 h8300-- 萨科 RISC 汽车电子、家用电器、医疗器械
@@ -29,16 +29,21 @@ m68k --Motorola RISC 工业自动化设备、控制设备、医疗仪器系统、安全系统
 microblaze --- Xilinx/FPGA  RISC 网络、电信、数据通信
 mips -- 斯坦福大学 RISC  网络，图像，服务器，通用PC
 mn10300 --松下 RISC  多媒体
+
 nios2--Altera/FPGA RISC   工业控制
 openrisc --OpenCores RISC    特点开源：爱好者，大量免费的IP核，有用于多媒体处理
 parisc --HP RISC   用于HP自家服务器
+
 powerpc --IBM/Apple/Motorola  RISC  网络设备、视频系统、工业系统 ，特别要提一下，美国航空，国防都是用这个CPU
 s390-- IBM RISC   服务器
 score -- 凌阳 RISC  取代51单片机市场
+
 sh--Hitachi/ST Microelectronics RISC  已经开源了， 多媒体
 sparc --SUN/TI RISC  服务器
+
 tile -- Tilera RISC  未商业化，特点，及其省电
 xtensa -- Xtensa   RISC  用于研究，有标准的课扩展IP结构，可以随意组装IP核
+
 CISC:
 x86/IA32/x64    CISC
 =================================================================
@@ -109,7 +114,7 @@ R0-R7   8个
 R8-R12   5*2 = 10个  快中断一个，其他模式共用一个
 R13-R14  6*2 = 12个    用户模式和系统模式共用一个， 其他模式各自一个 R13（SP）堆栈指针，R14 LR指针
 R15 PC 一个
-CPSP 一个 current program status register
+CPSR 一个 current program status register
 SPSR  用户模式和系统模式没有SPSR， 其他模式各自一个 5个，退出这些模式时，用SPSR还原CPSR
 saved program status register
 
@@ -119,16 +124,20 @@ N  Z  C  V  Q  DNM(RAZ) I F T M4 M3 M2 M1 M0
 
 N——本位设置成当前指令运算结果的bit[31]的值。当两个表示的有符号整数运算时，n=1表示运算结果为负数，n=0表示结果为正数或零。
 z——z=1表示运算的结果为零；z=0表示运算的结果不为零。对于CMP指令，Z=1表示进行比较的两个数大小相等。
+
 C——下面分四种情况讨论C的设置方法：
 在加法指令中（包括比较指令CMN），当结果产生了进位,则C=1,表示无符号运算发生溢出(overflow)；其他情况C=0。
 在减法指令中（包括比较指令CMP），当运算中发生借位，则C=0，表示无符号运算数发生进位；其他情况下C=1。
 对于包含移位操作的非加减运算指令，C中包含最后一次溢出的位的数值
 对于其他非加减运算指令，C位的值通常不受影响
+
 V——对于加减运算指令，当操作数和运算结果为二进制的补码表示的带符号数时，V=1表示符号位溢出；通常其他指令不影响V位。
+
 ***Q标识位***
 在ARM V5的E系列处理器中，CPSR的bit[27]称为q标识位，主要用于指示增强的dsp指令是否发生了溢出。同样的spsr的bit[27]位也称为q标识位，用于在异常中
 断发生时保存和恢复CPSR中的Q标识位。
 在ARM V5以前的版本及ARM V5的非E系列的处理器中，Q标识位没有被定义。
+
 ***CPSR中的控制位***
 CPSR的低八位I、F、T、M[4:0]统称为控制位。当异常中断发生时这些位发生变化。在特权级的处理器模式下，软件可以修改这些控制位。
 **中断禁止位：当I=1时禁止IRQ中断，当F=1时禁止FIQ中断
@@ -165,9 +174,15 @@ ARM寄存器：64BIT ()
 一个PC  64bit
 一个SP   64bit
 一个ELRs   64bit  exception link registers
-一个SIMD  128BIT
-一个A64
-一组EL0 - EL3
-一组Process state
-一组hold PE state
-33页
+FPCR, Controls floating-point behavior
+FPSR:　Provides floating-point system status information
+Pstate:和32bit下的CPSR类似
+SPSRs　多个，用户还原pstate
+还有很多调试的寄存器：
+Cache ID registers
+Debug registers
+Performance Monitors registers
+Thread ID registers
+Timer registers
+
+
