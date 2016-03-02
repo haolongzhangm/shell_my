@@ -14,11 +14,31 @@ echo "Nothing NONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 #func check build env
 function check_lunch(){
-if [ "$TARGET_PRODUCT" = "" ]
+if [ -z $TARGET_PRODUCT ]
 then
+	echo "Do not get android build env, Help you lunch or not? (y/n)"
+read char
+if [ $char == 'y' ];then
+	echo "check android file..."
+	if [ -f LINUX/android/build/envsetup.sh ];then
+	cd LINUX/android/
+	. build/envsetup.sh
+	lunch
+	cd ../..
+	echo "check env again....."
+	if [ -z $TARGET_PRODUCT ]
+	then
+	check_lunch $@
+	fi
+	else
+		echo "can not find andriod file ,exit now..."
+		exit 0
+	fi
+else
 	echo ">>>>>>>>>>>>>>>>>>>lunch android first<<<<<<<<<<<<<<<<<<<<"
 	print_usage
 	exit 0
+fi
 fi
 }
 
