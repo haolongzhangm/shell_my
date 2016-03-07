@@ -92,4 +92,4 @@ complete -W "normal_proj_tags_update mtk_kk_old_kernel_tags_update kernel_arm32_
 alias gitlog='git log --pretty=format:'\''%h : %an : %ad : %s'\'' --topo-order --graph --date=short'
 alias v=vim
 alias V=vim
-alias mysource==source
+alias mysource=source
