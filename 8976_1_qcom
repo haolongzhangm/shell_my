@@ -10,7 +10,7 @@ echo "[touch force up]: elan_iap /system/etc/14f0_1103.ekt 0x15 2k   "
 echo "[WLAN] iperf -c 192.168.1.100 -i 3 -t 120 –P 2 ; iperf -s -P 2"
 echo "hicam it push command : git push origin hicam-baseline:refs/for/hicam-baseline"
 echo ===============================================================
-cd /home/zhl/mycode/8976_qcom/msm8976_reliance/LINUX/android
+cd /media/zhl/second/8976_1_qcom/msm8976
 pwd
 function print_usage(){
 echo Usage!!
