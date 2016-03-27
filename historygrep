@@ -1,0 +1,2 @@
+echo "will grep $1"
+history | grep $1 --colour=auto
