@@ -1,4 +1,4 @@
 #!/bin/sh
 #ssh zhl@192.168.1.100
-echo "scp eg: scp -P 2222 /home/xx zhl@127.0.0.1:/home"
+echo "scp eg: scp -P 2222 /home/xx zhl@127.0.0.1:/home/zhl/"
 ssh zhl@127.0.0.1 -p 2222
