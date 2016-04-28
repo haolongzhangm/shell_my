@@ -1,6 +1,6 @@
 //PDC USB
 adb shell setprop sys.usb.config diag,serial_smd,rmnet_bam,adb
-
+adb shell setprop sys.usb.config diag,serial_smd,rmnet_qti_bam,adb
 ====================================
 fsg step :
 
