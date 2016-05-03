@@ -80,5 +80,5 @@
  ===================================================================================
  update linux time :sudo ntpdate cn.pool.ntp.org
  ===================================================================================
- gen kernel tags with dts/i Makefil/Kconfig : cp ~/shell_my/unexeshell/old_patch/tags.sh .
+ gen kernel tags with dts/i Makefil/Kconfig : cp ~/shell_my/unexeshell/old_patch/tags.sh scripts/tags.sh
  ===================================================================================
