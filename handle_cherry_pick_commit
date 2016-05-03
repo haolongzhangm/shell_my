@@ -38,6 +38,7 @@ echo "resut below"
 echo "orgin:"
 echo "==============================================="
 cat just_commit.pre
+rm just_commit.pre
 echo "==============================================="
 echo "input for cherry pick:"
 echo "==============================================="
