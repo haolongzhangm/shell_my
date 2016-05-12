@@ -10,7 +10,7 @@ echo "$0 normal_proj_tags_update [int for cycle]"
 function my_sleep_delay(){
 for((t=1;t<=$1;t++))
 do
-	echo -ne "\r::::::::::::::::::::::::next time wait time <$[$1-$t]> s..."
+	echo -ne "\r<$[$1-$t]>:::::::::::::::::::next time wait time <$[$1-$t]> s..."
 	sleep 1
 done
 }
