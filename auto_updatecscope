@@ -1,0 +1,57 @@
+#!/bin/bash
+function print_usage(){
+echo Usagen
+echo "$0 kernel_arm32_cscope [int for update cycle]"
+echo "$0 kernel_arm64_cscope [int for update cycle]"
+echo "$0 mtk_kk_old_kernel_tags_update [int for cycle]"
+echo "$0 normal_proj_tags_update [int for cycle]"
+}
+
+function run_update(){
+echo ===================================================================================
+for((i=1;i<100;))
+do
+other_shell $1
+echo "update database after $2s"
+sleep $2
+echo
+echo ====================================================================================
+done
+}
+
+
+function check_parameter_number(){
+if [ ! $# -eq 2 ]
+then
+	echo ">>>>>>>>>>>>>>>>>>Need two paramters<<<<<<<<<<<<<<<"
+	echo "just show usage"
+	print_usage
+	exit 0
+fi
+}
+
+function check_first_parameter(){
+if [[ ! $1 == "kernel_arm32_cscope" && ! $1 == "kernel_arm64_cscope" && ! $1 == "mtk_kk_old_kernel_tags_update" && ! $1 == "normal_proj_tags_update" ]]
+then
+echo "first parameter should be kernel_arm32_cscope kernel_arm64_cscope mtk_kk_old_kernel_tags_update normal_proj_tags_update"
+echo "just show Usage"
+print_usage
+exit 0
+fi
+}
+
+function checkint(){
+if [ "$2" -gt 0 ] 2>/dev/null ;then 
+  echo "$2 is number." 
+else 
+  echo "err:>>>>>>>>second args should be a int number : cycle for update databasee typical value: 15" 
+  print_usage
+  exit 0
+fi
+}
+
+######################################
+check_parameter_number $@
+check_first_parameter $@
+checkint $@
+run_update $@
