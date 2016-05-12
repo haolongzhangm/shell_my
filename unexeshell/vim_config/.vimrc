@@ -165,9 +165,12 @@ noremap Y "+Y
 "map C-j to show buffers
 nnoremap <C-j> :buffers<CR>:b<Space>
 "=================end for add command===========
+"=================add for cscope reset========="
+map <c-p> :cscope reset<CR>
+"=================end for cscope reset========="
 
 "=========add for config ctrlp.vim=============
-let g:ctrlp_map = '<c-p>'
+let g:ctrlp_map = '<c-i>'
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_custom_ignore = {
     \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
