@@ -1,20 +1,36 @@
 #!/bin/bash
 function print_usage(){
-echo Usagen
+echo Usage
 echo "$0 kernel_arm32_cscope [int for update cycle]"
 echo "$0 kernel_arm64_cscope [int for update cycle]"
 echo "$0 mtk_kk_old_kernel_tags_update [int for cycle]"
 echo "$0 normal_proj_tags_update [int for cycle]"
 }
 
+function my_sleep_delay(){
+for((t=1;t<=$1;t++))
+do
+	echo -ne "\r::::::::::::::::::::::::next time wait time <$[$1-$t]> s..."
+	sleep 1
+done
+}
 function run_update(){
 echo ===================================================================================
-for((i=1;i<100;))
+for((i=1;;i++))
 do
 date
+echo ":::::::::::update count = $i"
 other_shell $1
-echo "update database after $2s"
-sleep $2
+if [ $# -eq 1 ]
+then
+	echo "find one paramter ,set cycle to default time 15s "
+	#sleep 15
+	my_sleep_delay 15
+else
+	echo "update database after $2s"
+	#sleep $2
+	my_sleep_delay $2
+fi
 echo
 echo ====================================================================================
 done
@@ -22,9 +38,9 @@ done
 
 
 function check_parameter_number(){
-if [ ! $# -eq 2 ]
+if [[ ! $# -eq 2 && ! $# -eq 1 ]]
 then
-	echo ">>>>>>>>>>>>>>>>>>Need two paramters<<<<<<<<<<<<<<<"
+	echo ">>>>>>>>>>>>>>>>>>Need two paramters or one paramter<<<<<<<<<<<<<<<"
 	echo "just show usage"
 	print_usage
 	exit 0
@@ -42,12 +58,17 @@ fi
 }
 
 function checkint(){
+if [ $# -eq 2 ]
+then
 if [ "$2" -gt 0 ] 2>/dev/null ;then 
   echo "$2 is number." 
 else 
   echo "err:>>>>>>>>second args should be a int number : cycle for update databasee typical value: 15" 
   print_usage
   exit 0
+fi
+else
+	echo "only one parameter, ignore check arg2"
 fi
 }
 
