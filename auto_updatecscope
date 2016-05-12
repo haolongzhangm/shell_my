@@ -11,6 +11,7 @@ function run_update(){
 echo ===================================================================================
 for((i=1;i<100;))
 do
+date
 other_shell $1
 echo "update database after $2s"
 sleep $2
