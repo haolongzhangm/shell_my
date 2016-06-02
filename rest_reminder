@@ -12,6 +12,9 @@ sleep 3
 done
 (xterm -fullscreen -fa "WenQuanYi Micro Hei Mono:size=12:antialias=true" cmatrix) &
 echo "pid=$!"
-sleep 30
+sleep 15
+kill $!
+(xterm -fullscreen /usr/games/sl-h) &
+sleep 15
 kill $!
 (xterm -fullscreen /usr/games/sl)
