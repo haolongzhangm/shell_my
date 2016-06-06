@@ -84,3 +84,10 @@
  ===================================================================================
 use  fallocate to quick create a file
  ===================================================================================
+ ********************FOR doxygen gen API and call png*******************************
+ 1: install soft : sudo apt-get install doxygen doxygen-doc doxygen-gui graphviz
+ 2: mkdir "your_proj_ays_dir"
+ 3: cp ~/shell_my/unexeshell/Doxyfile "your_proj_ays_dir/"
+ 4: vim your_proj_ays_dir/Doxyfile modify INPUT to source_dir eg : ../fs/
+ 5: doxygen Doxyfile
+ ===================================================================================
