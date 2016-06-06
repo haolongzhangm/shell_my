@@ -202,3 +202,15 @@ let g:CommandTWildIgnore="*.o,*.obj"
 nnoremap <C-h> :CommandT .
 "if you want to find file from git root dir ,you can use :CommandT
 "==================end for command-t=====
+
+"==================add for quick show func by enter 'f'========
+fun! ShowFuncName()
+	let lnum = line(".")
+	let col = col(".")
+	echohl ModeMsg
+	echo getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW'))
+	echohl None
+	call search("\\%" . lnum . "l" . "\\%" . col . "c")
+endfun
+map f :call ShowFuncName() <CR>
+"==================end for quick show func by enter 'f'========
