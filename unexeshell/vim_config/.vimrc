@@ -213,4 +213,5 @@ fun! ShowFuncName()
 	call search("\\%" . lnum . "l" . "\\%" . col . "c")
 endfun
 map f :call ShowFuncName() <CR>
+map F :call ShowFuncName() <CR>
 "==================end for quick show func by enter 'f'========
