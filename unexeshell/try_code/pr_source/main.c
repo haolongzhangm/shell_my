@@ -11,6 +11,7 @@ void test_union_struct_size();
 int address_test();
 void test_pipe();
 void test_scandir();
+void test_string_exchange();
 
 int main(){
 
@@ -22,6 +23,7 @@ int main(){
 	address_test();
 //	test_pipe();      //test pipe should  annotation other func
 	test_scandir();
+	test_string_exchange();
 }
 
 int a = 7;
@@ -220,4 +222,24 @@ void test_scandir(){
 	{
 		printf("patch interface %s to down/up\n", i_face[i++]);
 	}
+}
+
+void test_string_exchange(){
+
+	char *src = "hello world";
+
+	int len = strlen(src);
+
+	char *dest = (char *) malloc(len + 1);
+	char *d = dest;
+
+	char *s = &src[len - 1];
+
+	while(len-- != 0)
+		*d++ = *s--;
+
+	*d = 0;
+
+	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
+	printf("%s\n", dest);
 }
