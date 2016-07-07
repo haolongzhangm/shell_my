@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 int local_publice_val();
 void test_malloc_0();
@@ -9,6 +10,7 @@ void test_plusp();
 void test_union_struct_size();
 int address_test();
 void test_pipe();
+void test_scandir();
 
 int main(){
 
@@ -18,7 +20,8 @@ int main(){
 	test_plusp();
 	test_union_struct_size();
 	address_test();
-	test_pipe();
+//	test_pipe();      //test pipe should  annotation other func
+	test_scandir();
 }
 
 int a = 7;
@@ -191,5 +194,30 @@ void test_pipe(){
 	{
 		read(filedes[0], buffer, sizeof(buffer));
 		printf("buffer = %s", buffer);
+	}
+}
+
+#define MAX_NAME_LEN 10
+#define MAX_CMD_LEN 40
+
+void test_scandir(){
+	int i = 0, j = 0;
+
+	struct dirent **net_dev;
+	char *i_face[MAX_NAME_LEN] = {"null"};
+
+	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
+	j = scandir("/sys/class/net", &net_dev, 0, alphasort);
+
+	while(j--)
+	{
+		printf("name %s\n", net_dev[j]->d_name);
+		i_face[i++] = net_dev[j]->d_name;
+	}
+
+	i = 0;
+	while(strcmp(i_face[i], ".."))
+	{
+		printf("patch interface %s to down/up\n", i_face[i++]);
 	}
 }
