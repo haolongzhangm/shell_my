@@ -242,4 +242,5 @@ void test_string_exchange(){
 
 	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
 	printf("%s\n", dest);
+	free(dest);
 }
