@@ -1,0 +1,83 @@
+commit 80dcee5251718fd6e26d56c35fdf9ae31ae97b49
+Author: qing.wang <qing.wang@ck-telecom.com>
+Date:   Thu Apr 14 01:12:07 2016 -0700
+
+    add sleep issue debug feature
+    
+    [id]:7721
+    [TYPE]
+       Feature
+    
+    [Products]
+       panda01a_s00a_driver_only_1.1_r00205.1
+    
+    [Other info]
+       modified:   LINUX/android/kernel/drivers/base/power/wakeup.c
+    
+    Change-Id: I7d20fbca6cb3e3d75e8c2b682f60f3e75b9fef8e
+
+diff --git a/LINUX/android/kernel/drivers/base/power/wakeup.c b/LINUX/android/kernel/drivers/base/power/wakeup.c
+old mode 100644
+new mode 100755
+index c4d037f..33dc1a2
+--- a/LINUX/android/kernel/drivers/base/power/wakeup.c
++++ b/LINUX/android/kernel/drivers/base/power/wakeup.c
+@@ -794,6 +794,36 @@ bool pm_wakeup_pending(void)
+ 	return ret;
+ }
+ 
++#define dwork_delay_time 5000
++static bool dwork_initialed;
++static struct delayed_work print_active_wakeup_dwork;
++static void print_active_wakeup_work(struct work_struct *work)
++{
++	char buf[1024];
++	int len = 0;
++	bool print = false;
++	struct wakeup_source *ws;
++
++	len += scnprintf(buf, 1024, "Active Wakeup Sources:\n");
++
++	rcu_read_lock();
++	list_for_each_entry_rcu(ws, &wakeup_sources, entry) {
++		if (ws->active){
++			if (!strcmp(ws->name, "PowerManagerService.Display")){
++				print = false;
++				break;
++			}
++			len += scnprintf(buf + len, (1024 - len), "              %s\n", ws->name);
++			print = true;
++		}
++	}
++	rcu_read_unlock();
++	if (print)
++		pr_info("%s", buf);
++
++	schedule_delayed_work(&print_active_wakeup_dwork, msecs_to_jiffies(dwork_delay_time));
++}
++
+ /**
+  * pm_get_wakeup_count - Read the number of registered wakeup events.
+  * @count: Address to store the value at.
+@@ -814,6 +844,12 @@ bool pm_get_wakeup_count(unsigned int *count, bool block)
+ 	if (block) {
+ 		DEFINE_WAIT(wait);
+ 
++		if (!dwork_initialed){
++			INIT_DELAYED_WORK(&print_active_wakeup_dwork, print_active_wakeup_work);
++			dwork_initialed = true;
++		}
++		schedule_delayed_work(&print_active_wakeup_dwork, msecs_to_jiffies(0));
++
+ 		spin_lock_irqsave(&events_lock, flags);
+ 		last_read_time = ktime_get();
+ 		spin_unlock_irqrestore(&events_lock, flags);
+@@ -828,6 +864,8 @@ bool pm_get_wakeup_count(unsigned int *count, bool block)
+ 			schedule();
+ 		}
+ 		finish_wait(&wakeup_count_wait_queue, &wait);
++
++		cancel_delayed_work(&print_active_wakeup_dwork);
+ 	}
+ 
+ 	split_counters(&cnt, &inpr);
