@@ -8,8 +8,8 @@ void symbol_transformation();
 void test_plusp();
 void test_union_struct_size();
 int address_test();
+void test_pipe();
 
-int a = 7;
 int main(){
 
 	local_publice_val();
@@ -18,8 +18,10 @@ int main(){
 	test_plusp();
 	test_union_struct_size();
 	address_test();
+	test_pipe();
 }
 
+int a = 7;
 int local_publice_val(){
 
 	int *public_a = &a;
@@ -168,4 +170,26 @@ int address_test()
 
 	return 0;
 
+}
+
+
+void test_pipe(){
+	int filedes[2];
+	char buffer[80];
+	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
+
+	pipe(filedes);
+
+	if(fork()>0)
+	{
+		char s[] = "hello pipe\n";
+
+		sleep(1);
+		write(filedes[1], s, sizeof(buffer));
+	}
+	else
+	{
+		read(filedes[0], buffer, sizeof(buffer));
+		printf("buffer = %s", buffer);
+	}
 }
