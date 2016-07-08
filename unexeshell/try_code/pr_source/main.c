@@ -12,6 +12,7 @@ int address_test();
 void test_pipe();
 void test_scandir();
 void test_string_exchange();
+void test_Josephus_mnk();
 
 int main(){
 
@@ -24,6 +25,7 @@ int main(){
 //	test_pipe();      //test pipe should  annotation other func
 	test_scandir();
 	test_string_exchange();
+	test_Josephus_mnk();
 }
 
 int a = 7;
@@ -198,7 +200,7 @@ void test_pipe(){
 		printf("buffer = %s", buffer);
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////
 #define MAX_NAME_LEN 10
 #define MAX_CMD_LEN 40
 
@@ -243,4 +245,105 @@ void test_string_exchange(){
 	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
 	printf("%s\n", dest);
 	free(dest);
+}
+//////////////////////////////////////////////////////////////
+//约瑟夫环:约瑟夫环（约瑟夫问题）是一个数学的应用问题：
+//已知n个人（以编号1，2，3...n分别表示）围坐在一张圆桌周围。
+//从编号为k的人开始报数，数到m的那个人出列；他的下一个人又从1开始报数，数到m的那个人又出列；
+//依此规律重复下去，直到圆桌周围的人全部出列
+//定义joseph结构体,用于构建链表
+struct joseph{
+	int num;
+	struct joseph *next;
+};
+//
+//n:总的人数
+//s:数到几个数出列
+//m:从第几个人第一次开始数数
+int n, s, m;
+
+void print_info(struct joseph *head)
+{
+	struct joseph *p;
+	p = head;
+
+	printf("%d people num eg:===\n", n);
+
+	do{
+		printf("%d\n", p->num);
+		p = p->next;
+	}while(p != head);
+	printf("\n");
+}
+
+void out_put_num(struct joseph *head)
+{
+	int i,j = 1;
+	struct joseph *p1, *p2;
+
+	p1 = p2 = head;
+
+	for(i = 1; i < m; i++)
+		p1 = p1->next;
+
+	while(n>0)
+	{
+		for(i = 1; i < s; i++)
+		{
+			p2 = p1;
+			p1 = p1->next;
+		}
+
+		printf("第%d 人出列的是:%d\n", j, p1->num);
+		p2->next = p1->next;
+		n--;
+		j++;
+	}
+}
+
+struct joseph *create()
+{
+	int i;
+
+	struct joseph *head;
+	struct joseph *p1, *p2;
+
+	printf("input total num of people:\n");
+
+	scanf("%d", &n);
+	if(0 == n)
+		exit(0);
+
+	for(i = 1; i <= n; i++)
+	{
+		p1 = (struct joseph *)malloc(sizeof(struct joseph));
+		p1->num = i;
+
+		if(1 == i)
+			head = p1;
+		else
+			p2->next = p1;
+		p2 = p1;
+	}
+
+	p2->next = head;
+	print_info(head);
+	printf("请输入从第几个人开始报数:\n");
+	scanf("%d", &m);
+
+	printf("请输入数到第几个人开始出列:\n");
+	scanf("%d", &s);
+
+	return head;
+}
+void test_Josephus_mnk(){
+
+	struct joseph *head;
+
+	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
+	head = create();
+
+	out_put_num(head);
+
+	free(head);
 }
