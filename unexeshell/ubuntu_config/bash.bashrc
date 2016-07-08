@@ -94,3 +94,4 @@ alias gitlog='git log --pretty=format:'\''%h : %an : %ad : %s'\'' --topo-order -
 alias v=vim
 alias V=vim
 alias mysource=source
+source ~/.git-completion.bash
