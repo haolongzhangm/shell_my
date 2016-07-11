@@ -13,6 +13,8 @@ void test_pipe();
 void test_scandir();
 void test_string_exchange();
 void test_Josephus_mnk();
+void call_do_dup();
+void do_dup();
 
 int main(){
 
@@ -25,7 +27,8 @@ int main(){
 //	test_pipe();      //test pipe should  annotation other func
 	test_scandir();
 	test_string_exchange();
-	test_Josephus_mnk();
+//	test_Josephus_mnk(); //open whenm needed test
+	call_do_dup();
 }
 
 int a = 7;
@@ -346,4 +349,24 @@ void test_Josephus_mnk(){
 	out_put_num(head);
 
 	free(head);
+}
+//数组a[N]，1至N-1这N-1个数存放在a[N]中，其中某个数重复一次。写一个函数，找出被重复的数字。时间复杂度必须为o（N）函数
+void do_dup(int a[], int n){
+
+	int i, tmp1, tmp2;
+
+	for(i = 0; i < n; i++)
+	{
+		tmp1 += (i + 1);
+		tmp2 += a[i];
+	}
+
+	printf("重复的数：%d\n", n - (tmp2 - tmp1));
+}
+
+void call_do_dup(){
+
+	int a[] = {1, 3, 2, 3};
+	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
+	do_dup(a, 4);
 }
