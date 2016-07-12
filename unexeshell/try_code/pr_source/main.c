@@ -353,7 +353,7 @@ void test_Josephus_mnk(){
 //数组a[N]，1至N-1这N-1个数存放在a[N]中，其中某个数重复一次。写一个函数，找出被重复的数字。时间复杂度必须为o（N）函数
 void do_dup(int a[], int n){
 
-	int i, tmp1, tmp2;
+	int i, tmp1 = 0, tmp2 = 0;
 
 	for(i = 0; i < n; i++)
 	{
@@ -361,12 +361,12 @@ void do_dup(int a[], int n){
 		tmp2 += a[i];
 	}
 
-	printf("重复的数：%d\n", n - (tmp2 - tmp1));
+	printf("重复的数：%d\n", tmp2 - (tmp1 - n));
 }
 
 void call_do_dup(){
 
-	int a[] = {1, 3, 2, 3};
+	int a[] = {1, 3, 8, 2, 5, 7, 6, 7, 4};
 	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
-	do_dup(a, 4);
+	do_dup(a, sizeof(a)/sizeof(a[0]));
 }
