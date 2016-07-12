@@ -15,6 +15,7 @@ void test_string_exchange();
 void test_Josephus_mnk();
 void call_do_dup();
 void do_dup();
+void boolalphaof2();
 
 int main(){
 
@@ -24,11 +25,12 @@ int main(){
 	test_plusp();
 	test_union_struct_size();
 	address_test();
-//	test_pipe();      //test pipe should  annotation other func
+	//test_pipe();      //test pipe should  annotation other func
 	test_scandir();
 	test_string_exchange();
-//	test_Josephus_mnk(); //open whenm needed test
+	//test_Josephus_mnk(); //open whenn needed test
 	call_do_dup();
+	//boolalphaof2();	//open when needed test
 }
 
 int a = 7;
@@ -369,4 +371,23 @@ void call_do_dup(){
 	int a[] = {1, 3, 8, 2, 5, 7, 6, 7, 4};
 	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
 	do_dup(a, sizeof(a)/sizeof(a[0]));
+}
+
+//实现x是否为2的若干次幂的判断
+void boolalphaof2()
+{
+	int n;
+	char *result = "true";
+	char *false_p = "false";
+
+	printf("\n\n\n----%s:[%d]----\n", __func__, __LINE__);
+	printf("input test number:\n");
+
+	scanf("%d", &n);
+
+	if (n & (n - 1))
+		result = false_p;
+
+	printf("input num %d id alpha of 2 : %s\n", n, result);
+
 }
