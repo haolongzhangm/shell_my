@@ -36,6 +36,13 @@
  you can update kernel cscope tags by ARCH eg:
  make cscope ARCH=arm
  ===================================================================================
+[into factory] : input text *#*#13646633#*#*
+[pdf key]:       9621073404
+[touch i2c] :    /sys/devices/platform/mt-i2c.2/i2c-2/2-0015
+[touch force up]: elan_iap /system/etc/14f0_1103.ekt 0x15 2k
+[WLAN] iperf -c 192.168.1.100 -i 3 -t 120 –P 2 ; iperf -s -P 2
+hicam it push command : git push origin hicam-baseline:refs/for/hicam-baseline"
+===============================================================
  ==========================clean build android core ================================
  cd frameworks/base; git reset --hard ; croot; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; make update-api -j6 ;  make -j6
  ===================================================================================
