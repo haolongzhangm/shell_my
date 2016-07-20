@@ -102,4 +102,6 @@ use  fallocate to quick create a file
  rm -rf out/target/product/xxxx/ramdisk.img  ; make ramdisk-nodeps ; rm out/target/product/xxxx/boot.img ;make bootimage-nodeps
  ===================================================================================
  qemu bootloader print : -serial stdio
+ show support maching:  qemu-system-arm -machine help
+ show support cpu :  qemu-system-arm -machine versatileab -cpu help
  ===================================================================================
