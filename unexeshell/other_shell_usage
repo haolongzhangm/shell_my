@@ -101,3 +101,5 @@ use  fallocate to quick create a file
  update android ramdisk from out dir:
  rm -rf out/target/product/xxxx/ramdisk.img  ; make ramdisk-nodeps ; rm out/target/product/xxxx/boot.img ;make bootimage-nodeps
  ===================================================================================
+ qemu bootloader print : -serial stdio
+ ===================================================================================
