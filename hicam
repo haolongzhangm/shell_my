@@ -13,7 +13,7 @@ echo ===============================================================
 config=ckt95_lw_kk 
 echo config = $config
 echo build user version : ./mk -t -o=TARGET_BUILD_VARIANT=user $config n
-cd /media/zhl/second/2hicam/mt6595_kk
+cd /media/zhl/second/hicam/mt6595_kk
 pwd
 function print_usage(){
 echo Usage!!

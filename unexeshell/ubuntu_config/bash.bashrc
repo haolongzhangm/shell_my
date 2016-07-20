@@ -80,9 +80,7 @@ export ARMLIB=/media/zhl/second/old_home_dir/ARM_Compiler_5/lib
 export ARMINC=/media/zhl/second/old_home_dir/include
 #add for hicam build shell compelte
 complete -W "n_pr n_kernel n_bootimage n_recovery n_lk n_all r_pr r_kernel r_bootimage r_recovery r_lk r_all" hicam
-complete -W "n_pr n_kernel n_bootimage n_recovery n_lk n_all r_pr r_kernel r_bootimage r_recovery r_lk r_all" xs
-complete -W "n_pr n_kernel n_bootimage n_recovery n_lk n_all r_pr r_kernel r_bootimage r_recovery r_lk r_all" 2hicam
-complete -W "3qcom 2qcom qcom 8976_1_qcom 2hicam 8976_2_qcom" mysource
+complete -W "8939_1_l 8976_1_qcom hicam 8976_2_qcom" mysource
 #add for qcom modem build tool env
 export HEXAGON_ROOT=/home/zhl/Qualcomm/HEXAGON_Tools
 export HEXAGON_RTOS_RELEASE=6.4.01

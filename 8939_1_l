@@ -1,10 +1,9 @@
 #!/bin/bash
 echo ===============================================================
 #. sun_java
-echo "Now into qcom a android project mobeeplus for imobile"
+echo "Now into qcom a android project ==========mobeeplus reliance customer"
 echo ===============================================================
-echo ===============================================================
-cd /media/zhl/second/2qcom/msm8939-la-2-1/LINUX/android
+cd /media/zhl/second/8939_1_l/msm8939-la-2-1/LINUX/android
 pwd
 function print_usage(){
 echo Usage!!
