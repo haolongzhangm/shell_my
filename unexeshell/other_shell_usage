@@ -105,3 +105,6 @@ use  fallocate to quick create a file
  show support maching:  qemu-system-arm -machine help
  show support cpu :  qemu-system-arm -machine versatileab -cpu help
  ===================================================================================
+ python start env:
+ import readline, rlcompleter; readline.parse_and_bind("tab: complete")
+ ===================================================================================
