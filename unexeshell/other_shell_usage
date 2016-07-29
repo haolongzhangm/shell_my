@@ -108,3 +108,12 @@ use  fallocate to quick create a file
  python start env:
  import readline, rlcompleter; readline.parse_and_bind("tab: complete")
  ===================================================================================
+ Flash spl:
+ spl_qcom_download -p /dev/ttyUSB1 -s  13:prog_emmc_firehose_8976_ddr.mbn
+
+ without_qcn:
+ img_qcom_download --port=/dev/ttyUSB1  --sendxml=patch0.xml --search_path=.  --sendxml=rawprogram_unsparse_without_QCN.xml --search_path=. --reset
+
+ withqcn:
+ img_qcom_download --port=/dev/ttyUSB1  --sendxml=patch0.xml --search_path=.  --sendxml=rawprogram_unsparse.xml  --search_path=. --reset
+ ===================================================================================
