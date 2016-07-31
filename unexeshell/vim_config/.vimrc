@@ -58,7 +58,7 @@ Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 Bundle 'Valloric/ListToggle'
 Bundle 'scrooloose/syntastic'
 " Avoid a name conflict with L9
-Plugin 'user/L9', {'name': 'newL9'}
+"Plugin 'user/L9', {'name': 'newL9'}
 "YouCompleteMe"
 Bundle 'Valloric/YouCompleteMe'
 "nerdtree"
