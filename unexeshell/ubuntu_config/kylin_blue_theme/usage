@@ -1,4 +1,5 @@
 sudo apt install gnome-tweak-tool
 cp ubuntukylin-theme /usr/share/themes
+cp ubuntukylin-icon-theme /usr/share/icons/
 
 ./gnome-tweak-tool
