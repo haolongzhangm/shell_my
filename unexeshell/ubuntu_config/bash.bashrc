@@ -88,6 +88,7 @@ export ARMTOOLS=QDSP6GCC
 #add for other shell command compelte
 complete -W "normal_proj_tags_update mtk_kk_old_kernel_tags_update kernel_arm32_cscope kernel_arm64_cscope" other_shell
 complete -W "normal_proj_tags_update mtk_kk_old_kernel_tags_update kernel_arm32_cscope kernel_arm64_cscope" auto_updatecscope
+complete -W "withqcn withoutqcn" qcom_flash.py
 alias gitlog='git log --pretty=format:'\''%h : %an : %ad : %s'\'' --topo-order --graph --date=short'
 alias v=vim
 alias V=vim
