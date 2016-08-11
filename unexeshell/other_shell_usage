@@ -117,3 +117,6 @@ use  fallocate to quick create a file
  withqcn:
  img_qcom_download --port=/dev/ttyUSB1  --sendxml=patch0.xml --search_path=.  --sendxml=rawprogram_unsparse.xml  --search_path=. --reset
  ===================================================================================
+ split tar file :
+ tar -zcvf -  xxxxxx/  | split -d -b 4000M - xxxxxx.tar.gz
+ ===================================================================================
