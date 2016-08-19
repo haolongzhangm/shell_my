@@ -13,12 +13,15 @@ int check_argc_argv(int argc, char *argv[]);
 void usage();
 char * find_spl();
 
+/*==============================
+ *return: 0 success, other failed
+ *============================*/
 int main(int argc, char *argv[])
 {
 	DIR *dir;
 	char *ttyUSB_dev[MAX_TTYUSB_DEV] = {"NULL"};
 	int match_dev_num = 0, i = 0;
-	char *spl_name; 
+	char *spl_name;
 	char ttyUSB_path[10];
 	char spl_flash_exec_param[1024];
 	char other_flash_exec_param[1024];
@@ -102,7 +105,7 @@ int main(int argc, char *argv[])
 		}else{
 			printf("Flsh all img failed\n");
 		}
- 
+
 
 	}else{
 		printf("can not find a ttyUSB dev, pls set phone to 9008 mode,eg:adb reboot edl\n");
@@ -112,8 +115,15 @@ int main(int argc, char *argv[])
 	}
 
 	closedir(dir);
+	return 0;
 }
 
+
+/*==============================
+ *return: num of ttyUSB* at /dev
+ *dir: find place
+ *ttyUSB_dev: ttyUSB* string:eg /dev/ttyUSB0 1 2
+ *============================*/
 int find_device(DIR *dir, char *ttyUSB_dev[])
 {
 	int match_dev_num = 0;
@@ -132,8 +142,10 @@ int find_device(DIR *dir, char *ttyUSB_dev[])
 	return match_dev_num;
 }
 
-//ret = 0 :find all needed file
-//ret = -1 :some needed file can not find
+/*==============================
+ *ret = 0 :find all needed file
+ *ret = -1 :some needed file can not find
+ *============================*/
 int check_sw_needed_file()
 {
 	DIR *dir;
@@ -166,6 +178,9 @@ int check_sw_needed_file()
 	return ret;
 }
 
+/*=====================================
+ *return *:spl name string
+ * ==================================*/
 char * find_spl()
 {
 	int num_spl = 0;
