@@ -11,7 +11,7 @@ int find_device(DIR *, char *[]);
 int check_sw_needed_file();
 int check_argc_argv(int argc, char *argv[]);
 void usage();
-char * find_spl();
+char * find_sbl();
 
 /*==============================
  *return: 0 success, other failed
@@ -21,11 +21,11 @@ int main(int argc, char *argv[])
 	DIR *dir;
 	char *ttyUSB_dev[MAX_TTYUSB_DEV] = {"NULL"};
 	int match_dev_num = 0, i = 0;
-	char *spl_name;
+	char *sbl_name;
 	char ttyUSB_path[10];
-	char spl_flash_exec_param[1024];
+	char sbl_flash_exec_param[1024];
 	char other_flash_exec_param[1024];
-	int spl_flash_result = -1;
+	int sbl_flash_result = -1;
 	int other_flash_result = -1;
 
 	//now we check argc argv
@@ -40,13 +40,13 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	//now we find SPL file
-	spl_name = find_spl();
-	if (!strncmp(spl_name, "NULL", sizeof("NULL"))){
-		printf("%s:[%d] Err, find spl file failed! spl_name = %s\n", __func__, __LINE__, spl_name);
+	//now we find SBL file
+	sbl_name = find_sbl();
+	if (!strncmp(sbl_name, "NULL", sizeof("NULL"))){
+		printf("%s:[%d] Err, find sbl file failed! sbl_name = %s\n", __func__, __LINE__, sbl_name);
 		return -1;
 	}else{
-		printf("%s:[%d] Success, find spl file! spl_name = %s\n", __func__, __LINE__,spl_name);
+		printf("%s:[%d] Success, find sbl file! sbl_name = %s\n", __func__, __LINE__,sbl_name);
 	}
 
 	dir = opendir("/dev");
@@ -66,17 +66,17 @@ int main(int argc, char *argv[])
 				return -1;
 			}
 
-			//now try to flash spl
-			//Formatt exe args;eg spl_qcom_download -p /dev/ttyUSB1 -s  13:prog_emmc_firehose_8976_ddr.mbn
-			sprintf(spl_flash_exec_param, "spl_qcom_download -p %s -s  13:%s", ttyUSB_path, spl_name);
-			printf("Debug: spl_flash_exec_param = %s\n", spl_flash_exec_param);
-			if (0 == system(spl_flash_exec_param)){
-				spl_flash_result = 0;
+			//now try to flash sbl
+			//Formatt exe args;eg sbl_qcom_download -p /dev/ttyUSB1 -s  13:prog_emmc_firehose_8976_ddr.mbn
+			sprintf(sbl_flash_exec_param, "spl_qcom_download -p %s -s  13:%s", ttyUSB_path, sbl_name);
+			printf("Debug: sbl_flash_exec_param = %s\n", sbl_flash_exec_param);
+			if (0 == system(sbl_flash_exec_param)){
+				sbl_flash_result = 0;
 				break;
 			}
 		}
-		if (spl_flash_result != 0){
-			printf("flash SPL failed \n");
+		if (sbl_flash_result != 0){
+			printf("flash SBL failed \n");
 			return -1;
 		}
 
@@ -179,31 +179,31 @@ int check_sw_needed_file()
 }
 
 /*=====================================
- *return *:spl name string
+ *return *:sbl name string
  * ==================================*/
-char * find_spl()
+char * find_sbl()
 {
-	int num_spl = 0;
+	int num_sbl = 0;
 	DIR *dir;
-	struct dirent *spl_dir_file;
-	char *spl_name = "NULL";
+	struct dirent *sbl_dir_file;
+	char *sbl_name = "NULL";
 
 	dir = opendir(".");
-	while ((spl_dir_file = readdir(dir)) != NULL){
-		if ( 0 == strncmp(spl_dir_file->d_name, "prog_emmc_firehose", strlen("prog_emmc_firehose"))){
-			printf("Find spl name :%s\n\n", spl_dir_file->d_name);
-			spl_name = spl_dir_file->d_name;
-			num_spl++;
+	while ((sbl_dir_file = readdir(dir)) != NULL){
+		if ( 0 == strncmp(sbl_dir_file->d_name, "prog_emmc_firehose", strlen("prog_emmc_firehose"))){
+			printf("Find sbl name :%s\n\n", sbl_dir_file->d_name);
+			sbl_name = sbl_dir_file->d_name;
+			num_sbl++;
 		}
 
 	}
-	if (num_spl > 1)
+	if (num_sbl > 1)
 	{
-		printf("Err more than one spl file ,num = %d\n", num_spl);
+		printf("Err more than one sbl file ,num = %d\n", num_sbl);
 		return "NULL";
 	}
 
-	return spl_name;
+	return sbl_name;
 }
 
 //ret = 0 :success

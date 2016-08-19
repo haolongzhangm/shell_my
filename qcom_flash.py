@@ -21,7 +21,7 @@ import sys
 import time
 
 parameter_list = ['withqcn', 'withoutqcn']
-spl_name = 'null'
+sbl_name = 'null'
 def Usage():
     print '[sudo] qcom_flash.py withqcn'
     print '[sudo] qcom_flash.py withoutqcn'
@@ -48,13 +48,13 @@ def check_needed_file():
         print 'check needed file failed , pls cd IMAGES_FOR_QMSCT fisrtly'
         exit();
 
-#now we get the SPL file eg : prog_emmc_firehose_*
-def find_spl_name():
-    global spl_name
-    for spl_name in glob.glob("prog_emmc_firehose*"):
-        print 'spl file %s' % spl_name
+#now we get the SBL file eg : prog_emmc_firehose_*
+def find_sbl_name():
+    global sbl_name
+    for sbl_name in glob.glob("prog_emmc_firehose*"):
+        print 'sbl file %s' % sbl_name
     if len(glob.glob("prog_emmc_firehose*")) != 1:
-        print "No spl or so many spl file find ,check fisrt ,exit now"
+        print "No sbl or so many sbl file find ,check fisrt ,exit now"
         exit()
 
 #download_img
@@ -63,9 +63,9 @@ def download_img():
     if len(glob.glob('/dev/ttyUSB*')) ==0:
         print 'can not find ttySUB dev, pls set phone into 9008 mode eg : adb reboot edl,exit now'
         exit()
-#now try flash SPL , because we have find some devs , may just serial dev ,so we need cap the flash result
+#now try flash SBL , because we have find some devs , may just serial dev ,so we need cap the flash result
     for ttyUSB_dev in glob.glob('/dev/ttyUSB*'):
-        print 'try to flash SPL via %s' % ttyUSB_dev
+        print 'try to flash SBL via %s' % ttyUSB_dev
         print 'check %s access mode' % ttyUSB_dev
         if False == os.access(ttyUSB_dev, os.R_OK | os.W_OK):
             print 'Do not have access to W.R %s' % ttyUSB_dev
@@ -73,20 +73,20 @@ def download_img():
             Usage()
 
         #Formatt exe args;eg spl_qcom_download -p /dev/ttyUSB1 -s  13:prog_emmc_firehose_8976_ddr.mbn
-        exe_args = 'spl_qcom_download -p  %s  -s 13:%s' % (ttyUSB_dev, spl_name)
+        exe_args = 'spl_qcom_download -p  %s  -s 13:%s' % (ttyUSB_dev, sbl_name)
         print exe_args
-        SPL_flash_result = -1
-        #check result 0 means flash spl ok
+        SBL_flash_result = -1
+        #check result 0 means flash sbl ok
         if os.system(exe_args) == 0:
-            SPL_flash_result = 0
-            print 'Flash spl ok'
+            SBL_flash_result = 0
+            print 'Flash sbl ok'
             break
 
-    if SPL_flash_result != 0:
-        print 'Flash spl err, pls check phone mode,try hard reset phone to 9008'
+    if SBL_flash_result != 0:
+        print 'Flash sbl err, pls check phone mode,try hard reset phone to 9008'
         exit()
 
-#after flash SPL ,have to sleep a while wait PHONE
+#after flash SBL ,have to sleep a while wait PHONE
     print 'sleep 3S'
     time.sleep(3)
 #now we try to flash all other img
@@ -117,6 +117,6 @@ def download_img():
 ##python real start here
 check_args()
 check_needed_file()
-find_spl_name()
+find_sbl_name()
 download_img()
 
