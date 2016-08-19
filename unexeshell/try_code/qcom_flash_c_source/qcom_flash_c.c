@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 			}
 		}
 		if (sbl_flash_result != 0){
-			printf("flash SBL failed \n");
+			printf("flash SBL failed pls set phone to 9008 mode,eg:adb reboot edl,then have a try\n");
 			return -1;
 		}
 
@@ -87,11 +87,11 @@ int main(int argc, char *argv[])
 		//Formatt exe args : eg img_qcom_download --port=/dev/ttyUSB1  --sendxml=patch0.xml --search_path=.  --sendxml=rawprogram_unsparse_without_QCN.xml --search_path=. --reset
 		if (0 == strncmp(argv[1], "withqcn",sizeof("withqcn"))){
 			sprintf(other_flash_exec_param, "img_qcom_download --port=%s  --sendxml=patch0.xml --search_path=.  --sendxml=rawprogram_unsparse.xml --search_path=. --reset", ttyUSB_path);
-			printf("Debug: %s", other_flash_exec_param);
+			printf("\n\nDebug: %s\n\n", other_flash_exec_param);
 		}
 		else if(0 == strncmp(argv[1], "withoutqcn",sizeof("withoutqcn"))){
 			sprintf(other_flash_exec_param, "img_qcom_download --port=%s  --sendxml=patch0.xml --search_path=.  --sendxml=rawprogram_unsparse_without_QCN.xml --search_path=. --reset", ttyUSB_path);
-			printf("Debug: %s", other_flash_exec_param);
+			printf("\n\nDebug: %s\n\n", other_flash_exec_param);
 		}
 		else{
 				printf("Err wrong argv\n");
