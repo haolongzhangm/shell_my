@@ -120,3 +120,6 @@ use  fallocate to quick create a file
  split tar file :
  tar -zcvf -  xxxxxx/  | split -d -b 4000M - xxxxxx.tar.gz
  ===================================================================================
+ png to jpg :
+ convert xx.png xx.jpg
+ ===================================================================================
