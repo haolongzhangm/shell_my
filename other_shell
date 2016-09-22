@@ -2,6 +2,9 @@
 function print_usage(){
 #conflict with some command,eg find or sed,some print usage means cat other_shell_usage
 cat ~/shell_my/unexeshell/other_shell_usage
+echo "Usage:"
+echo "other_shell argc"
+echo "argc: kernel_arm32_cscope kernel_arm64_cscope mtk_kk_old_kernel_tags_update normal_proj_tags_update"
 }
 if [ $# -eq 0 ]
 then
