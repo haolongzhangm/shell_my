@@ -66,7 +66,7 @@ Bundle 'scrooloose/nerdtree'
 "cctree"
 Bundle 'hari-rangarajan/CCTree'
 "ctrip"
-Bundle 'kien/ctrlp.vim'
+"Bundle 'kien/ctrlp.vim'
 "vim-powerline""same no use for me"
 "Bundle 'Lokaltog/vim-powerline'
 "install plugn : PluginInstall"
@@ -170,20 +170,20 @@ nnoremap <C-j> :buffers<CR>:b<Space>
 map <c-p> :cscope reset<CR>
 "=================end for cscope reset========="
 
-"=========add for config ctrlp.vim=============
-let g:ctrlp_map = '<c-i>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
-    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz|pyc)$',
-    \ }
-let g:ctrlp_working_path_mode='a'
-let g:ctrlp_match_window_bottom=1
-let g:ctrlp_max_height=2000
-let g:ctrlp_match_window_reversed=0
-let g:ctrlp_mruf_max=50000
-let g:ctrlp_follow_symlinks=1
-let g:ctrlp_max_depth = 40
+"""=========add for config ctrlp.vim=============
+""let g:ctrlp_map = '<c-i>'
+""let g:ctrlp_cmd = 'CtrlP'
+""let g:ctrlp_custom_ignore = {
+""    \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
+""    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz|pyc)$',
+""    \ }
+""let g:ctrlp_working_path_mode='a'
+""let g:ctrlp_match_window_bottom=1
+""let g:ctrlp_max_height=2000
+""let g:ctrlp_match_window_reversed=0
+""let g:ctrlp_mruf_max=50000
+""let g:ctrlp_follow_symlinks=1
+""let g:ctrlp_max_depth = 40
 "=================end for ctrip================
 
 "==================add for cctree========
