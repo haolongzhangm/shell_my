@@ -1,0 +1,3 @@
+内核常用小对象分配系统slab/slub/slob 目前一般使用slub, slub还是从buddy上去申请内存
+参看: http://www.cnblogs.com/leaven/archive/2010/11/12/1875505.html
+

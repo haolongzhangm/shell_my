@@ -1,0 +1,5 @@
+#!/bin/bash
+mac_t=$(LANG=en ifconfig eth0 | grep HWaddr | sed -n 's/\ /\n/gp' | sed /^$/d | sed '0,/c/'d | sed  '/HWaddr/d' | sed  's/:/, /g' | sed 's/^/\ &/g' | sed  's/\ /0x/g')
+echo $mac_t
+
+#eg insmod xxx.ko $mac_t
