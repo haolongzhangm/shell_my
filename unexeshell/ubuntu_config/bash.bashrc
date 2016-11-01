@@ -94,3 +94,9 @@ alias v=vim
 alias V=vim
 alias mysource=source
 source ~/.git-completion.bash
+#add for t32
+export T32SYS=/opt/t32
+export T32TMP=/tmp
+export T32ID=T32
+export ADOBE_PATH=/usr/bin/evince
+export PATH=$PATH:/opt/t32/bin/pc_linux64
