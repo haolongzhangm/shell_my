@@ -1,0 +1,23 @@
+//add android selinux rule
+1:get avc log 
+cat /proc/kmsg | grep avc | tee sdcard/avc_tmp.log 
+
+2:gen tmp selinux gram tmpfile
+adb pull sdcard/avc_tmp.log
+audit2allow -i avc_tmp.log  > tmp_policy.te
+audit2allow come from android prebuild env after to source build/envsetup.sh
+
+3:put every 'allow perm ' to ref *.te
+
+
+ps:
+add new selinux type
+1: define new type
+find ref *.te, eg device.te for add new device type
+add 'tye i2c_xxtp_device, dev_type;'
+
+2: find ref file_contexts
+add '/dev/2c_xxtp(/.*)? u:object_r:i2c_xxtp_device:s0'
+
+3: add process perm eg in mediaserver.te
+allow mediaserver i2c_xxtp_device:chr_file {open read write };
