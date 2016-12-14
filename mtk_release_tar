@@ -1,0 +1,28 @@
+#!/bin/sh
+#haolong.zhang 20161028 v0.1
+if [ -z $TARGET_PRODUCT ]
+then
+	echo "Do not get android build env, lunch you proj firstly"
+	exit
+fi
+
+mkdir $TARGET_PRODUCT
+
+cd $TARGET_PRODUCT
+mkdir APBP
+cp ../out/target/product/doro8042_ckt6738_65_n/obj/CGEN/* ./APBP -r
+cp ../out/target/product/doro8042_ckt6738_65_n/boot.img ./
+cp ../out/target/product/doro8042_ckt6738_65_n/cache.img ./
+cp ../out/target/product/doro8042_ckt6738_65_n/lk.bin ./
+cp ../out/target/product/doro8042_ckt6738_65_n/logo.bin ./
+cp ../out/target/product/doro8042_ckt6738_65_n/*scatter.txt ./
+cp ../out/target/product/doro8042_ckt6738_65_n/preloader_*.bin ./
+cp ../out/target/product/doro8042_ckt6738_65_n/recovery.img ./
+cp ../out/target/product/doro8042_ckt6738_65_n/secro.img ./
+cp ../out/target/product/doro8042_ckt6738_65_n/system.img ./
+cp ../out/target/product/doro8042_ckt6738_65_n/userdata.img ./
+cp ../out/target/product/doro8042_ckt6738_65_n/md* ./
+cp ../out/target/product/doro8042_ckt6738_65_n/trustzone.bin ./
+
+cd ..
+tar -zcvf $TARGET_PRODUCT.tar.gz $TARGET_PRODUCT 
