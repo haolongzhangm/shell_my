@@ -27,8 +27,8 @@ def check_device():
 def adb_reboot_bootloader_ignore_result():
 #ignore result, because some device may already into fastboot mode
     os.system('adb reboot-bootloader')
-    print 'sleep 3s, wait fastboot devices'
-    time.sleep(3)
+#   print 'sleep 3s, wait fastboot devices'
+#   time.sleep(3)
 
 def go_download_fw():
     err_code = 0
