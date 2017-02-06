@@ -40,6 +40,15 @@ def go_download_fw():
         print 'new handle_img_num = %s' % handle_img_num
         usage()
 
+    #check flash xml again
+    result = os.system('diff fm3_fastboot_update_8917.bat ~/desktop/hw_flash_compare_xml/fm3_fastboot_update_8917.bat')
+    print 'result = %s' % result
+    if 0 == result:
+        print 'check xml ok go ....'
+    else:
+        print 'check xml failed'
+        usage()
+
     img_d = {'gpt_both0.bin' : 'partition', 'rpm.mbn' : 'rpm', \
             'tz.mbn' : 'tz', 'sbl1.mbn' : 'sbl1', \
             'cmnlib.mbn' : 'cmnlib', 'cmnlib64.mbn' : 'cmnlib64', \
