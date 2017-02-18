@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #add this for update FW by adb & fastboot,replace win bat
-#haolong.zhang v0.1 2017,1,8
+#haolong.zhang v2 2017,2,18
 
 
 import os
