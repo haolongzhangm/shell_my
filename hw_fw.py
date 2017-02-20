@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #add this for update FW by adb & fastboot,replace win bat
-#haolong.zhang v0.1 2017,1,8
+#haolong.zhang v2 2017,2,18
 
 
 import os
@@ -9,8 +9,12 @@ import glob
 import sys
 import time
 import commands
+import datetime
 
-
+begin_time = datetime.datetime.now()
+commands_list = []
+adb_devices_list = []
+fastboot_devices_list = []
 def usage():
     print 'v0.1'
     print 'enable adb then connect to pc'
@@ -18,63 +22,99 @@ def usage():
     exit()
 
 def check_device():
-    if 0 < len(commands.getoutput('adb devices | grep -w device')) or 0 < len(commands.getoutput('fastboot devices')):
-        print 'Find device'
-    else:
-        print 'Can not find device'
+#check adb device fistly
+    global fastboot_devices_serial_num
+    choose_adb_index = -1
+    devices_list_tmp = commands.getoutput('adb devices').split('\n')
+    for loop_devices_list in devices_list_tmp:
+        adb_devices_list.append(loop_devices_list.replace('\tdevice', '').replace('\toffline', ''))
+
+    #print(adb_devices_list)
+    adb_devices_list_len = len(adb_devices_list)
+    #2 means have no adb device
+    if 2 == adb_devices_list_len:
+        print('warning: we do not find adb devices')
+        have_no_adb_device = 1
+    elif 3 == adb_devices_list_len:
+        choose_adb_index = 1
+    elif 3 < adb_devices_list_len:
+        for index_adb in range(adb_devices_list_len):
+            print('index_adb   %d: %s') % (index_adb, adb_devices_list[index_adb])
+
+        while choose_adb_index >= adb_devices_list_len - 1 or choose_adb_index <= 0:
+            print('input vaild num 1---%d') % (adb_devices_list_len - 2)
+            choose_adb_index = input('Find so many adb devices, choose one:>')
+
+    if 3 <= adb_devices_list_len:
+        print('>>>>>>>>>>>Will handle device %s<<<<<<<') % adb_devices_list[choose_adb_index]
+        exx_args_reboot_bootloader = 'adb -s %s reboot-bootloader' % adb_devices_list[choose_adb_index]
+        print(exx_args_reboot_bootloader)
+        result_set_to_fastboot_mode = commands.getoutput(exx_args_reboot_bootloader)
+        if 'error: device offline' == result_set_to_fastboot_mode:
+            print('#########ERR: pls author the adb on the device########')
+            usage()
+
+#check fastboot device
+    choose_fastboot_index = -1
+    fastboot_devices_list_tmp = commands.getoutput('fastboot devices').split('\n')
+    for loop_devices_list_i in fastboot_devices_list_tmp:
+        fastboot_devices_list.append(loop_devices_list_i.replace('\tfastboot', ''))
+
+    fastboot_devices_list_len = len(fastboot_devices_list)
+    if fastboot_devices_list[0] == '':
+        print('#######ERR: do not have fastboot ,pls connect device fistly!')
         usage()
 
-def adb_reboot_bootloader_ignore_result():
-#ignore result, because some device may already into fastboot mode
-    os.system('adb reboot-bootloader')
+    for index_fastboot in range(fastboot_devices_list_len):
+        print('index fastboot  %d: %s') % (index_fastboot + 1, fastboot_devices_list[index_fastboot])
+    if fastboot_devices_list_len == 1:
+        choose_fastboot_index = 0
+    elif fastboot_devices_list_len > 1:
+        while choose_fastboot_index > fastboot_devices_list_len or \
+                choose_fastboot_index < 1:
+            print('input vaild num 1---%d') % fastboot_devices_list_len
+            choose_fastboot_index = input('Find so many fastboot devices, choose one:>')
+
+    fastboot_devices_serial_num = fastboot_devices_list[choose_fastboot_index - 1]
+    print('>>>>>will handle device %s') % fastboot_devices_serial_num
+
 #   print 'sleep 3s, wait fastboot devices'
 #   time.sleep(3)
 
+def parse_windows_bat():
+    if os.path.exists('./fm3_fastboot_update_8917.bat'):
+        print('find windows bat, now parse it!.........')
+    else:
+        print('Can not find windows bat, pls cd BIN,then run this script')
+        usage()
+
+    tmp_lists = []
+    for line in open('./fm3_fastboot_update_8917.bat'):
+        #print(line)
+        tmp_lists.append(line)
+
+    tmp_lists_next = tmp_lists[:]
+    for loop_list_i in tmp_lists:
+        if "flash" in loop_list_i:
+            print("Find reserve partition")
+        else:
+            #print("remove it")
+            tmp_lists_next.remove(loop_list_i)
+
+    #print(tmp_lists_next)
+    for loop_list_i_next in tmp_lists_next:
+        #print(loop_list_i_next)
+        commands_list.append(loop_list_i_next.replace('%FASTBOOT_CMD%', '').replace('\r\n', ''))
+
+    #print(commands_list)
+
 def go_download_fw():
     err_code = 0
-    handle_img_num = commands.getoutput('grep flash -w fm3_fastboot_update_8917.bat | wc -l')
-    if '25' == handle_img_num:
-        print 'will handle 25 img'
-    else:
-        print 'fm3_fastboot_update_8917.bat may update check it firstly'
-        print 'new handle_img_num = %s' % handle_img_num
-        usage()
 
-    #check flash xml again
-    result = os.system('diff fm3_fastboot_update_8917.bat ~/desktop/hw_flash_compare_xml/fm3_fastboot_update_8917.bat')
-    print 'result = %s' % result
-    if 0 == result:
-        print 'check xml ok go ....'
-    else:
-        print 'check xml failed'
-        usage()
-
-    img_d = {'gpt_both0.bin' : 'partition', 'rpm.mbn' : 'rpm', \
-            'tz.mbn' : 'tz', 'sbl1.mbn' : 'sbl1', \
-            'cmnlib.mbn' : 'cmnlib', 'cmnlib64.mbn' : 'cmnlib64', \
-            'devcfg.mbn' : 'devcfg', 'lksecapp.mbn' : 'lksecapp', \
-            'keymaster.mbn' : 'keymaster', 'emmc_appsboot.mbn' : 'aboot', \
-            'mdtp.img' : 'mdtp', 'cust.img' : 'cust', \
-            'NON-HLOS.bin' : 'modem', 'adspso.bin' : 'dsp', \
-            'boot.img' : 'boot', 'recovery.img' : 'recovery', \
-            'erecovery.img' : 'erecovery', 'cache.img' : 'cache', \
-            'system.img' : 'system', 'apdp.mbn' : 'apdp', \
-            'msadp.mbn' : 'msadp', 'userdata.img' : 'userdata', \
-            'vendor.img' : 'vendor', 'product.img' : 'product', \
-            'version.img' : 'version'
-            }	
-    #check all img exsit or not
-    infact_list = os.listdir('./')
-    if set(img_d.keys()).issubset(set(infact_list)):
-        print 'check file exsit success!'
-    else:
-        print 'check file failed!, cd img dir fisrtly'
-        usage()
-
-    for key, value in img_d.items():
+    for flash_string in commands_list:
         #Format fastoot cmd
-        fastboot_args = 'fastboot flash %s %s' %(value, key)
-        print '========================================'
+        fastboot_args = 'fastboot -s %s %s' % (fastboot_devices_serial_num, flash_string)
+        print '============================================================'
         print 'Handle----' + fastboot_args
 
         #now do flash
@@ -100,6 +140,8 @@ def go_download_fw():
         print '                @@@   @@@  @@'
         print '========================================'
         os.system('fastboot reboot')
+        end_time = datetime.datetime.now()
+        print(end_time - begin_time)
     else:
         print '========================================'
         print '      @@@@@@@   @@     @@@@   @@@@'
@@ -119,5 +161,5 @@ def go_download_fw():
 
 #############################################start here!
 check_device()
-adb_reboot_bootloader_ignore_result()
+parse_windows_bat()
 go_download_fw()
