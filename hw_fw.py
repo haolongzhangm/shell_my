@@ -27,7 +27,7 @@ def usage():
     print('Env prepare:')
     print('python env: 2.x support')
     print('Linux   os: put this python to env,eg /bin')
-    print('Windows os: install python fisrtly, then put this python in FW root dir')
+    print('Windows os: install python 2.x fisrtly, then put this python in FW root dir')
     exit()
 
 def check_device():
@@ -152,7 +152,7 @@ def parse_windows_bat():
     if os.path.exists('./fm3_fastboot_update_8917.bat'):
         print('find windows bat, now parse it!.........')
     else:
-        print('Can not find windows bat, pls cd BIN,then run this script')
+        print('Err: Can not find windows bat, pls cd BIN,then run this script')
         usage()
 
     tmp_lists = []
@@ -187,7 +187,7 @@ def go_download_fw(str):
         #now do flash
         if 0 == os.system(fastboot_args):
             flash_img_num = flash_img_num + 1
-            print('>>>>>result = ok, img number %d' % flash_img_num)
+            print('>>>>>result = ok, img number %d / %d') % (flash_img_num, len(commands_list))
             print('\r\n')
         else:
             print('>>>>>result = failed')
