@@ -25,6 +25,7 @@ def usage():
     print('enable adb then connect to pc')
     print('hw_fw.py')
     print('Env prepare:')
+    print('python env: 2.x support')
     print('Linux   os: put this python to env,eg /bin')
     print('Windows os: install python fisrtly, then put this python in FW root dir')
     exit()
