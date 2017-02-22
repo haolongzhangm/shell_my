@@ -17,6 +17,7 @@ import platform
 begin_time = datetime.datetime.now()
 commands_list = []
 adb_devices_list = []
+adb_devices_list_tmp = []
 fastboot_devices_list = []
 result_task_dict = dict()
 def usage():
@@ -38,7 +39,12 @@ def check_device():
     #devices_list_tmp = commands.getoutput('adb devices').split('\n')
     devices_list_tmp = os.popen('adb devices').read().split('\n')
     for loop_devices_list in devices_list_tmp:
-        adb_devices_list.append(loop_devices_list.replace('\tdevice', '').replace('\toffline', '').replace('\tunauthorized', ''))
+        adb_devices_list_tmp.append(loop_devices_list.replace('\tdevice', '').replace('\toffline', '').replace('\tunauthorized', ''))
+
+    for i_node in range(len(adb_devices_list_tmp)):
+        #remove print info from adb
+        if adb_devices_list_tmp[i_node].find('daemon') < 0:
+            adb_devices_list.append(adb_devices_list_tmp[i_node])
 
     #print(adb_devices_list)
     adb_devices_list_len = len(adb_devices_list) - 1
@@ -68,7 +74,7 @@ def check_device():
                 print(all_exx_args_reboot_bootloader)
                 #all_result_set_to_fastboot_mode = commands.getoutput(all_exx_args_reboot_bootloader)
                 all_result_set_to_fastboot_mode = os.popen(all_exx_args_reboot_bootloader).read()
-                if 0 == all_result_set_to_fastboot_mode.find('error:'):
+                if all_result_set_to_fastboot_mode.find('error:') >= 0:
                     all_result_set_to_fastboot_mode_err = 1
                     adb_already_choose_all_device = 0
 
@@ -85,12 +91,12 @@ def check_device():
         print(exx_args_reboot_bootloader)
         #result_set_to_fastboot_mode = commands.getoutput(exx_args_reboot_bootloader)
         result_set_to_fastboot_mode = os.popen(exx_args_reboot_bootloader).read()
-        if result_set_to_fastboot_mode.find('error:'):
-            print('need wait 4S for device')
-            time.sleep(4)
-        else:
+        if result_set_to_fastboot_mode.find('error:') >= 0:
             print('#########ERR: may author the adb on the device or kill adb service########')
             usage()
+        else:
+            print('need wait 4S for device')
+            time.sleep(4)
 
 #check fastboot device
     choose_fastboot_index = -1
