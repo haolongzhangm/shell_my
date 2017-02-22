@@ -2,18 +2,17 @@
 
 #add this for update FW by adb & fastboot,replace win bat
 #zhanghaolong v2 2017,2,18
-#zhanghaolong v2.1 2017.2.18
-#<<< support multithread
-
+#zhanghaolong v2.1 2017.2.18 #<<< support multithread
+#zhanghaolong v3.0 2017.2.22 #<<< compat for windows and linux env
 
 import os
 import glob
 import sys
 import time
-import commands
 import datetime
 import threading
 import copy
+import platform
 
 begin_time = datetime.datetime.now()
 commands_list = []
@@ -21,13 +20,14 @@ adb_devices_list = []
 fastboot_devices_list = []
 result_task_dict = dict()
 def usage():
-    print('v2.1')
+    print('v3.0')
     print('enable adb then connect to pc')
     print('hw_fw.py')
     print('Env prepare:')
-    print('python env: 2.x support')
     print('Linux   os: put this python to env,eg /bin')
-    print('Windows os: install python 2.x fisrtly, then put this python in FW root dir')
+    print('Windows os: install python fisrtly, then put this python in FW root dir')
+    if platform.system() == 'Windows':
+        os.system('cmd')
     exit()
 
 def check_device():
@@ -35,12 +35,13 @@ def check_device():
     #global fastboot_devices_serial_num
     choose_adb_index = -1
     adb_already_choose_all_device = 0
-    devices_list_tmp = commands.getoutput('adb devices').split('\n')
+    #devices_list_tmp = commands.getoutput('adb devices').split('\n')
+    devices_list_tmp = os.popen('adb devices').read().split('\n')
     for loop_devices_list in devices_list_tmp:
-        adb_devices_list.append(loop_devices_list.replace('\tdevice', '').replace('\toffline', ''))
+        adb_devices_list.append(loop_devices_list.replace('\tdevice', '').replace('\toffline', '').replace('\tunauthorized', ''))
 
     #print(adb_devices_list)
-    adb_devices_list_len = len(adb_devices_list)
+    adb_devices_list_len = len(adb_devices_list) - 1
     #2 means have no adb device
     if 2 == adb_devices_list_len:
         print('warning: we do not find adb devices')
@@ -63,10 +64,11 @@ def check_device():
         adb_already_choose_all_device = 1
         for all_index_all in range(adb_devices_list_len):
             if all_index_all > 0 and all_index_all < adb_devices_list_len - 1:
-                all_exx_args_reboot_bootloader = 'adb -s %s reboot-bootloader' % adb_devices_list[all_index_all]
+                all_exx_args_reboot_bootloader = 'adb -s %s reboot-bootloader 2>&1' % adb_devices_list[all_index_all]
                 print(all_exx_args_reboot_bootloader)
-                all_result_set_to_fastboot_mode = commands.getoutput(all_exx_args_reboot_bootloader)
-                if 'error: device offline' == all_result_set_to_fastboot_mode:
+                #all_result_set_to_fastboot_mode = commands.getoutput(all_exx_args_reboot_bootloader)
+                all_result_set_to_fastboot_mode = os.popen(all_exx_args_reboot_bootloader).read()
+                if 0 == all_result_set_to_fastboot_mode.find('error:'):
                     all_result_set_to_fastboot_mode_err = 1
                     adb_already_choose_all_device = 0
 
@@ -79,32 +81,34 @@ def check_device():
 
     elif 3 <= adb_devices_list_len:
         print('>>>>>>>>>>>Will handle device %s<<<<<<<') % adb_devices_list[choose_adb_index]
-        exx_args_reboot_bootloader = 'adb -s %s reboot-bootloader' % adb_devices_list[choose_adb_index]
+        exx_args_reboot_bootloader = 'adb -s %s reboot-bootloader 2>&1 ' % adb_devices_list[choose_adb_index]
         print(exx_args_reboot_bootloader)
-        result_set_to_fastboot_mode = commands.getoutput(exx_args_reboot_bootloader)
-        if 'error: device offline' == result_set_to_fastboot_mode:
-            print('#########ERR: pls author the adb on the device########')
-            usage()
-        else:
+        #result_set_to_fastboot_mode = commands.getoutput(exx_args_reboot_bootloader)
+        result_set_to_fastboot_mode = os.popen(exx_args_reboot_bootloader).read()
+        if result_set_to_fastboot_mode.find('error:'):
             print('need wait 4S for device')
             time.sleep(4)
+        else:
+            print('#########ERR: may author the adb on the device or kill adb service########')
+            usage()
 
 #check fastboot device
     choose_fastboot_index = -1
-    fastboot_devices_list_tmp = commands.getoutput('fastboot devices').split('\n')
+    #fastboot_devices_list_tmp = commands.getoutput('fastboot devices').split('\n')
+    fastboot_devices_list_tmp = os.popen('fastboot devices').read().split('\n')
     for loop_devices_list_i in fastboot_devices_list_tmp:
         fastboot_devices_list.append(loop_devices_list_i.replace('\tfastboot', ''))
 
-    fastboot_devices_list_len = len(fastboot_devices_list)
+    fastboot_devices_list_len = len(fastboot_devices_list) - 1
     if fastboot_devices_list[0] == '':
-        print('#######ERR: do not have fastboot ,pls connect device fistly!')
+        print('#######ERR: do not have fastboot devices,pls connect device fistly!')
         usage()
 
     print('Now check fastboot devices:')
     for index_fastboot in range(fastboot_devices_list_len):
         print('index fastboot  %d: %s') % (index_fastboot + 1, fastboot_devices_list[index_fastboot])
     if fastboot_devices_list_len == 1:
-        choose_fastboot_index = 0
+        choose_fastboot_index = 1
     elif fastboot_devices_list_len > 1 and adb_already_choose_all_device == 0:
         while choose_fastboot_index > fastboot_devices_list_len or \
                 choose_fastboot_index < 1:
@@ -146,6 +150,9 @@ def check_device():
         print('>>>>>will handle device %s') % fastboot_devices_serial_num
         go_download_fw(fastboot_devices_serial_num)
 
+    if platform.system() == 'Windows':
+        os.system('cmd')
+
 #   time.sleep(3)
 
 def parse_windows_bat():
@@ -178,6 +185,10 @@ def parse_windows_bat():
 def go_download_fw(str):
     flash_img_num = 0
 
+#for debug
+#    result_task_dict[str] = flash_img_num
+#    return
+#end for debug
     for flash_string in commands_list:
         #Format fastoot cmd
         fastboot_args = 'fastboot -s %s %s' % (str, flash_string)
