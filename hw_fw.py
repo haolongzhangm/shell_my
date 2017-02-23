@@ -4,6 +4,7 @@
 #zhanghaolong v2 2017,2,18
 #zhanghaolong v2.1 2017.2.18 #<<< support multithread
 #zhanghaolong v3.0 2017.2.22 #<<< compat for windows and linux env
+#zhanghaolong v3.0 2017.2.23 #<<< add more platform
 
 import os
 import glob
@@ -162,14 +163,32 @@ def check_device():
 #   time.sleep(3)
 
 def parse_windows_bat():
-    if os.path.exists('./fm3_fastboot_update_8917.bat'):
-        print('find windows bat, now parse it!.........')
+
+    bat_list = glob.glob('*.bat')
+    len_bat_list = len(bat_list)
+    choose_bat_index = -1
+    if len_bat_list == 1:
+        print('find windows bat %s, now parse it!.........') % bat_list[0]
+        choose_bat_index = 0
+    elif len_bat_list > 1:
+        print('find so many bat, pls choose one:')
+        for index_bat in range(len_bat_list):
+            print('index_bat  %d  %s') % (index_bat + 1, bat_list[index_bat])
+
+        while choose_bat_index <= 0 or choose_bat_index > len_bat_list:
+            print('input vaild num 1---%d>>>') % len_bat_list
+            choose_bat_index = input('find so many bat, pls choose one:')
+
+        choose_bat_index = choose_bat_index - 1
+
     else:
         print('Err: Can not find windows bat, pls cd BIN,then run this script')
         usage()
 
+    print('choose bat %s') % bat_list[choose_bat_index]
+
     tmp_lists = []
-    for line in open('./fm3_fastboot_update_8917.bat'):
+    for line in open(bat_list[choose_bat_index]):
         #print(line)
         tmp_lists.append(line)
 
