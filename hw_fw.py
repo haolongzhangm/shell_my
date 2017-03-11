@@ -22,14 +22,17 @@ adb_devices_list_tmp = []
 fastboot_devices_list = []
 result_task_dict = dict()
 def usage():
-    print('v3.0')
+    print('')
+    print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+    print('Usage v3.0')
     print('enable adb then connect to pc')
-    print('hw_fw.py')
     print('Env prepare:')
     print('Linux   os: put this python to env,eg /bin')
     print('Windows os: install python fisrtly, then put this python srcipt in FW root dir')
     if platform.system() == 'Windows':
         os.system('cmd')
+
+    print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
     exit()
 
 def check_device():
