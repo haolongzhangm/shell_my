@@ -27,7 +27,7 @@ def usage():
     print('hw_fw.py')
     print('Env prepare:')
     print('Linux   os: put this python to env,eg /bin')
-    print('Windows os: install python fisrtly, then put this python in FW root dir')
+    print('Windows os: install python fisrtly, then put this python srcipt in FW root dir')
     if platform.system() == 'Windows':
         os.system('cmd')
     exit()
@@ -80,7 +80,7 @@ def check_device():
                     adb_already_choose_all_device = 0
 
         if all_result_set_to_fastboot_mode_err == 1:
-            print('########ERR: pls auth ALL adb perssion, then run again')
+            print('########ERR: pls authenticate ALL adb perssion, then run again')
             usage()
         else:
             print('need wait 4S for device')
@@ -93,7 +93,7 @@ def check_device():
         #result_set_to_fastboot_mode = commands.getoutput(exx_args_reboot_bootloader)
         result_set_to_fastboot_mode = os.popen(exx_args_reboot_bootloader).read()
         if result_set_to_fastboot_mode.find('error:') >= 0:
-            print('#########ERR: may author the adb on the device or kill adb service########')
+            print('#########ERR: may need authenticate the adb on the device or kill adb service########')
             usage()
         else:
             print('need wait 4S for device')
