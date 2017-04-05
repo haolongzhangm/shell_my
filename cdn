@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+then
+	cd
+fi
+
+if [ $# -gt 1 ]
+then
+	echo "need only one parm"
+fi
+
+if [ $# -eq 1 ]
+then
+for loop_i in $(seq 1 $1)
+do
+	echo $loop_i
+	cd ..
+done
+fi
