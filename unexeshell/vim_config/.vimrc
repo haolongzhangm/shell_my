@@ -215,6 +215,7 @@ fun! ShowFuncName()
 endfun
 map f :call ShowFuncName() <CR>
 map F :call ShowFuncName() <CR>
+map , :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> e e e
 "==================end for quick show func by enter 'f'========
 "=========merge vim80 vimrc_example.vim =======================
 " An example for a vimrc file.
