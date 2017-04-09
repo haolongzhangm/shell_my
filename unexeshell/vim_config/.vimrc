@@ -40,7 +40,7 @@ call vundle#begin()
 "call vundle#begin('~/some/path/here')
 
 " let Vundle manage Vundle, required
-Plugin 'gmarik/Vundle.vim'
+Plugin 'VundleVim/Vundle.Vim'
 
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
@@ -57,8 +57,6 @@ Plugin 'file:///home/gmarik/path/to/plugin'
 Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 Bundle 'Valloric/ListToggle'
 Bundle 'scrooloose/syntastic'
-" Avoid a name conflict with L9
-"Plugin 'user/L9', {'name': 'newL9'}
 "YouCompleteMe"
 Bundle 'Valloric/YouCompleteMe'
 "nerdtree"
@@ -216,6 +214,7 @@ endfun
 map f :call ShowFuncName() <CR>
 map F :call ShowFuncName() <CR>
 map , :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F5>
+map . :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
 "==================end for quick show func by enter 'f'========
 "=========merge vim80 vimrc_example.vim =======================
 " An example for a vimrc file.
@@ -236,6 +235,10 @@ endif
 
 " Get the defaults that most users want.
 source $VIMRUNTIME/defaults.vim
+"override mouse set from default.vim"
+if has('mouse')
+  set mouse=
+endif
 
 if has("vms")
   set nobackup		" do not keep a backup file, use versions instead
@@ -277,3 +280,6 @@ if has('syntax') && has('eval')
   packadd matchit
 endif
 "=========end merge vim80 vimrc_example.vim =======================
+"=========Froce hiserach color to ctermbg=Red======================
+hi Search ctermbg=Red
+"=========End hiserach color to ctermbg=Red======================
