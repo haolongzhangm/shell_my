@@ -216,6 +216,9 @@ map F :call ShowFuncName() <CR>
 map , :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F5>
 map . :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
 "==================end for quick show func by enter 'f'========
+"==================add quick for marks show===================
+nnoremap <C-b> :marks<CR>g
+"==================end quick for marks show===================
 "=========merge vim80 vimrc_example.vim =======================
 " An example for a vimrc file.
 "
