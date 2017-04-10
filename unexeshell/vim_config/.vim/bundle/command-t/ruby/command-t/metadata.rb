@@ -4,5 +4,5 @@ module CommandT
     EXPECTED_RUBY_VERSION = "1.9.3"
     EXPECTED_RUBY_PATCHLEVEL = 484
     UNKNOWN = false
-  end # module Metadata
-end # module CommandT
+  end
+end

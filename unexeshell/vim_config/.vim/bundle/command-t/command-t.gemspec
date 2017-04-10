@@ -3,19 +3,15 @@ Gem::Specification.new do |s|
 
   # see note in the Rakefile about how intermediate version numbers
   # can break RubyGems
-  v = `git describe --abbrev=0`.chomp
-  s.version = v
+  s.version = `git describe --abbrev=0`.chomp
 
   s.authors = ['Greg Hurrell']
   s.email = 'greg@hurrell.net'
 
-  files =
-    ['README.txt', 'LICENSE', 'Gemfile', 'Rakefile'] +
-    Dir.glob('{ruby,doc,plugin}/**/*')
+  s.files =
+    ['README.md', 'LICENSE', 'Gemfile', 'Rakefile'] +
+    `git ls-files -z ruby doc`.split("\x0")
 
-  files = files.reject { |f| f =~ /\.(rbc|o|log|plist|dSYM)/ }
-
-  s.files = files
   s.license = 'BSD'
   s.require_path = 'ruby'
   s.extensions = 'ruby/command-t/extconf.rb'
@@ -23,7 +19,7 @@ Gem::Specification.new do |s|
   s.executables = []
 
   s.has_rdoc = false
-  s.homepage = 'https://wincent.com/products/command-t'
+  s.homepage = 'https://github.com/wincent/command-t'
 
   s.summary = 'The Command-T plug-in for VIM.'
 

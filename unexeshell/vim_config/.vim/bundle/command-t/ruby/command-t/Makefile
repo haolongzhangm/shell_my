@@ -117,8 +117,8 @@ extout_prefix =
 target_prefix = 
 LOCAL_LIBS = 
 LIBS = $(LIBRUBYARG_SHARED) -lpthread  -lpthread -lrt -ldl -lcrypt -lm   -lc
-SRCS = matcher.c watchman.c ext.c match.c
-OBJS = matcher.o watchman.o ext.o match.o
+SRCS = heap.c matcher.c watchman.c ext.c match.c
+OBJS = heap.o matcher.o watchman.o ext.o match.o
 TARGET = ext
 TARGET_NAME = ext
 TARGET_ENTRY = Init_$(TARGET_NAME)
@@ -222,3 +222,7 @@ $(DLLIB): $(OBJS) Makefile
 # Licensed under the terms of the BSD 2-clause license.
 
 CFLAGS += -Wall -Wextra -Wno-unused-parameter
+
+ifdef DEBUG
+CFLAGS += -DDEBUG
+endif

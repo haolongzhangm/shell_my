@@ -12,9 +12,11 @@ module CommandT
           accumulator = []
           @depth = 0
           @files = 0
+          @next_progress = progress_reporter.update(@files)
           add_paths_for_directory(@path, accumulator)
           accumulator
         rescue FileLimitExceeded
+          show_max_files_warning
           accumulator
         end
 
@@ -34,6 +36,7 @@ module CommandT
             unless path_excluded?(path)
               if File.file?(path)
                 @files += 1
+                @next_progress = progress_reporter.update(@files) if @files == @next_progress
                 raise FileLimitExceeded if @files > @max_files
                 accumulator << path[@prefix_len..-1]
               elsif File.directory?(path)
@@ -51,7 +54,7 @@ module CommandT
         rescue ArgumentError
           # skip over bad file names
         end
-      end # class RubyFileScanner
-    end # class FileScanner
-  end # class Scanner
-end # module CommandT
+      end
+    end
+  end
+end

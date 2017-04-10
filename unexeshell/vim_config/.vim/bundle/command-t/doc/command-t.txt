@@ -16,8 +16,9 @@ CONTENTS                                        *command-t-contents*
 12. Authors                         |command-t-authors|
 13. Development                     |command-t-development|
 14. Website                         |command-t-website|
-15. License                         |command-t-license|
-16. History                         |command-t-history|
+15. Related projects                |command-t-related-projects|
+16. License                         |command-t-license|
+17. History                         |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -38,10 +39,6 @@ think more about where the desired file is found rather than what it is
 called. This means narrowing your search down by including some characters
 from the upper path components rather than just entering characters from the
 filename itself.
-
-Screencasts demonstrating the plug-in can be viewed at:
-
-  https://wincent.com/products/command-t
 
 
 REQUIREMENTS                                    *command-t-requirements*
@@ -75,7 +72,7 @@ was first released, did not support Ruby in the system Vim, but the current
 version of OS X at the time of writing, Mavericks, does). All recent versions
 of MacVim come with Ruby support; it is available from:
 
-  http://github.com/b4winckler/macvim/downloads
+  http://macvim-dev.github.io/macvim/
 
 For Windows users, the Vim 7.2 executable available from www.vim.org does
 include Ruby support, and is recommended over version 7.3 (which links against
@@ -165,6 +162,7 @@ Other plug-in managers include:
 - NeoBundle: https://github.com/Shougo/neobundle.vim (see
   |command-t-neobundle|)
 - VAM: https://github.com/MarcWeber/vim-addon-manager (see |command-t-vam|)
+- vim-plug: https://github.com/junegunn/vim-plug (see |command-t-vim-plug|)
 
 The following sections outline how to use each of these managers to download
 Command-T, and finally |command-t-compile| describes how to compile it.
@@ -182,13 +180,13 @@ If you manage your entire `~/.vim` folder using Git then you can add the
 Command-T repository as a submodule:
 
   cd ~/.vim
-  git submodule add git://git.wincent.com/command-t.git bundle/command-t
+  git submodule add https://github.com/wincent/command-t.git bundle/command-t
   git submodule init
 
 Or if you just wish to do a simple clone instead of using submodules:
 
   cd ~/.vim
-  git clone git://git.wincent.com/command-t.git bundle/command-t
+  git clone https://github.com/wincent/command-t.git bundle/command-t
 
 Once you have a local copy of the repository you can update it at any time
 with:
@@ -240,11 +238,23 @@ Command-T:
   call neobundle#end()
 
 To actually install the plug-in run `:NeoBundleInstall` from inside Vim. After
-this, you can proceed to compile Command-T (see |command-t-compile|).
+this, you can proceed to compile Command-T (see |command-t-compile|) manually,
+or if you wish to have NeoBundle attempt to do so automatically, you can use a
+configuration like this:
+
+  call neobundle#begin(expand('~/.vim/bundle/'))
+  NeoBundle 'wincent/command-t', {
+    \   'build_commands': ['make', 'ruby'],
+    \   'build': {
+    \      'unix': 'cd ruby/command-t && { make clean; ruby extconf.rb && make }'
+    \   }
+    \ }
+  call neobundle#end()
 
 For more information about NeoBundle, see:
 
   https://github.com/Shougo/neobundle.vim
+
                                                               *command-t-vam*
 Obtaining the source using VAM ~
 
@@ -261,13 +271,40 @@ For more information about VAM, see:
 
   https://github.com/MarcWeber/vim-addon-manager
 
+                                                           *command-t-vim-plug*
+Obtaining the source using vim-plug ~
+
+Anywhere between the calls to `plug#begin` and `plug#end` in your
+|.vimrc|, add a `Plug` directive telling vim-plug of your desire to use
+Command-T:
+
+  call plug#begin()
+  Plugin 'wincent/command-t'
+  call plug#end()
+
+To actually install the plug-in run `:PlugInstall` from inside Vim. After
+this, you can proceed to compile Command-T (see |command-t-compile|) manually,
+or if you wish to have vim-plug attempt to do so automatically, you can use a
+configuration like this:
+
+  call plug#begin()
+  Plug 'wincent/command-t', {
+    \   'do': 'cd ruby/command-t && ruby extconf.rb && make'
+    \ }
+  call plug#end()
+
+For more information about vim-plug, see:
+
+  https://github.com/junegunn/vim-plug
+
                                                          *command-t-compile*
 Compiling Command-T ~
 
 The C extension must be built, which can be done from the shell. If you use a
 typical Pathogen, Vundle or NeoBundle set-up then the files were installed inside
 `~/.vim/bundle/command-t`. A typical VAM installation path might be
-`~/.vim/vim-addons/command-t`.
+`~/.vim/vim-addons/command-t`, and vim-plug would be
+`~/.vim/plugged/Command-T/`.
 
 Wherever the Command-T files were installed, you can build the extension by
 changing to the `ruby/command-t` subdirectory and running a couple of commands
@@ -495,58 +532,85 @@ paths which begin with the same prefix.
 COMMANDS                                        *command-t-commands*
 
                                                 *:CommandT*
-|:CommandT|       Brings up the Command-T file window, starting in the
-                current working directory as returned by the|:pwd|
-                command.
+|:CommandT|         Brings up the Command-T file window, starting in the current
+                  working directory as returned by the|:pwd|
+                  command.
 
-                                                *:CommandTBuffer*
-|:CommandTBuffer| Brings up the Command-T buffer window.
-                This works exactly like the standard file window,
-                except that the selection is limited to files that
-                you already have open in buffers.
+                                                 *:CommandTBuffer*
+|:CommandTBuffer|   Brings up the Command-T buffer window.
+                  This works exactly like the standard file window,
+                  except that the selection is limited to files that
+                  you already have open in buffers.
+
+                                                *:CommandTCommand*
+|:CommandTCommand|  Brings up the Command-T command window. This works
+                  exactly like the standard file window, except that it shows
+                  the available commands to run.
+
+                                                 *:CommandTHelp*
+|:CommandTHelp|     Brings up the Command-T help search window. This works
+                  exactly like the standard file window, except that it shows
+                  help topics found in any documentation under Vim's
+                  |'runtimepath'|.
+
+                                                *:CommandTHistory*
+|:CommandTHistory|  Brings up the Command-T history window. This works
+                  exactly like the standard file window, except that it shows
+                  the history of previously entered commands.
+
+                                                *:CommandTLine*
+|:CommandTLine|     Brings up the Command-T line search window. This works
+                  exactly like the standard file window, except that it shows
+                  the lines in the current buffer.
 
                                                 *:CommandTMRU*
-|:CommandTMRU|    Brings up the Command-T buffer window, except that matches
-                are shown in MRU (most recently used) order. If you prefer to
-                use this over the normal buffer finder, I suggest overwriting
-                the standard mapping with a command like:
+|:CommandTMRU|      Brings up the Command-T buffer window, except that matches
+                  are shown in MRU (most recently used) order. If you prefer to
+                  use this over the normal buffer finder, I suggest overwriting
+                  the standard mapping with a command like:
 
-                    :nnoremap <silent> <leader>b :CommandTMRU<CR>
+                     :nnoremap <silent> <leader>b :CommandTMRU<CR>
 
-                Note that Command-T only starts recording most recently used
-                buffers when you first use a Command-T command or mapping;
-                this is an optimization to improve startup time.
+                  Note that Command-T only starts recording most recently used
+                  buffers when you first use a Command-T command or mapping;
+                  this is an optimization to improve startup time, which you can
+                  override by using either |:CommandTLoad| or |commandt#Load|.
 
                                                 *:CommandTJumps*
-|:CommandTJump|   Brings up the Command-T jumplist window.
-                This works exactly like the standard file window,
-                except that the selection is limited to files that
-                you already have in the jumplist. Note that jumps
-                can persist across Vim sessions (see Vim's |jumplist|
-                documentation for more info).
+|:CommandTJump|     Brings up the Command-T jumplist window.
+                  This works exactly like the standard file window,
+                  except that the selection is limited to files that
+                  you already have in the jumplist. Note that jumps
+                  can persist across Vim sessions (see Vim's |jumplist|
+                  documentation for more info).
+
+                                                *:CommandTSearch*
+|:CommandTSearch|   Brings up the Command-T search window. This works
+                  exactly like the standard file window, except that it shows
+                  the history of previously used searches.
 
                                                 *:CommandTTag*
-|:CommandTTag|    Brings up the Command-T window tags window, which can
-                be used to select from the tags, if any, returned by
-                Vim's |taglist()| function. See Vim's |tag| documentation
-                for general info on tags.
+|:CommandTTag|      Brings up the Command-T window tags window, which can
+                  be used to select from the tags, if any, returned by
+                  Vim's |taglist()| function. See Vim's |tag| documentation
+                  for general info on tags.
 
                                                 *:CommandTFlush*
-|:CommandTFlush|  Instructs the plug-in to flush its path cache, causing
-                the directory to be rescanned for new or deleted paths
-                the next time the file window is shown (pressing <C-f> when
-                a match listing is visible flushes the cache immediately; this
-                mapping is configurable via the |g:CommandTRefreshMap|
-                setting). In addition, all configuration settings are
-                re-evaluated, causing any changes made to settings via the
-                |:let| command to be picked up.
+|:CommandTFlush|    Instructs the plug-in to flush its path cache, causing
+                  the directory to be rescanned for new or deleted paths
+                  the next time the file window is shown (pressing <C-f> when
+                  a match listing is visible flushes the cache immediately;
+                  this mapping is configurable via the |g:CommandTRefreshMap|
+                  setting). In addition, all configuration settings are
+                  re-evaluated, causing any changes made to settings via the
+                  |:let| command to be picked up.
 
                                                 *:CommandTLoad*
-|:CommandTLoad|   Immediately loads the plug-in files, if they haven't been
-                loaded already (normally, the files are loaded lazily the
-                first time you run a Command-T command or use a Command-T
-                mapping). This command may be useful for people wishing to
-                extend Command-T by "monkey patching" its functionality.
+|:CommandTLoad|     Immediately loads the plug-in files, if they haven't been
+                  loaded already (normally, the files are loaded lazily the
+                  first time you run a Command-T command or use a Command-T
+                  mapping). This command may be useful for people wishing to
+                  extend Command-T by "monkey patching" its functionality.
 
 
 MAPPINGS                                        *command-t-mappings*
@@ -568,9 +632,9 @@ By default Command-T comes with only three mappings:
 Note that Command-T won't overwrite a pre-existing mapping so if you prefer
 to define different mappings use lines like these in your |.vimrc|:
 
-  nnoremap <silent> <Leader>t <Plug>(CommandT)
-  nnoremap <silent> <Leader>b <Plug>(CommandTBuffer)
-  nnoremap <silent> <Leader>j <Plug>(CommandTJump)
+  nmap <silent> <Leader>t <Plug>(CommandT)
+  nmap <silent> <Leader>b <Plug>(CommandTBuffer)
+  nmap <silent> <Leader>j <Plug>(CommandTJump)
 
 Replacing "<Leader>t", "<Leader>b" or "<Leader>j" with your mapping of choice.
 
@@ -582,6 +646,40 @@ binding of Command-T to "New Tab":
     macmenu &File.New\ Tab key=<nop>
     map <D-t> <Plug>(CommandT)
   endif
+
+Additional mappings are available to target, but are not set up by default:
+
+    *<Plug>(CommandTCommand)*
+
+      Brings up the Command-T command window.
+
+    *<Plug>(CommandTHelp)*
+
+      Brings up the Command-T help search window.
+
+    *<Plug>(CommandTHistory)*
+
+      Brings up the Command-T command history search window.
+
+    *<Plug>(CommandTLine)*
+
+      Brings up the Command-T line-finder window.
+
+    *<Plug>(CommandTMRU)*
+
+      Brings up the Command-T most-recently-used buffer window.
+
+    *<Plug>(CommandTSearch)*
+
+      Brings up the Command-T search history window.
+
+    *<Plug>(CommandTTag)*
+
+      Brings up the Command-T tag search window.
+
+Set up a mapping for any of these like so:
+
+  nmap <silent> <Leader>h <Plug>(CommandTHelp)
 
 When the Command-T window is active a number of other additional mappings
 become available for doing things like moving between and selecting matches.
@@ -602,23 +700,29 @@ changes via |:let|.
 
 Following is a list of all available options:
 
-                                               *g:CommandTMaxFiles*
-  |g:CommandTMaxFiles|                           number (default 30000)
+                                            *g:CommandTMaxFiles*
+  |g:CommandTMaxFiles|                        number (default 100000)
 
       The maximum number of files that will be considered when scanning the
       current directory. Upon reaching this number scanning stops. This
       limit applies only to file listings and is ignored for buffer
       listings.
 
-                                               *g:CommandTMaxDepth*
-  |g:CommandTMaxDepth|                           number (default 15)
+                                            *g:CommandTSuppressMaxFilesWarning*
+  |g:CommandTSuppressMaxFilesWarning|         boolean (default 0)
+
+      Suppress the warning that Command-T shows when hitting the
+      |g:CommandTMaxFiles| limit during a scan.
+
+                                            *g:CommandTMaxDepth*
+  |g:CommandTMaxDepth|                        number (default 15)
 
       The maximum depth (levels of recursion) to be explored when scanning the
       current directory. Any directories at levels beyond this depth will be
       skipped.
 
-                                               *g:CommandTMaxCachedDirectories*
-  |g:CommandTMaxCachedDirectories|               number (default 1)
+                                            *g:CommandTMaxCachedDirectories*
+  |g:CommandTMaxCachedDirectories|            number (default 1)
 
       The maximum number of directories whose contents should be cached when
       recursively scanning. With the default value of 1, each time you change
@@ -627,23 +731,23 @@ Following is a list of all available options:
       cache, bringing performance at the cost of memory usage. If set to 0,
       there is no limit on the number of cached directories.
 
-                                               *g:CommandTMaxHeight*
-  |g:CommandTMaxHeight|                          number (default: 0)
+                                            *g:CommandTMaxHeight*
+  |g:CommandTMaxHeight|                       number (default: 15)
 
       The maximum height in lines the match window is allowed to expand to.
       If set to 0, the window will occupy as much of the available space as
       needed to show matching entries.
 
-                                               *g:CommandTInputDebounce*
-  |g:CommandTInputDebounce|                      number (default: 50)
+                                            *g:CommandTInputDebounce*
+  |g:CommandTInputDebounce|                   number (default: 0)
 
       The number of milliseconds to wait before updating the match listing
       following a key-press. This can be used to avoid wasteful recomputation
       when making a rapid series of key-presses in a directory with many tens
       (or hundreds) of thousands of files.
 
-                                               *g:CommandTFileScanner*
-  |g:CommandTFileScanner|                        string (default: 'ruby')
+                                            *g:CommandTFileScanner*
+  |g:CommandTFileScanner|                     string (default: 'ruby')
 
       The underlying scanner implementation that should be used to explore the
       filesystem. Possible values are:
@@ -665,11 +769,11 @@ Following is a list of all available options:
         intended for use with very large hierarchies (hundreds of thousands of
         files) and so the task of deciding which files should be included is
         entirely delegated to Watchman; this means that settings which
-        Command-T would usually consult, such as 'wildignore' and
+        Command-T would usually consult, such as
         |g:CommandTScanDotDirectories| are ignored.
 
-                                               *g:CommandTTraverseSCM*
-  |g:CommandTTraverseSCM|                        string (default: 'file')
+                                            *g:CommandTTraverseSCM*
+  |g:CommandTTraverseSCM|                     string (default: 'file')
 
       Instructs Command-T how to choose a root path when opening a file finder
       without an explicit path argument. Possible values are:
@@ -689,29 +793,29 @@ Following is a list of all available options:
       - "pwd": use Vim's present working directory as a root (ie. attempt no
         traversal).
 
-                                               *g:CommandTGitScanSubmodules*
-  |g:CommandTGitScanSubmodules|                  boolean (default: 0)
+                                            *g:CommandTGitScanSubmodules*
+  |g:CommandTGitScanSubmodules|               boolean (default: 0)
 
       If set to 1, Command-T will scan submodules (recursively) when using the
       "git" file scanner (see |g:CommandTFileScanner|).
 
 
-                                               *g:CommandTSCMDirectories*
+                                            *g:CommandTSCMDirectories*
   |g:CommandTSCMDirectories|    string (default: '.git,.hg,.svn,.bzr,_darcs')
 
       The marker directories that Command-T will use to identify SCM roots
       during traversal (see |g:CommandTTraverseSCM| above).
 
 
-                                               *g:CommandTMinHeight*
-  |g:CommandTMinHeight|                          number (default: 0)
+                                            *g:CommandTMinHeight*
+  |g:CommandTMinHeight|                       number (default: 0)
 
       The minimum height in lines the match window is allowed to shrink to.
       If set to 0, will default to a single line. If set above the max height,
       will default to |g:CommandTMaxHeight|.
 
-                                               *g:CommandTAlwaysShowDotFiles*
-  |g:CommandTAlwaysShowDotFiles|                 boolean (default: 0)
+                                            *g:CommandTAlwaysShowDotFiles*
+  |g:CommandTAlwaysShowDotFiles|              boolean (default: 0)
 
       When showing the file listing Command-T will by default show dot-files
       only if the entered search string contains a dot that could cause a
@@ -722,8 +826,8 @@ Following is a list of all available options:
       the file listing; the buffer listing treats dot-files like any other
       file.
 
-                                               *g:CommandTNeverShowDotFiles*
-  |g:CommandTNeverShowDotFiles|                  boolean (default: 0)
+                                            *g:CommandTNeverShowDotFiles*
+  |g:CommandTNeverShowDotFiles|               boolean (default: 0)
 
       In the file listing, Command-T will by default show dot-files if the
       entered search string contains a dot that could cause a dot-file to
@@ -735,8 +839,8 @@ Following is a list of all available options:
       has no effect in buffer listings, where dot files are treated like any
       other file.
 
-                                               *g:CommandTScanDotDirectories*
-  |g:CommandTScanDotDirectories|                 boolean (default: 0)
+                                            *g:CommandTScanDotDirectories*
+  |g:CommandTScanDotDirectories|              boolean (default: 0)
 
       Normally Command-T will not recurse into "dot-directories" (directories
       whose names begin with a dot) while performing its initial scan. Set
@@ -754,80 +858,85 @@ Following is a list of all available options:
         :cd ~/.vim
         :CommandT
 
-                                               *g:CommandTMatchWindowAtTop*
-  |g:CommandTMatchWindowAtTop|                   boolean (default: 0)
+                                            *g:CommandTMatchWindowAtTop*
+  |g:CommandTMatchWindowAtTop|                boolean (default: 0)
 
       When this setting is off (the default) the match window will appear at
       the bottom so as to keep it near to the prompt. Turning it on causes the
       match window to appear at the top instead. This may be preferable if you
-      want the best match (usually the first one) to appear in a fixed location
-      on the screen rather than moving as the number of matches changes during
+      if you have |g:CommandTMatchWindowReverse| set to 0 and want the best
+      match (usually the first one) to appear in a fixed location on the
+      screen rather than moving as the number of matches changes during
       typing.
 
-                                                *g:CommandTMatchWindowReverse*
-  |g:CommandTMatchWindowReverse|                  boolean (default: 0)
+                                            *g:CommandTMatchWindowReverse*
+  |g:CommandTMatchWindowReverse|              boolean (default: 1)
 
-      When this setting is off (the default) the matches will appear from
-      top to bottom with the topmost being selected. Turning it on causes the
-      matches to be reversed so the best match is at the bottom and the
-      initially selected match is the bottom most. This may be preferable if
-      you want the best match to appear in a fixed location on the screen
-      but still be near the prompt at the bottom.
+      When this setting is on (the default), matches will be shown in reverse
+      order, with the best match at the bottom (ie. closest to the prompt).
+      The initially selected match will be the bottom-most, which is
+      preferable if you want the best match to appear in a fixed location on
+      the screen (independently of the number of results). When set to 0,
+      matches will appear from top to bottom with the topmost being selected.
 
-                                                *g:CommandTTagIncludeFilenames*
-  |g:CommandTTagIncludeFilenames|                 boolean (default: 0)
+                                             *g:CommandTTagIncludeFilenames*
+  |g:CommandTTagIncludeFilenames|              boolean (default: 0)
 
       When this setting is off (the default) the matches in the |:CommandTTag|
       listing do not include filenames.
 
-                                                *g:CommandTCursorColor*
-                                                string (default: 'Underlined')
+                                             *g:CommandTCursorColor*
+                                             string (default: 'Underlined')
   |g:CommandTCursorColor|
 
       Specifies the |:highlight| color that will be applied to the cursor in
       the Command-T prompt.
 
-                                                *g:CommandTHighlightColor*
-  |g:CommandTHighlightColor|                      string (default: 'PmenuSel')
+                                             *g:CommandTHighlightColor*
+  |g:CommandTHighlightColor|                   string (default: 'PmenuSel')
 
       Specifies the |:highlight| color that will be used to show the currently
       selected item in the match listing window.
 
-                                                *g:CommandTWildIgnore*
-  |g:CommandTWildIgnore|                          string (default: none)
+                                             *g:CommandTWildIgnore*
+  |g:CommandTWildIgnore|                       string (default: none)
 
       Optionally override Vim's global |'wildignore'| setting during Command-T
       searches. If you wish to supplement rather than replace the global
       setting, you can use a syntax like:
 
-        let g:CommandTWildIgnore=&wildignore . ",**/bower_components/*"
+        let g:CommandTWildIgnore=&wildignore . ",*/bower_components"
+
+      To disable all |'wildignore'|-based filtering, set to an empty string:
+
+        let g:CommandTWildIgnore=''
 
       See also |command-t-wildignore|.
 
-                                                *g:CommandTIgnoreCase*
-  |g:CommandTIgnoreCase|                          boolean (default: 1)
+                                             *g:CommandTIgnoreCase*
+  |g:CommandTIgnoreCase|                       boolean (default: 1)
 
       Ignore case when searching. Defaults to on, which means that searching
       is case-insensitive by default. See also |g:CommandTSmartCase|.
 
-                                                *g:CommandTRecursiveMatch*
-  |g:CommandTRecursiveMatch|                      boolean (default: 1)
+                                             *g:CommandTRecursiveMatch*
+  |g:CommandTRecursiveMatch|                   boolean (default: 1)
 
       Use this to downgrade Command-T's match-scoring algorithm to its older,
-      non-recursive form. Doing so may improve the responsiveness of the match
-      listing, but at the cost of slightly less precision in the ranking of
-      results.
+      cruder, less expensive form. Doing so may improve the responsiveness of
+      the match listing, but at the cost of slightly less precision in the
+      ranking of results.
 
-                                                *g:CommandTSmartCase*
-  |g:CommandTSmartCase|                           boolean (default: none)
+                                             *g:CommandTSmartCase*
+  |g:CommandTSmartCase|                        boolean (default: none)
 
       Override the |g:CommandTIgnoreCase| setting if the search pattern
       contains uppercase characters, forcing the match to be case-sensitive.
       If unset (which is the default), the value of the Vim |'smartcase'|
       setting will be used instead.
 
-                                              *g:CommandTAcceptSelectionCommand*
-  |g:CommandTAcceptSelectionCommand|            string (default: 'e')
+                                             *g:CommandTAcceptSelectionCommand*
+  |g:CommandTAcceptSelectionCommand|           string (default: 'e')
 
       The Vim command that will be used to open a selection from the match
       listing (via |g:CommandTAcceptSelectionMap|).
@@ -882,8 +991,8 @@ Following is a list of all available options:
       For an example of how this can be used to apply arbitrarily complex
       logic, see the example in |g:CommandTAcceptSelectionTabCommand| above.
 
-                                              *g:CommandTEncoding*
-  |g:CommandTEncoding|                          string (default: none)
+                                             *g:CommandTEncoding*
+  |g:CommandTEncoding|                         string (default: none)
 
       In most environments Command-T will work just fine using the character
       encoding settings from your local environment. This setting can be used
@@ -891,12 +1000,11 @@ Following is a list of all available options:
       environment ends up defaulting to an undesired encoding, such as
       "ASCII-8BIT".
 
-                                              *g:CommandTIgnoreSpaces*
-  |g:CommandTIgnoreSpaces|                      boolean (default: 0)
+                                             *g:CommandTIgnoreSpaces*
+  |g:CommandTIgnoreSpaces|                     boolean (default: 1)
 
-      When typing a search term into Command-T, use this option to have it
-      ignore spaces. Without this option set, it will search for literal
-      spaces inside file names.
+      When typing a search term into Command-T, ignore spaces. When set to 0,
+      Command-T will search for literal spaces inside file names.
 
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
@@ -984,16 +1092,34 @@ settings can be used to control behavior:
       Vim's |'wildignore'| setting is used to determine which files should be
       excluded from listings. This is a comma-separated list of glob patterns.
       It defaults to the empty string, but common settings include "*.o,*.obj"
-      (to exclude object files) or "**/.git/*,**/.svn/*" (to exclude SCM
+      (to exclude object files) or "*/.git,*/.svn" (to exclude SCM
       metadata directories). For example:
 
         :set wildignore+=*.o,*.obj
 
-      A pattern such as "vendor/rails/**" would exclude all files and
-      subdirectories inside the "vendor/rails" directory (relative to
-      directory Command-T starts in).
+      A pattern such as "*/vendor/rails" would exclude all files and
+      subdirectories inside the "vendor/rails" directory.
 
-      See the |'wildignore'| documentation for more information.
+      See the |'wildignore'| documentation for more information. Here is an
+      overview of how different common patterns affect Vim and Command-T
+      behavior:
+
+      wildignore   File      File       Dir      Dir       Dir + File
+      Pattern      "foo"     "a/foo"    "foo"    "a/foo"   "a/foo/b"
+      ---------------------------------------------------------------
+      `foo`          match     match      miss     miss      miss
+      `foo/`         miss      miss       miss     miss      miss
+      `foo/*`        miss      miss       miss     miss      miss
+      `*/foo`        match     match      match    match     match
+      `*/foo/`       miss      miss       match    miss      miss
+      `*/foo/*`      miss      miss       match    match     match
+
+      In short, in general you want to use patterns like:
+
+      - `foo`: to match a file at any level.
+      - `*.foo`: to match a file with an extension at any level.
+      - `*/foo`: to match a file or directory at any level.
+      - `*/foo/*`: to match a directory at any level.
 
       If you want to influence Command-T's file exclusion behavior without
       changing your global |'wildignore'| setting, you can use the
@@ -1006,23 +1132,16 @@ settings can be used to control behavior:
       - The default "ruby" scanner explores the filesystem recursively using a
         depth-first search, and any directory (or subdirectory) which matches
         the 'wildignore' pattern is not explored. So, if your 'wildignore'
-        contains "node_modules" then that entire sub-hierarchy will be
-        ignored. Additionally, wildcard patterns like "node_modules/**" or
-        "**/node_modules/*" will cause the entire sub-hierarchy to be ignored.
+        contains "*/node_modules" then that entire sub-hierarchy will be
+        ignored.
 
       - The "git" and "find" scanners apply 'wildignore' filtering only after
-        completing their scans. Filtering only applies to files and not
-        directories. This means that in the "node_modules" example case, the
-        "node_modules" directory is not considered itself, and when we examine
-        a file like "node_modules/foo/bar" the "node_modules" pattern does
-        not match it (because "bar" does not match it). To exclude
-        any "node_modules" directory anywhere in the hierarchy and all of its
-        descendants we must use a pattern like "**/node_modules/*". To do this
-        only for a top-level "node_modules", use "node_modules/**".
+        completing their scans.
 
       - The "watchman" scanner is intended for use with massive hierarchies
-        where speed is of the utmost import, so it doesn't consult
-        'wildignore' at all.
+        where speed is of the utmost import, so you may wish to avoid
+        performing any 'wildignore' filtering at all. To suppress the
+        filtering, set |g:CommandTWildIgnore| to an empty string.
 
 
 INTEGRATION AND EXTENSIBILITY         *command-t-integration-and-extensibility*
@@ -1071,6 +1190,26 @@ context-sensitive 'statusline'.
 - `commandt#CheckBuffer()`: Takes a buffer number and returns true if
   it is the Command-T match listing buffer.
 
+                                                *command-t-custom-autocommands*
+Custom autocommands ~
+
+                                                *CommandTWillShowMatchListing*
+                                                *CommandTDidHideMatchListing*
+
+Command-T runs the following "User" autocommands just prior to showing the
+match listing window and just after hiding it:
+
+  - CommandTWillShowMatchListing
+  - CommandTDidHideMatchListing
+
+For example, to call a pair of custom functions in response to these events,
+you might do: >
+
+   autocmd! User CommandTWillShowMatchListing
+   autocmd User CommandTWillShowMatchListing call CustomWillShow()
+   autocmd! User CommandTDidHideMatchListing
+   autocmd User CommandTDidHideMatchListing call CustomDidHide()
+
 
 FAQ                                             *command-t-faq*
 
@@ -1107,7 +1246,7 @@ your terminal has frozen, but it hasn't.
 To disable flow control, add the following to your `.zshrc` or
 `.bash_profile`:
 
-  stty -ixon
+  stty -ixon -ixoff
 
 See the `stty` man page for more details.
 
@@ -1161,9 +1300,9 @@ reasonable compromise.
 The default limit of 30,000 files prevents Command-T from "seeing" many of the
 files in a large directory hierarchy so you need to increase this limit.
 
-    let g:CommandTInputDebounce = 200
+    let g:CommandTInputDebounce = 50
 
-Wait for 200ms of keyboard inactivity before computing search results. For
+Wait for 50ms of keyboard inactivity before computing search results. For
 example, if you are enter "foobar" quickly (ie. within 1 second), there is
 little sense in fetching the results for "f", "fo", "foo", "foob", "fooba" and
 finally "foobar". Instead, we can just fetch the results for "foobar". This
@@ -1213,11 +1352,12 @@ listing with fewer keystrokes. See also |g:CommandTIgnoreCase|.
 
     let g:CommandTRecursiveMatch = 0
 
-This one is a little more subjective. You may want to turn off Command-T's
-recursive match-scoring algorithm to save some cycles. This finds matches more
-quickly at the possible cost of ranking them slightly less precisely. Whether
-applying this setting helps or hurts you in a very large repo is probably
-repo-dependent.
+This one is a little more subjective. You may want to downgrade Command-T's
+match-scoring algorithm to a cheaper but less precise method to save some
+cycles. This finds matches more quickly at the possible cost of ranking them
+slightly less precisely. Whether applying this setting helps or hurts you in a
+very large repo is probably repo-dependent. For reference, I do not use this
+setting, even in repos of over 500,000 files.
 
 As noted in the introduction, Command-T works best when you adopt a
 "path-centric" mentality. This is especially true on very large hierarchies.
@@ -1242,53 +1382,60 @@ kind of ongoing calibration will come quite naturally.
 Finally, it is important to be on a relatively recent version of Command-T to
 fully benefit from the available performance enhancements:
 
-- version 2.0 (December 2015) added the |g:CommandTRecursiveMatch| option
-- version 1.10 (July 2014) added the |g:CommandTIgnoreCase| and
-  |g:CommandTSmartCase| options
-- version 1.9 (May 2014) tweaked memoization algorithm for a 10% speed boost
-- version 1.8 (March 2014) sped up the Watchman file scanner by switching its
-  communication from the JSON to the binary Watchman protocol
-- version 1.7 (February 2014) added the |g:CommandTInputDebounce| and
+- Version 3.1 (March 2016) sped up the matching algorithm by 17x.
+- Version 2.0 (December 2015) added the |g:CommandTRecursiveMatch| option.
+- Version 1.10 (July 2014) added the |g:CommandTIgnoreCase| and
+  |g:CommandTSmartCase| options.
+- Version 1.9 (May 2014) tweaked memoization algorithm for a 10% speed boost.
+- Version 1.8 (March 2014) sped up the Watchman file scanner by switching its
+  communication from the JSON to the binary Watchman protocol.
+- Version 1.7 (February 2014) added the |g:CommandTInputDebounce| and
   |g:CommandTFileScanner| settings, along with support for the Watchman file
-  scanner
-- version 1.6 (December 2013) added parallelized search
-- version 1.5 (September 2013) added memoization to the matching algorithm,
+  scanner.
+- Version 1.6 (December 2013) added parallelized search.
+- Version 1.5 (September 2013) added memoization to the matching algorithm,
   improving general performance on large hierarchies, but delivering
   spectacular gains on hierarchies with "pathological" characteristics that
-  lead the algorithm to exhibit degenerate behavior
+  lead the algorithm to exhibit degenerate behavior.
 
 AUTHORS                                         *command-t-authors*
 
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
-order):
+order, via `git shortlog -s | cut -f 2-3 | column -c 72`):
 
-  Abhinav Gupta                   Nikolai Aleksandrovich Pavlov
-  Aleksandrs Ļedovskis            Noon Silk
-  Andy Waite                      Ole Petter Bang
-  Anthony Panozzo                 Patrick Hayes
-  Artem Nezvigin                  Paul Jolly
-  Ben Boeckel                     Pavel Sergeev
-  Ben Osheroff                    Rainux Luo
-  Daniel Hahler                   Richard Feldman
-  David Szotten                   Roland Puntaier
-  Emily Strickland                Ross Lagerwall
-  Felix Tjandrawibawa             Scott Bronson
-  Gary Bernhardt                  Seth Fowler
-  Ivan Ukhov                      Sherzod Gapirov
-  Jacek Wysocki                   Shlomi Fish
-  Jeff Kreeftmeijer               Steven Moazami
-  Jerome Castaneda                Sung Pae
-  KJ Tsanaktsidis                 Thomas Pelletier
-  Kevin Webster                   Ton van den Heuvel
-  Lucas de Vries                  Victor Hugo Borja
-  Marcus Brito                    Vlad Seghete
-  Marian Schubert                 Vít Ondruch
-  Matthew Todd                    Woody Peterson
-  Mike Lundy                      Yan Pritzker
-  Nadav Samet                     Yiding Jia
-  Nate Kane                       Zak Johnson
-  Nicholas Alpi
+  Abhinav Gupta                   Nicolas Alpi
+  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
+  Andy Waite                      Nilo César Teixeira
+  Anthony Panozzo                 Noon Silk
+  Artem Nezvigin                  Ole Petter Bang
+  Ben Boeckel                     Patrick Hayes
+  Daniel Burgess                  Paul Jolly
+  Daniel Hahler                   Pavel Sergeev
+  David Szotten                   Rainux Luo
+  Emily Strickland                Richard Feldman
+  Felix Tjandrawibawa             Roland Puntaier
+  Gary Bernhardt                  Ross Lagerwall
+  Greg Hurrell                    Sam Morris
+  Ivan Ukhov                      Scott Bronson
+  Jeff Kreeftmeijer               Seth Fowler
+  Jerome Castaneda                Sherzod Gapirov
+  Joe Lencioni                    Shlomi Fish
+  KJ Tsanaktsidis                 Stephen Gelman
+  Kevin Webster                   Steven Moazami
+  Kien Nguyen Duc                 Sung Pae
+  Lucas de Vries                  Thomas Pelletier
+  Marcus Brito                    Ton van den Heuvel
+  Marian Schubert                 Victor Hugo Borja
+  Matthew Todd                    Vlad Seghete
+  Mike Lundy                      Vít Ondruch
+  Nadav Samet                     Woody Peterson
+  Nate Kane                       Yan Pritzker
+  Nicholas T.                     Zak Johnson
+
+Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
+were not directly included but which served as a model for changes that did
+end up making it in.
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1307,19 +1454,19 @@ LustyExplorer is available from:
 
 DEVELOPMENT                                     *command-t-development*
 
-Development in progress can be inspected via the project's Git web-based
-repository browser at:
+Development in progress can be inspected at:
 
-  https://wincent.com/repos/command-t
+  https://github.com/wincent/command-t
 
 the clone URL for which is:
 
-  git://git.wincent.com/command-t.git
+  https://github.com/wincent/command-t.git
 
-A mirror exists on GitHub, which is automatically updated once per hour from
-the authoritative repository:
+Mirrors exist on GitLab and BitBucket, and are automatically updated once per
+hour:
 
-  https://github.com/wincent/command-t
+  https://gitlab.com/wincent/command-t
+  https://bitbucket.org/ghurrell/command-t
 
 Patches are welcome via the usual mechanisms (pull requests, email, posting to
 the project issue tracker etc).
@@ -1340,9 +1487,11 @@ WEBSITE                                         *command-t-website*
 
 The official website for Command-T is:
 
-  https://wincent.com/products/command-t
+  https://github.com/wincent/command-t
 
-The latest release will always be available from there.
+The latest release will always be available from:
+
+  https://github.com/wincent/command-t/releases
 
 A copy of each release is also available from the official Vim scripts site
 at:
@@ -1351,7 +1500,24 @@ at:
 
 Bug reports should be submitted to the issue tracker at:
 
-  https://wincent.com/issues
+  https://github.com/wincent/command-t/issues
+
+
+RELATED PROJECTS                                *command-t-related-projects*
+
+fuzzy-native ~
+
+Command-T's matching algorithm ported to C++ and wrapped inside a Node NPM
+module:
+
+  https://github.com/hansonw/fuzzy-native
+
+ctrlp-cmatcher ~
+
+Command-T's matching algorithm wrapped in a Python extension, for use with
+the CtrlP Vim plug-in:
+
+  https://github.com/JazzCore/ctrlp-cmatcher
 
 
 LICENSE                                         *command-t-license*
@@ -1380,6 +1546,59 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+master (not yet released)
+
+- Fixed mis-memoization of |:CommandTHelp| and |:CommandTJump| finders
+  (whichever one you used first would be used for both).
+
+4.0 (16 May 2016)
+
+- A non-leading dot in the search query can now match against dot-files and
+  "dot-directories" in non-leading path components.
+- Matching algorithm sped up by about 17x (with help from Hanson Wang).
+- |g:CommandTInputDebounce| now defaults to 0, as the recent optimizations
+  make debouncing largely unnecessary.
+- Added |:CommandTHelp| for jumping to locations in the help, and an
+  accompanying mapping, |<Plug>(CommandTHelp)|.
+- Added |:CommandTLine| for jumping to lines within the current buffer, and a
+  corresponding mapping, |<Plug>(CommandTLine)|.
+- Added |:CommandTHistory| for jumping to previously entered commands, and a
+  corresponding mapping, |<Plug>(CommandTHistory)|.
+- Added |:CommandTSearch| for jumping to previously entered searches, and a
+  corresponding mapping, |<Plug>(CommandTSearch)|.
+- Added |:CommandTCommand| for finding commands, and a corresponding mapping,
+  |<Plug>(CommandTCommand)|.
+- Added |<Plug>(CommandTMRU)| and |<Plug>(CommandTTag)| mappings.
+- The "ruby" and "find" scanners now show numerical progress in the prompt
+  area during their scans.
+- Removed functionality that was previously deprecated in 2.0.
+- Fix inability to type "^" and "|" at the prompt.
+- Make it possible to completely disable |'wildignore'|-based filtering by
+  setting |g:CommandTWildIgnore| to an empty string.
+- The "watchman" file scanner now respects |'wildignore'| and
+  |g:CommandTWildIgnore| by constructing an equivalent regular expression and
+  using that for filtering.
+- Show a warning when hitting |g:CommandTMaxFiles|, and add a corresponding
+  |g:CommandTSuppressMaxFilesWarning| setting to suppress the warning.
+
+3.0.2 (9 February 2016)
+
+- Minimize flicker on opening and closing the match listing in MacVim.
+- Add |CommandTWillShowMatchListing| and |CommandTDidHideMatchListing| "User"
+  autocommands.
+
+3.0.1 (25 January 2016)
+
+- restore compatibility with Ruby 1.8.7.
+
+3.0 (19 January 2016)
+
+- change |g:CommandTIgnoreSpaces| default value to 1.
+- change |g:CommandTMatchWindowReverse| default value to 1.
+- change |g:CommandTMaxHeight| default value to 15.
+- try harder to avoid scrolling other buffer when showing or hiding the match
+  listing
 
 2.0 (28 December 2015)
 

@@ -15,9 +15,14 @@ module CommandT
     [
       :flush,
       :show_buffer_finder,
+      :show_command_finder,
       :show_file_finder,
+      :show_history_finder,
+      :show_help_finder,
       :show_jump_finder,
+      :show_line_finder,
       :show_mru_finder,
+      :show_search_finder,
       :show_tag_finder
     ].each do |method|
       define_method(method) { warn *@@load_error }
@@ -30,5 +35,5 @@ module CommandT
       msg.each { |m| ::VIM::command "echo '#{m}'" }
       ::VIM::command 'echohl none'
     end
-  end # class Stub
-end # module CommandT
+  end
+end

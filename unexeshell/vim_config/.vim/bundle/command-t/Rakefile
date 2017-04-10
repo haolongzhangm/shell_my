@@ -38,7 +38,7 @@ def err(str)
   puts "#{red}error: #{str}#{clear}"
 end
 
-task :default => :spec
+task :default => :help
 
 desc 'Print help on preparing a release'
 task :help do
@@ -51,8 +51,9 @@ The general release sequence is:
   rake push
   rake upload:all
 
-Note: the upload task depends on the Mechanize gem; and may require a
-prior `gem install mechanize`
+For a full list of available tasks:
+
+  rake -T
 
   END
 end
@@ -95,8 +96,18 @@ task :check_tag do
   end
 end
 
+desc 'Verify that required dependencies are installed'
+task :check_deps do
+  begin
+    require 'rubygems'
+    require 'mechanize'
+  rescue LoadError
+    warn 'mechanize not installed (`gem install mechanize` in order to upload)'
+  end
+end
+
 desc 'Run checks prior to release'
-task :prerelease => ['make', 'spec', :archive, :check_tag]
+task :prerelease => [:make, :spec, :archive, :check_tag, :check_deps]
 
 desc 'Prepare release notes from HISTORY'
 task :notes do
@@ -155,7 +166,7 @@ namespace :upload do
   end
 
   desc 'Upload current archive everywhere'
-  task :all => [ :s3, :vim ]
+  task :all => [:s3, :vim]
 end
 
 desc 'Create the ruby gem package'

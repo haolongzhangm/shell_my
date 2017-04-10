@@ -67,6 +67,27 @@ module CommandT
     end
     guard :show_buffer_finder
 
+    def show_command_finder
+      @path          = VIM::pwd
+      @active_finder = command_finder
+      show
+    end
+    guard :show_command_finder
+
+    def show_help_finder
+      @path          = VIM::pwd
+      @active_finder = help_finder
+      show
+    end
+    guard :show_help_finder
+
+    def show_history_finder
+      @path          = VIM::pwd
+      @active_finder = history_finder
+      show
+    end
+    guard :show_history_finder
+
     def show_jump_finder
       @path          = VIM::pwd
       @active_finder = jump_finder
@@ -74,12 +95,26 @@ module CommandT
     end
     guard :show_jump_finder
 
+    def show_line_finder
+      @path          = VIM::pwd
+      @active_finder = line_finder
+      show
+    end
+    guard :show_line_finder
+
     def show_mru_finder
       @path          = VIM::pwd
       @active_finder = mru_finder
       show
     end
     guard :show_mru_finder
+
+    def show_search_finder
+      @path          = VIM::pwd
+      @active_finder = search_finder
+      show
+    end
+    guard :show_search_finder
 
     def show_tag_finder
       @path          = VIM::pwd
@@ -161,7 +196,7 @@ module CommandT
       key = ::VIM::evaluate('a:arg').to_i.chr
       if @focus == prompt
         prompt.add! key
-        @needs_update = true
+        update
       else
         @match_window.find key
       end
@@ -171,7 +206,7 @@ module CommandT
     def backspace
       if @focus == prompt
         prompt.backspace!
-        @needs_update = true
+        update
       end
     end
     guard :backspace
@@ -179,7 +214,7 @@ module CommandT
     def delete
       if @focus == prompt
         prompt.delete!
-        @needs_update = true
+        update
       end
     end
     guard :delete
@@ -261,10 +296,13 @@ module CommandT
         :case_sensitive => case_sensitive?,
         :limit          => match_limit,
         :threads        => CommandT::Util.processor_count,
-        :ignore_spaces  => VIM::get_bool('g:CommandTIgnoreSpaces'),
-        :recurse        => VIM::get_bool('g:CommandTRecursiveMatch', true),
+        :ignore_spaces  => VIM::get_bool('g:CommandTIgnoreSpaces', true),
+        :recurse        => VIM::get_bool('g:CommandTRecursiveMatch', true)
       )
       @match_window.matches = @matches
+
+      # Scanner may have overwritten prompt to show progress.
+      prompt.redraw
 
       @needs_update = false
     end
@@ -284,6 +322,14 @@ module CommandT
 
   private
 
+    def update
+      if @debounce_interval > 0
+        @needs_update = true
+      else
+        list_matches!
+      end
+    end
+
     def prompt
       @prompt ||= Prompt.new(
         :cursor_color => VIM::get_string('g:CommandTCursorColor')
@@ -302,14 +348,16 @@ module CommandT
     end
 
     def show
-      @initial_window   = $curwin
-      @initial_buffer   = $curbuf
-      @match_window     = MatchWindow.new \
+      @initial_window = $curwin
+      @initial_buffer = $curbuf
+      @debounce_interval = VIM::get_number('g:CommandTInputDebounce') || 0
+      @match_window = MatchWindow.new \
+        :encoding             => VIM::get_string('g:CommandTEncoding'),
         :highlight_color      => VIM::get_string('g:CommandTHighlightColor'),
         :match_window_at_top  => VIM::get_bool('g:CommandTMatchWindowAtTop'),
-        :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse'),
+        :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse', true),
         :min_height           => min_height,
-        :debounce_interval    => VIM::get_number('g:CommandTInputDebounce') || 50,
+        :debounce_interval    => @debounce_interval,
         :prompt               => prompt,
         :name                 => "Command-T [#{@active_finder.name}]"
       @focus            = prompt
@@ -320,7 +368,7 @@ module CommandT
     end
 
     def max_height
-      @max_height ||= VIM::get_number('g:CommandTMaxHeight') || 0
+      @max_height ||= VIM::get_number('g:CommandTMaxHeight') || 15
     end
 
     def min_height
@@ -422,8 +470,9 @@ module CommandT
       numbers     = ('0'..'9').to_a.join
       lowercase   = ('a'..'z').to_a.join
       uppercase   = lowercase.upcase
-      punctuation = '<>`@#~!"$%&/()=+*-_.,;:?\\\'{}[] ' # and space
-      (numbers + lowercase + uppercase + punctuation).each_byte do |b|
+      punctuation = '<>`@#~!"$%^&/()=+*-_.,;:?\\|\'{}[]'
+      space       = ' '
+      (numbers + lowercase + uppercase + punctuation + space).each_byte do |b|
         map "<Char-#{b}>", 'HandleKey', b
       end
 
@@ -463,10 +512,12 @@ module CommandT
     end
 
     def set_up_autocmds
-      ::VIM::command 'augroup CommandTController'
-      ::VIM::command 'autocmd!'
-      ::VIM::command 'autocmd CursorHold <buffer> :call commandt#private#ListMatches()'
-      ::VIM::command 'augroup END'
+      if @debounce_interval > 0
+        ::VIM::command 'augroup CommandTController'
+        ::VIM::command 'autocmd!'
+        ::VIM::command 'autocmd CursorHold <buffer> :call commandt#private#ListMatches()'
+        ::VIM::command 'augroup END'
+      end
     end
 
     # Returns the desired maximum number of matches, based on available vertical
@@ -483,6 +534,10 @@ module CommandT
 
     def buffer_finder
       @buffer_finder ||= CommandT::Finder::BufferFinder.new
+    end
+
+    def command_finder
+      @command_finder ||= CommandT::Finder::CommandFinder.new
     end
 
     def mru_finder
@@ -502,13 +557,29 @@ module CommandT
         :git_scan_submodules    => VIM::get_bool('g:CommandTGitScanSubmodules')
     end
 
+    def help_finder
+      @help_finder ||= CommandT::Finder::HelpFinder.new
+    end
+
+    def history_finder
+      CommandT::Finder::HistoryFinder.new(:history_type => ':')
+    end
+
     def jump_finder
       @jump_finder ||= CommandT::Finder::JumpFinder.new
+    end
+
+    def line_finder
+      CommandT::Finder::LineFinder.new
+    end
+
+    def search_finder
+      CommandT::Finder::HistoryFinder.new(:history_type => '/')
     end
 
     def tag_finder
       @tag_finder ||= CommandT::Finder::TagFinder.new \
         :include_filenames => VIM::get_bool('g:CommandTTagIncludeFilenames')
     end
-  end # class Controller
-end # module CommandT
+  end
+end

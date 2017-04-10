@@ -62,7 +62,7 @@
    " plugin on GitHub repo
    Plugin 'tpope/vim-fugitive'
    " plugin from http://vim-scripts.org/vim/scripts.html
-   Plugin 'L9'
+   " Plugin 'L9'
    " Git plugin not hosted on GitHub
    Plugin 'git://git.wincent.com/command-t.git'
    " git repos on your local machine (i.e. when working on your own plugin)
@@ -70,8 +70,9 @@
    " The sparkup vim script is in a subdirectory of this repo called vim.
    " Pass the path to set the runtimepath properly.
    Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-   " Avoid a name conflict with L9
-   Plugin 'user/L9', {'name': 'newL9'}
+   " Install L9 and avoid a Naming conflict if you've already installed a
+   " different version somewhere else.
+   " Plugin 'ascenator/L9', {'name': 'newL9'}
 
    " All of your Plugins must be added before the following line
    call vundle#end()            " required
@@ -94,6 +95,8 @@
    Launch `vim` and run `:PluginInstall`
 
    To install from command line: `vim +PluginInstall +qall`
+
+5. (optional) For those using the fish shell: add `set shell=/bin/bash` to your `.vimrc`
 
 ## Docs
 
@@ -127,17 +130,17 @@ see [Vundle contributors](https://github.com/VundleVim/Vundle.vim/graphs/contrib
 ## TODO:
 [Vundle] is a work in progress, so any ideas and patches are appreciated.
 
-* ✓ activate newly added bundles on `.vimrc` reload or after `:PluginInstall`
-* ✓ use preview window for search results
-* ✓ Vim documentation
-* ✓ put Vundle in `bundles/` too (will fix Vundle help)
-* ✓ tests
-* ✓ improve error handling
-* allow specifying revision/version?
-* handle dependencies
-* show description in search results
-* search by description as well
-* make it rock!
+* [x] activate newly added bundles on `.vimrc` reload or after `:PluginInstall`
+* [x] use preview window for search results
+* [x] Vim documentation
+* [x] put Vundle in `bundles/` too (will fix Vundle help)
+* [x] tests
+* [x] improve error handling
+* [ ] allow specifying revision/version?
+* [ ] handle dependencies
+* [ ] show description in search results
+* [ ] search by description as well
+* [ ] make it rock!
 
 [Vundle]:http://github.com/VundleVim/Vundle.vim
 [Windows setup]:https://github.com/VundleVim/Vundle.vim/wiki/Vundle-for-Windows
