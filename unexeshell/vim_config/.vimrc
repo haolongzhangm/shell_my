@@ -162,7 +162,7 @@ call AddCtagsDatabase()
 noremap y "+y
 noremap Y "+Y
 "map C-j to show buffers
-nnoremap <C-j> :buffers<CR>:b<Space>
+nnoremap <C-f> :buffers<CR>:b<Space>
 "=================end for add command===========
 "=================add for cscope reset========="
 map <c-p> :cscope reset<CR>
@@ -219,6 +219,12 @@ map . :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
 "==================add quick for marks show===================
 nnoremap <C-b> :marks<CR>g
 "==================end quick for marks show===================
+"==================add for quick show changs list=========
+nnoremap <C-c> :changes<CR>
+"==================end for quick show changs list=========
+"==================add for quick show jump list=========
+nnoremap <C-j> :jumps<CR>
+"==================add for quick show jump list=========
 "=========merge vim80 vimrc_example.vim =======================
 " An example for a vimrc file.
 "
