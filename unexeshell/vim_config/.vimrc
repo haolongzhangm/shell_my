@@ -185,6 +185,8 @@ function! Myusage()
 	echo "<c-p>      :cscope reset                        "
 	echo "<C-d>      :show Myusage()                      "
 	echo "<C-h>      :show CommandT                       "
+	echo "<C-\>i     :cscope:Find files #including this file"
+	echo "<C-\>a     :cscope:Find where this symbol is assigned a value"
 endfunction
 nnoremap <C-d> :call Myusage()<CR>
 "=========end for add Myusage==================================
@@ -285,4 +287,5 @@ hi Search ctermbg=Red
 if has('mouse')
   set mouse=
 endif
-"=========end override mouse set from default.vim================
+set nobackup
+"=========end override mouse and nobackup set from default.vim===

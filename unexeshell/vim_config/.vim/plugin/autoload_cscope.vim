@@ -86,6 +86,7 @@ function s:Cycle_macros_menus()
     silent! map <unique> <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
     silent! map <unique> <C-\>f :cs find f <C-R>=expand("<cword>")<CR><CR>
     silent! map <unique> <C-\>i :cs find i <C-R>=expand("<cword>")<CR><CR>
+    silent! map <unique> <C-\>a :cs find a <C-R>=expand("<cword>")<CR><CR>
     if has("menu")
       nmenu &Cscope.Find.Symbol<Tab><c-\\>s
         \ :cs find s <C-R>=expand("<cword>")<CR><CR>
@@ -103,6 +104,8 @@ function s:Cycle_macros_menus()
         \ :cs find f <C-R>=expand("<cword>")<CR><CR>
       nmenu &Cscope.Find.Including<Tab><c-\\>i
         \ :cs find i <C-R>=expand("<cword>")<CR><CR>
+      nmenu &Cscope.Find.assigned<Tab><c-\\>a
+        \ :cs find a <C-R>=expand("<cword>")<CR><CR>
 "      nmenu &Cscope.Add :cs add 
 "      nmenu &Cscope.Remove  :cs kill 
       nmenu &Cscope.Reset :cs reset<cr>
@@ -122,6 +125,7 @@ function s:Cycle_macros_menus()
     silent! unmap <C-\>e
     silent! unmap <C-\>f
     silent! unmap <C-\>i
+    silent! unmap <C-\>a
     if has("menu")  " would rather see if the menu exists, then remove...
       silent! nunmenu Cscope
     endif
