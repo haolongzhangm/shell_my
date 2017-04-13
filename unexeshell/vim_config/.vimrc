@@ -1,5 +1,5 @@
-" below add by haolng test 20140819
-"===================misc for vim================
+" below add by haolong.zhang test 20140819
+"===================misc for vim=================================
 set nu
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
 syntax on
@@ -11,9 +11,9 @@ set smartindent
 set tabstop=4
 set shiftwidth=4
 set hlsearch incsearch ignorecase
-"==================end for vim misc==============
+"==================end for vim misc==============================
 
-"==========for TlistToggle and Nerdtree===================
+"==========for TlistToggle and Nerdtree==========================
 nnoremap <silent> <F4> :TlistToggle<CR>
 let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Auto_Open = 1
@@ -30,65 +30,35 @@ let NERDTreeShowHidden=1
 let NERDTreeHightCursorline=1
 let NERDTreeShowLineNumbers=1
 nnoremap <C-a> :let Tlist_WinWidth=43
-"==========end for TlistToggle and Nerdtree=============
+"==========end for TlistToggle and Nerdtree=====================
 
-""==========for bundle====================================
+"==========for bundle===========================================
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
-
-" let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.Vim'
-
-" The following are examples of different formats supported.
-" Keep Plugin commands between vundle#begin/end.
-" plugin on GitHub repo
 Plugin 'tpope/vim-fugitive'
-" plugin from http://vim-scripts.org/vim/scripts.html
 Plugin 'L9'
-" Git plugin not hosted on GitHub
 Plugin 'wincent/command-t'
-" git repos on your local machine (i.e. when working on your own plugin)
 Plugin 'file:///home/gmarik/path/to/plugin'
-" The sparkup vim script is in a subdirectory of this repo called vim.
-" Pass the path to set the runtimepath properly.
 Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 Bundle 'Valloric/ListToggle'
 Bundle 'scrooloose/syntastic'
-"YouCompleteMe"
 Bundle 'Valloric/YouCompleteMe'
-"nerdtree"
 Bundle 'scrooloose/nerdtree'
-"cctree"
 Bundle 'hari-rangarajan/CCTree'
-"ctrip"
 "Bundle 'kien/ctrlp.vim'
-"vim-powerline""same no use for me"
 "Bundle 'Lokaltog/vim-powerline'
-"install plugn : PluginInstall"
-" All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
 " Brief help
 " :PluginList       - lists configured plugins
 " :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
 " :PluginSearch foo - searches for foo; append `!` to refresh local cache
 " :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
-"=======================end bundle=================
+"=======================end bundle=============================
 
-"===================for YouCompleteMe==============
-""""""""""syntastic""""""""""""
-"F2 use to cs find f, caused by F8 to youdao
-"nmap <F2> :YcmDiags<CR>
-"below for YouCompleteMe config
+"===================for YouCompleteMe==========================
 let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
 autocmd BufNewFile,BufRead *.c let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.c99_ycm_extra_conf.py'
 "let g:ycm_key_invoke_completion = '<C-/>'
@@ -99,9 +69,9 @@ let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
-"======================end for YouCompleteMe config=======
+"======================end for YouCompleteMe config============
 
-"===============for cscope===========================
+"===============for cscope=====================================
 nmap <F5> :cs find c <C-R>=expand("<cword>")<CR><CR>
 nmap <F6> :cs find s <C-R>=expand("<cword>")<CR><CR>
 nmap <F7> :cs find d <C-R>=expand("<cword>")<CR><CR>
@@ -112,14 +82,14 @@ nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
 nmap <C-u> :tnext<CR><CR>
 nmap <C-y> :tprevious<CR><CR>
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
-"===============end cscope===========================
+"===============end cscope=====================================
 
-"=========== add this for chinese====================
+"=========== add this for chinese==============================
 let &termencoding=&encoding
 set fileencodings=utf-8,gbk
-"===========end for chinese=========================
+"===========end for chinese====================================
 
-"===========add for match===========================
+"===========add for match======================================
 set showmatch
 "add for vim { < ( match
 inoremap ( ()<ESC>i
@@ -130,15 +100,11 @@ inoremap [ []<ESC>i
 ""inoremap ] <c-r>=ClosePair(']')<CR>
 inoremap " ""<ESC>i
 inoremap ' ''<ESC>i
-"=============end for match==========================
+"=============end for match=====================================
 
-"=========add for comman=============================
-command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
-command -nargs=1 Vgallfile :vimgrep /<args>/ **/*.* | copen
-noremap <C-K> :Vgthisfile <C-R>=expand("<cword>")<CR><CR>
-noremap <C-l> :Vgallfile <C-R>=expand("<cword>")<CR><CR>
-command -nargs=0 Clearblank :%s/\s\+$//
-"auto load ctags file
+"=========add for auto load ctags file==========================
+"just add for backup, infact we use cscope now, auto load cscope
+"database by ~/.vim/plugin/autoload_cscope.vim
 function! AddCtagsDatabase()
     let max = 30
     let dir = './'
@@ -158,17 +124,73 @@ function! AddCtagsDatabase()
     endwhile
 endfunction
 call AddCtagsDatabase()
+"=========end add for auto load ctags file======================
+
+"=========add for command and customer shortcut key=============
+command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
+command -nargs=1 Vgallfile :vimgrep /<args>/ **/*.* | copen
+noremap <C-K> :Vgthisfile <C-R>=expand("<cword>")<CR><CR>
+noremap <C-l> :Vgallfile <C-R>=expand("<cword>")<CR><CR>
+command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
 noremap y "+y
 noremap Y "+Y
-"map C-j to show buffers
+"map C-f to show buffers
 nnoremap <C-f> :buffers<CR>:b<Space>
-"=================end for add command===========
-"=================add for cscope reset========="
-map <c-p> :cscope reset<CR>
-"=================end for cscope reset========="
 
-"""=========add for config ctrlp.vim=============
+"for cscope quick reset
+"auto update cscope datebase by command auto_updatecscope
+map <c-p> :cscope reset<CR>
+
+"quick for marks show ,then use ' + [num] to jump
+nnoremap <C-b> :marks<CR>g
+
+"quick show changs list,
+"then use [num] + g + ; to jump back
+"or use   [num] + g + , to jump forward
+nnoremap <C-c> :changes<CR>
+
+"qucik show register info, then use " + [register] + p to paste
+nnoremap <C-e> :registers<CR>
+
+"quick show jump list,
+"then use [num] + ctrl + o to jump back
+"or   use [num] + ctrl + i to jump forward
+nnoremap <C-j> :jumps<CR>
+"=========end for command and customer shortcut key============
+
+"=========ADD for add Myusage==================================
+function! Myusage()
+	echo "Myusage:"
+	echo "Bookmarks  : <C-b> : ' + [num]                  "
+	echo "changslist : <C-c> : [num] + g + ;  <<back      "
+	echo "                   : [num] + g + ,  <<forward   "
+	echo "registers  : <C-e> :  \"+ [register] + p        "
+	echo "jumps      : <C-j> : [num] + ctrl + o <<back    "
+	echo "                   : [num] + ctrl + i <<forward "
+	echo ",          : jump to cursor localtion Fuc call Fuc"
+	echo ".          : jump to cursor locateion Fuc name  "
+	echo "f/F        : just show cursor  locateion Func name"
+	echo "F2         :cscope:Find this file                "
+	echo "F3/F9      : NERDTree,F3 buffer file,F9 PWD file"
+	echo "F4         :TlistToggle                         "
+	echo "F5         :cscope:Find functions calling this function"
+	echo "F6         :cscope:Find this C symbol           "
+	echo "F7         :cscope:Find functions called by this function"
+	echo "F10        :cscope:Find this text string        "
+	echo "<C-a>      :let Tlist_WinWidth=43               "
+	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
+	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/Vgallfile "
+	echo "<C-f>      :buffers list                        "
+	echo "<c-p>      :cscope reset                        "
+	echo "<C-d>      :show Myusage()                      "
+	echo "<C-h>      :show CommandT                       "
+endfunction
+nnoremap <C-d> :call Myusage()<CR>
+"=========end for add Myusage==================================
+
+"=========add for config ctrlp.vim=============================
+"""just for backup , infact we use command-t now
 ""let g:ctrlp_map = '<c-i>'
 ""let g:ctrlp_cmd = 'CtrlP'
 ""let g:ctrlp_custom_ignore = {
@@ -182,15 +204,16 @@ map <c-p> :cscope reset<CR>
 ""let g:ctrlp_mruf_max=50000
 ""let g:ctrlp_follow_symlinks=1
 ""let g:ctrlp_max_depth = 40
-"=================end for ctrip================
+"=================end for ctrip=================================
 
-"==================add for cctree========
+"==================add for cctree===============================
 ""cctree have some issue, leave for later
-"==================end for cctree========
+"==================end for cctree===============================
 
-"=================add for command-t======
+"=================add for command-t=============================
 let g:CommandTMaxFiles=110000
 let g:CommandTMaxDepth=40
+let g:CommandTSuppressMaxFilesWarning=0
 let g:CommandTMaxHeight=200
 let g:CommandTInputDebounce=100
 "let g:CommandTMinHeight=50
@@ -198,97 +221,68 @@ let g:CommandTMatchWindowAtTop=0
 let g:CommandTMatchWindowReverse=0
 "let g:CommandTCancelMap='<Esc>'
 let g:CommandTWildIgnore="*.o,*.obj"
-nnoremap <C-h> :CommandT .
-"if you want to find file from git root dir ,you can use :CommandT
-"==================end for command-t=====
+function! ShowcommadT()
+	let l:comand_args = './'
+	let l:command_args_buffer_name = bufname('%')
+	let l:command_args_pwd = getcwd()
+	" bufname return val 47 means '/', 0 means 'NULL'
+	if char2nr(l:command_args_buffer_name) == 47
+		"echo "Absolute path"
+		let l:comand_args = l:command_args_buffer_name
+	elseif char2nr(l:command_args_buffer_name) == 0
+		"echo "No buffers"
+		let l:comand_args = './'
+	else
+		"echo "relative path"
+		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
+	endif
+	echo 'BUF: ' . l:comand_args
+	"use plug commandt buildin-func commandt#FileFinder
+	"call commandt#FileFinder(l:command_args_pwd)
+	echo 'CUR: ' . l:command_args_pwd
+if has('python') || has('python3')
+python << EOF
+import vim
+tmp_str = vim.eval("l:comand_args")
+command_str = "call setreg('z', '%s')" %  (tmp_str[:tmp_str.rindex("/")])
+vim.command(command_str)
+EOF
+else
+	echo 'Pls build vim with python'
+	call setreg('z', l:comand_args)
+endif
+endfunction
 
-"==================add for quick show func by enter 'f'========
-fun! ShowFuncName()
+nnoremap <C-h> :call ShowcommadT()<CR>:CommandT <C-r>z
+"==================end for command-t=============================
+
+"==================add for quick show func by enter 'f'==========
+function! ShowFuncName()
 	let lnum = line(".")
 	let col = col(".")
 	echohl ModeMsg
 	echo getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW'))
 	echohl None
 	call search("\\%" . lnum . "l" . "\\%" . col . "c")
-endfun
+endfunction
+
 map f :call ShowFuncName() <CR>
 map F :call ShowFuncName() <CR>
 map , :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F5>
 map . :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
-"==================end for quick show func by enter 'f'========
-"==================add quick for marks show===================
-nnoremap <C-b> :marks<CR>g
-"==================end quick for marks show===================
-"==================add for quick show changs list=========
-nnoremap <C-c> :changes<CR>
-"==================end for quick show changs list=========
-"==================add for quick show jump list=========
-nnoremap <C-j> :jumps<CR>
-"==================add for quick show jump list=========
-"=========merge vim80 vimrc_example.vim =======================
-" An example for a vimrc file.
-"
-" Maintainer:	Bram Moolenaar <Bram@vim.org>
-" Last change:	2016 Jul 28
-"
-" To use it, copy it to
-"     for Unix and OS/2:  ~/.vimrc
-"	      for Amiga:  s:.vimrc
-"  for MS-DOS and Win32:  $VIM\_vimrc
-"	    for OpenVMS:  sys$login:.vimrc
+"==================end for quick show func by enter 'f'==========
 
-" When started as "evim", evim.vim will already have done these settings.
-if v:progname =~? "evim"
-  finish
-endif
+"==================add source vimrc_example.vim==================
+"==================just for linux/unix style env=================
+source $VIMRUNTIME/vimrc_example.vim
+"==================end add source vimrc_example.vim==============
 
-" Get the defaults that most users want.
-source $VIMRUNTIME/defaults.vim
-"override mouse set from default.vim"
+"=========add Froce hiserach color to ctermbg=Red================
+hi Search ctermbg=Red
+"=========End hiserach color to ctermbg=Red======================
+
+"=========override mouse set from default.vim(vimrc_example.vim)=
 if has('mouse')
   set mouse=
 endif
-
-if has("vms")
-  set nobackup		" do not keep a backup file, use versions instead
-else
-  set nobackup		" keep a backup file (restore to previous version)
-""  if has('persistent_undo')
-""    set undofile	" keep an undo file (undo changes after closing)
-""  endif
-endif
-
-if &t_Co > 2 || has("gui_running")
-  " Switch on highlighting the last used search pattern.
-  set hlsearch
-endif
-
-" Only do this part when compiled with support for autocommands.
-if has("autocmd")
-
-  " Put these in an autocmd group, so that we can delete them easily.
-  augroup vimrcEx
-  au!
-
-  " For all text files set 'textwidth' to 78 characters.
-  autocmd FileType text setlocal textwidth=78
-
-  augroup END
-
-else
-
-  set autoindent		" always set autoindenting on
-
-endif " has("autocmd")
-
-" Add optional packages.
-"
-" The matchit plugin makes the % command work better, but it is not backwards
-" compatible.
-if has('syntax') && has('eval')
-  packadd matchit
-endif
-"=========end merge vim80 vimrc_example.vim =======================
-"=========Froce hiserach color to ctermbg=Red======================
-hi Search ctermbg=Red
-"=========End hiserach color to ctermbg=Red======================
+"=========end override mouse set from default.vim================
