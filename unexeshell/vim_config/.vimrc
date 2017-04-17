@@ -79,8 +79,8 @@ nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
 "nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR> "use vim defaule
 "ctrl+]to find define tag
 nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
-nmap <C-u> :tnext<CR><CR>
-nmap <C-y> :tprevious<CR><CR>
+nmap <C-u> :tnext<CR><CR>f
+nmap <C-y> :tprevious<CR><CR>f
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
 "===============end cscope=====================================
 
