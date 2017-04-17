@@ -289,3 +289,9 @@ if has('mouse')
 endif
 set nobackup
 "=========end override mouse and nobackup set from default.vim===
+
+"=========do not back undofile===================================
+set noundofile
+"set undodir=~/.vim_undodir
+"=========end do not back undofile===============================
+
