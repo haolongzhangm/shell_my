@@ -63,7 +63,7 @@ let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extr
 autocmd BufNewFile,BufRead *.c let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.c99_ycm_extra_conf.py'
 "let g:ycm_key_invoke_completion = '<C-/>'
 let g:ycm_seed_identifiers_with_syntax=1
-let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_collect_identifiers_from_tags_files = 0
 "let g:ycm_add_preview_to_completeopt = 1
 let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
@@ -92,8 +92,7 @@ set fileencodings=utf-8,gbk
 "===========add for match======================================
 set showmatch
 "add for vim { < ( match
-inoremap ( ()<ESC>i
-""inoremap ) <c-r>=ClosePair(')')<CR>
+"inoremap ) <c-r>=ClosePair(')')<CR>
 inoremap { {<CR>}<ESC>O
 ""inoremap } <c-r>=ClosePair('}')<CR>
 inoremap [ []<ESC>i
@@ -112,7 +111,7 @@ function! AddCtagsDatabase()
     let break = 0
     while isdirectory(dir) && i < max
         if filereadable(dir . 'tags')
-            execute 'set tags =' . dir . 'tags'
+            execute 'set tags ='. dir . 'tags;'
             let break = 1
         endif
         if break == 1
@@ -294,4 +293,3 @@ set nobackup
 set noundofile
 "set undodir=~/.vim_undodir
 "=========end do not back undofile===============================
-

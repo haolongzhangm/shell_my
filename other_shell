@@ -4,7 +4,7 @@ function print_usage(){
 cat ~/shell_my/unexeshell/other_shell_usage
 echo "Usage:"
 echo "other_shell argc"
-echo "argc: kernel_arm32_cscope kernel_arm64_cscope mtk_kk_old_kernel_tags_update normal_proj_tags_update"
+echo "argc: kernel_arm32_cscope kernel_arm64_cscope mtk_kk_old_kernel_tags_update normal_proj_tags_update update_ctags"
 }
 if [ $# -eq 0 ]
 then
@@ -28,6 +28,22 @@ then
 	echo "gen cscope tags for ARCH=arm kernel: make cscope ARCH=arm"
 	time make cscope ARCH=arm
 	echo "done........................................."
+
+elif [ $1 == "update_ctags" ]
+then
+	if [ -f cscope.files ]
+	then
+		echo "gen ctags, for echofunc.vim and srcexpl.vim, use cscope files"
+		echo "command : ctags -R --fields=+lS -L tag.files"
+		echo "gen...."
+		cp cscope.files tag.files
+		sed -i '1,2d' tag.files
+		time ctags -R --fields=+lS -L tag.files
+		rm tag.files
+		echo "done........................................."
+	else
+		echo "ERR: Can not find cscope.files, gen it firstly"
+	fi
 
 elif [ $1 == "kernel_arm64_cscope" ]
 then
