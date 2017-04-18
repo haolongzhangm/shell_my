@@ -173,7 +173,7 @@ endif
 " User interface to enable local declaration searching
 " according to command 'gd'
 if !exists('g:SrcExpl_searchLocalDef')
-    let g:SrcExpl_searchLocalDef = 0
+    let g:SrcExpl_searchLocalDef = 1
 endif
 
 " User interface to control if update the 'tags' file when loading
@@ -1148,7 +1148,7 @@ function! <SID>SrcExpl_ViewOneDef(fpath, excmd)
         " Not highlight the word that had been searched.
         " Because execute Ex command will active a search event
         let l:hlsearch = &hlsearch
-     "  set nohlsearch
+        set nohlsearch
         " Refresh all the screen
         redraw
         " Resotre the original setting for the highlight
@@ -1171,17 +1171,9 @@ function! <SID>SrcExpl_TagSth(expr)
     " Is the symbol valid ?
     if a:expr != '\<\>\C'
         " We get the tag list of the expression
-        "let l:list = taglist(a:expr)
-		if (cscope_connection() > 0)
-			let l:list = taglist(a:expr)
-			let l:len = len(l:list)
-			"debug info
-        	"call <SID>SrcExpl_WinPrompt(' firtly '. string(a:expr) . string(l:list))
-			"return
-		else
-        	call <SID>SrcExpl_WinPrompt('can not find cscope database, create cscope database firtly')
-			return
-		endif
+        let l:list = taglist(a:expr)
+        " Then get the length of taglist
+        let l:len = len(l:list)
     else
         call <SID>SrcExpl_WinPrompt(s:SrcExpl_pluginName . ' v' . string(s:SrcExpl_pluginVer))
         " Should be regarded as 'no definition'
@@ -1451,10 +1443,11 @@ function! <SID>SrcExpl_Init()
     " The last symbol for exploring
     let s:SrcExpl_lastSymbol = ''
 
+	" fix this in vimrc
     " Auto change current work directory
-    exe "set autochdir"
+    " exe "set autochdir"
     " Let Vim find the possible tags file
-"    exe "set tags=tags;"
+    " exe "set tags=tags;"
     " Set the actual update time according to user's requirement
     " 100 milliseconds by default
     exe "set updatetime=" . string(g:SrcExpl_refreshTime)
@@ -1478,13 +1471,13 @@ function! <SID>SrcExpl_Init()
     " Jump to the edit window
     silent! exe l:tmp . "wincmd w"
 
-""    if g:SrcExpl_isUpdateTags != 0
-""        " Update the tags file right now
-""        if g:SrcExpl_UpdateTags()
-""            return -2
-""        endif
-""    endif
-""
+    if g:SrcExpl_isUpdateTags != 0
+        " Update the tags file right now
+        if g:SrcExpl_UpdateTags()
+            return -2
+        endif
+    endif
+
     if g:SrcExpl_updateTagsKey != ""
         exe "nnoremap " . g:SrcExpl_updateTagsKey .
             \ " :call g:SrcExpl_UpdateTags()<CR>"

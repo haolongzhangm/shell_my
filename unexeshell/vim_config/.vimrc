@@ -184,8 +184,12 @@ function! Myusage()
 	echo "<c-p>      :cscope reset                        "
 	echo "<C-d>      :show Myusage()                      "
 	echo "<C-h>      :show CommandT                       "
-	echo "<C-\>i     :cscope:Find files #including this file"
-	echo "<C-\>a     :cscope:Find where this symbol is assigned a value"
+	echo "<C-\\>p    :SrcExpl_prevDefKey                  "
+	echo "<C-\\>u    :SrcExpl_nextDefKey                  "
+	echo "<C-\\>s    :SrcExplToggle                       "
+	echo "<C-\\>c    :SrcExplClose                        "
+	echo "<C-\\>i    :cscope:Find files #including this file"
+	echo "<C-\\>a    :cscope:Find where this symbol is assigned a value"
 endfunction
 nnoremap <C-d> :call Myusage()<CR>
 "=========end for add Myusage==================================
@@ -293,3 +297,18 @@ set nobackup
 set noundofile
 "set undodir=~/.vim_undodir
 "=========end do not back undofile===============================
+
+"=========add for srcexpl.vim====================================
+let g:SrcExpl_isUpdateTags = 0
+let g:SrcExpl_updateTagsCmd = "other_shell update_ctags"
+let g:SrcExpl_refreshTime = 600
+let g:SrcExpl_searchLocalDef = 0
+let g:SrcExpl_prevDefKey = '<C-\>p'
+let g:SrcExpl_nextDefKey = '<C-\>u'
+nmap <C-\>s :SrcExplToggle<CR>
+nmap <C-\>c :SrcExplClose<CR>
+let g:SrcExpl_pluginList = [
+        \ "__Tag_List__",
+		\ "_NERD_tree_"
+    \ ]
+"========end for srcexpl.vim====================================
