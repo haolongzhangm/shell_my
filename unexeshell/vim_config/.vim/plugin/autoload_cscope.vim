@@ -78,30 +78,30 @@ function s:Cycle_macros_menus()
     let s:menus_loaded = 1
     set csto=0
     set cst
-    silent! map <unique> <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
-    silent! map <unique> <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-    silent! map <unique> <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
-    silent! map <unique> <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
-    silent! map <unique> <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
+   " silent! map <unique> <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
+   " silent! map <unique> <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
+   " silent! map <unique> <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+   " silent! map <unique> <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
+   " silent! map <unique> <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
     silent! map <unique> <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
-    silent! map <unique> <C-\>f :cs find f <C-R>=expand("<cword>")<CR><CR>
+   " silent! map <unique> <C-\>f :cs find f <C-R>=expand("<cword>")<CR><CR>
     silent! map <unique> <C-\>i :cs find i <C-R>=expand("<cword>")<CR><CR>
     silent! map <unique> <C-\>a :cs find a <C-R>=expand("<cword>")<CR><CR>
     if has("menu")
-      nmenu &Cscope.Find.Symbol<Tab><c-\\>s
-        \ :cs find s <C-R>=expand("<cword>")<CR><CR>
-      nmenu &Cscope.Find.Definition<Tab><c-\\>g
-        \ :cs find g <C-R>=expand("<cword>")<CR><CR>
-      nmenu &Cscope.Find.Called<Tab><c-\\>d
-        \ :cs find d <C-R>=expand("<cword>")<CR><CR>
-      nmenu &Cscope.Find.Calling<Tab><c-\\>c
-        \ :cs find c <C-R>=expand("<cword>")<CR><CR>
-      nmenu &Cscope.Find.Assignment<Tab><c-\\>t
-        \ :cs find t <C-R>=expand("<cword>")<CR><CR>
+  "    nmenu &Cscope.Find.Symbol<Tab><c-\\>s
+  "     \ :cs find s <C-R>=expand("<cword>")<CR><CR>
+  "    nmenu &Cscope.Find.Definition<Tab><c-\\>g
+  "      \ :cs find g <C-R>=expand("<cword>")<CR><CR>
+  "    nmenu &Cscope.Find.Called<Tab><c-\\>d
+  "      \ :cs find d <C-R>=expand("<cword>")<CR><CR>
+  "    nmenu &Cscope.Find.Calling<Tab><c-\\>c
+  "      \ :cs find c <C-R>=expand("<cword>")<CR><CR>
+  "    nmenu &Cscope.Find.Assignment<Tab><c-\\>t
+  "      \ :cs find t <C-R>=expand("<cword>")<CR><CR>
       nmenu &Cscope.Find.Egrep<Tab><c-\\>e
         \ :cs find e <C-R>=expand("<cword>")<CR><CR>
-      nmenu &Cscope.Find.File<Tab><c-\\>f
-        \ :cs find f <C-R>=expand("<cword>")<CR><CR>
+  "    nmenu &Cscope.Find.File<Tab><c-\\>f
+  "      \ :cs find f <C-R>=expand("<cword>")<CR><CR>
       nmenu &Cscope.Find.Including<Tab><c-\\>i
         \ :cs find i <C-R>=expand("<cword>")<CR><CR>
       nmenu &Cscope.Find.assigned<Tab><c-\\>a
@@ -117,13 +117,13 @@ function s:Cycle_macros_menus()
   else
     let s:menus_loaded = 0
     set nocst
-    silent! unmap <C-\>s
-    silent! unmap <C-\>g
-    silent! unmap <C-\>d
-    silent! unmap <C-\>c
-    silent! unmap <C-\>t
+ "   silent! unmap <C-\>s
+ "   silent! unmap <C-\>g
+ "   silent! unmap <C-\>d
+ "   silent! unmap <C-\>c
+ "   silent! unmap <C-\>t
     silent! unmap <C-\>e
-    silent! unmap <C-\>f
+ "   silent! unmap <C-\>f
     silent! unmap <C-\>i
     silent! unmap <C-\>a
     if has("menu")  " would rather see if the menu exists, then remove...

@@ -202,6 +202,10 @@ function! Myusage()
 	echo "<C-\\>c    :SrcExplClose                        "
 	echo "<C-\\>i    :cscope:Find files #including this file"
 	echo "<C-\\>a    :cscope:Find where this symbol is assigned a value"
+	echo "<C-\\>g    :EchoFunc:show next func"
+	echo "<C-\\>o    :EchoFunc:show prev func"
+let g:EchoFuncKeyNext='<C-\>g'
+let g:EchoFuncKeyPrev='<C-\>o'
 endfunction
 nnoremap <C-d> :call Myusage()<CR>
 "=========end for add Myusage==================================
@@ -324,3 +328,8 @@ let g:SrcExpl_pluginList = [
 		\ "_NERD_tree_"
     \ ]
 "========end for srcexpl.vim====================================
+
+"========add for echofunc.vim===================================
+let g:EchoFuncKeyNext='<C-\>g'
+let g:EchoFuncKeyPrev='<C-\>o'
+"========end for echofunc.vim===================================
