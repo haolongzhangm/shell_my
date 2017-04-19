@@ -37,7 +37,11 @@ then
 		echo "command : ctags -R --fields=+lS -L tag.files"
 		echo "gen...."
 		cp cscope.files tag.files
-		sed -i '1,2d' tag.files
+		if [[ $(sed -n '1p' tag.files) == "-k" ]]
+		then
+			echo "kernel cscope source file, remove -k -q"
+			sed -i '1,2d' tag.files
+		fi
 		time ctags -R --fields=+lS -L tag.files
 		rm tag.files
 		echo "done........................................."
