@@ -1,13 +1,15 @@
 #!/bin/bash
 function print_usage(){
 echo Usage
-echo "$0 kernel_arm32_cscope [int for update cycle]"
-echo "$0 kernel_arm64_cscope [int for update cycle]"
-echo "$0 mtk_kk_old_kernel_tags_update [int for cycle]"
-echo "$0 normal_proj_tags_update [int for cycle]"
-echo "$0 update_ctags [int for cycle]"
-echo "$0 arm64_update_ctags_and_cscope [int for cycle]"
-echo "$0 normal_update_ctags_and_cscope [int for cycle]"
+echo "$0 paramter1 [paramter2]"
+echo "paramter1:"
+echo "		mtk_kk_old_kernel_cscope "
+echo "		arm32_cscope arm64_cscope normal_cscope "
+echo "		ctags_base_cscope_files "
+echo "		arm64_cscope_ctags arm32_cscope_ctags normal_cscope_ctags"
+echo "paramter2:"
+echo "int delay for loop update, default 15s"
+echo "eg: auto_updatecscope arm64_cscope_ctags 20"
 }
 
 function my_sleep_delay(){
@@ -17,28 +19,13 @@ do
 	sleep 1
 done
 }
-
 function run_update(){
 echo ===================================================================================
 for((i=1;;i++))
 do
 date
 echo ":::::::::::update count = $i"
-if [ $1 == "arm64_update_ctags_and_cscope" ]
-then
-	echo "Both update arm64 ctags and cscope"
-	other_shell kernel_arm64_cscope
-	other_shell update_ctags
-elif [ $1 == "normal_update_ctags_and_cscope" ]
-then
-	echo "BOth update normal ctags and cscope"
-	other_shell normal_proj_tags_update
-	other_shell update_ctags
-else
-	echo "normal update"
-	other_shell $1
-fi
-
+other_shell $1
 if [ $# -eq 1 ]
 then
 	echo "find one paramter ,set cycle to default time 15s "
@@ -66,9 +53,11 @@ fi
 }
 
 function check_first_parameter(){
-if [[ ! $1 == "kernel_arm32_cscope" && ! $1 == "kernel_arm64_cscope" && ! $1 == "mtk_kk_old_kernel_tags_update" && ! $1 == "normal_proj_tags_update" && ! $1 == "update_ctags" && ! $1 == "arm64_update_ctags_and_cscope" && ! $1 == "normal_update_ctags_and_cscope" ]]
+if [[ ! $1 == "arm32_cscope" && ! $1 == "arm64_cscope" && ! $1 == "mtk_kk_old_kernel_cscope" && ! $1 == "normal_cscope" \
+	&& ! $1 == "ctags_base_cscope_files" && ! $1 == "arm64_cscope_ctags" && ! $1 == "arm32_cscope_ctags" \
+	&& ! $1 == "normal_cscope_ctags" ]]
 then
-echo "first parameter should be kernel_arm32_cscope kernel_arm64_cscope mtk_kk_old_kernel_tags_update normal_proj_tags_update update_ctags arm64_update_ctags_and_cscope normal_update_ctags_and_cscope"
+echo "first parameter out of range, pls check usage"
 echo "just show Usage"
 print_usage
 exit 0
