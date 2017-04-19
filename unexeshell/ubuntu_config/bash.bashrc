@@ -86,7 +86,7 @@ export HEXAGON_ROOT=/home/zhl/Qualcomm/HEXAGON_Tools
 export HEXAGON_RTOS_RELEASE=6.4.01
 export ARMTOOLS=QDSP6GCC
 #add for other shell command compelte
-complete -W "normal_proj_tags_update mtk_kk_old_kernel_tags_update kernel_arm32_cscope kernel_arm64_cscope update_ctags" other_shell
+complete -W "normal_proj_tags_update mtk_kk_old_kernel_tags_update kernel_arm32_cscope kernel_arm64_cscope update_ctags ycm_config_gen" other_shell
 complete -W "normal_proj_tags_update mtk_kk_old_kernel_tags_update kernel_arm32_cscope kernel_arm64_cscope update_ctags arm64_update_ctags_and_cscope normal_update_ctags_and_cscope" auto_updatecscope
 complete -W "withqcn withoutqcn" qcom_flash.py
 complete -W "withqcn withoutqcn" qcom_flash_32.py

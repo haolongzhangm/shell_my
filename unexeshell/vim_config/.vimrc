@@ -47,6 +47,7 @@ Bundle 'scrooloose/syntastic'
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'scrooloose/nerdtree'
 Bundle 'hari-rangarajan/CCTree'
+Bundle 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 "Bundle 'kien/ctrlp.vim'
 "Bundle 'Lokaltog/vim-powerline'
 call vundle#end()            " required
@@ -59,8 +60,17 @@ filetype plugin indent on    " required
 "=======================end bundle=============================
 
 "===================for YouCompleteMe==========================
-let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
-autocmd BufNewFile,BufRead *.c let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.c99_ycm_extra_conf.py'
+if filereadable('./.ycm_extra_conf.py')
+	let g:ycm_global_ycm_extra_conf = '.ycm_extra_conf.py'
+else
+	let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
+	autocmd BufNewFile,BufRead *.c let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.c99_ycm_extra_conf.py'
+	autocmd BufNewFile,BufRead *.cpp let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
+	autocmd BufNewFile,BufRead *.cc let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
+	autocmd BufNewFile,BufRead *.c++ let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
+endif
+let g:ycm_confirm_extra_conf = 0
+
 "let g:ycm_key_invoke_completion = '<C-/>'
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_complete_in_comments=1

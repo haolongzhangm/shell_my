@@ -4,7 +4,7 @@ function print_usage(){
 cat ~/shell_my/unexeshell/other_shell_usage
 echo "Usage:"
 echo "other_shell argc"
-echo "argc: kernel_arm32_cscope kernel_arm64_cscope mtk_kk_old_kernel_tags_update normal_proj_tags_update update_ctags"
+echo "argc: kernel_arm32_cscope kernel_arm64_cscope mtk_kk_old_kernel_tags_update normal_proj_tags_update update_ctags ycm_config_gen"
 }
 if [ $# -eq 0 ]
 then
@@ -54,6 +54,18 @@ then
 	echo "gen cscope tags for ARCH=arm64 kernel: make cscope ARCH=arm64"
 	time make cscope ARCH=arm64
 	echo "done........................................."
+elif [ $1 == ycm_config_gen ]
+then
+	echo "gen ycm_extra_conf for special proj,eg kernel"
+	echo "use command : python ~/.vim/bundle/YCM-Generator/config_gen.py . --compiler=/usr/bin/clang-3.5"
+	echo "for --compiler, you may chosse cc or aarch64-linux-gnu-gcc etc"
+	if [ -f ~/.vim/bundle/YCM-Generator/config_gen.py ]
+	then
+		echo "Find config_gen.py ,try to gen ..."
+		python ~/.vim/bundle/YCM-Generator/config_gen.py . --compiler=/usr/bin/clang-3.5
+	else
+		echo "Can not find ~/.vim/bundle/YCM-Generator/config_gen.py, pls check vim config"
+	fi
 else 
  print_usage
  echo "Nothing DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
