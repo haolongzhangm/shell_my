@@ -198,8 +198,8 @@ function! Myusage()
 	echo "<C-h>      :show CommandT                       "
 	echo "<C-\\>p    :SrcExpl_prevDefKey                  "
 	echo "<C-\\>u    :SrcExpl_nextDefKey                  "
-	echo "<C-\\>s    :SrcExplToggle                       "
-	echo "<C-\\>c    :SrcExplClose                        "
+	echo "<C-\\>s    :SrcExplToggle  open/close           "
+	echo "<C-\\>c    :SrcExpl_winHeight config            "
 	echo "<C-\\>i    :cscope:Find files #including this file"
 	echo "<C-\\>a    :cscope:Find where this symbol is assigned a value"
 	echo "<C-\\>g    :EchoFunc:show next func"
@@ -322,7 +322,8 @@ let g:SrcExpl_searchLocalDef = 0
 let g:SrcExpl_prevDefKey = '<C-\>p'
 let g:SrcExpl_nextDefKey = '<C-\>u'
 nmap <C-\>s :SrcExplToggle<CR>
-nmap <C-\>c :SrcExplClose<CR>
+"nmap <C-\>c :SrcExplClose<CR>
+nnoremap <C-\>c :let g:SrcExpl_winHeight = 25
 let g:SrcExpl_pluginList = [
         \ "__Tag_List__",
 		\ "_NERD_tree_"
