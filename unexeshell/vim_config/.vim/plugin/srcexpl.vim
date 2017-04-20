@@ -761,6 +761,7 @@ endfunction " }}}
 
 function! <SID>SrcExpl_WinClose()
 
+    exe "set updatetime=2000"
     call <SID>SrcExpl_WinDelete()
 
 endfunction " }}}

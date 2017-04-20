@@ -134,7 +134,7 @@ function! AddCtagsDatabase()
         let i = i + 1
     endwhile
 endfunction
-call AddCtagsDatabase()
+"call AddCtagsDatabase()
 "=========end add for auto load ctags file======================
 
 "=========add for command and customer shortcut key=============
@@ -324,6 +324,7 @@ let g:SrcExpl_nextDefKey = '<C-\>u'
 nmap <C-\>s :SrcExplToggle<CR>
 "nmap <C-\>c :SrcExplClose<CR>
 nnoremap <C-\>c :let g:SrcExpl_winHeight = 25
+let g:SrcExpl_winHeight = 20
 let g:SrcExpl_pluginList = [
         \ "__Tag_List__",
 		\ "_NERD_tree_"

@@ -158,8 +158,17 @@ function s:Cycle_csdb()
       endif
     endif
     let newcsdbpath = s:Find_in_parent("cscope.out",s:windowdir(),$HOME)
-"    echo "Found cscope.out at: " . newcsdbpath
-"    echo "Windowdir: " . s:windowdir()
+    "echo "Found cscope.out at: " . newcsdbpath
+    "echo "Windowdir: " . s:windowdir()
+	"we think ctags file should at the same dir
+	"so try to update ctags file when proj chang from A to B
+	if filereadable(newcsdbpath . "/tags")
+		"echo "Found tags at: " . newcsdbpath
+		execute 'set tags ='. newcsdbpath . '/tags;'
+	else
+		"echo "No tags"
+		execute 'set tags ='
+	endif
     if newcsdbpath != "Nothing"
       let b:csdbpath = newcsdbpath
       if !cscope_connection(3, "out", b:csdbpath)
