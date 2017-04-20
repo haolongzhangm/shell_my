@@ -179,7 +179,7 @@ endif
 " User interface to control if update the 'tags' file when loading
 " the Source Explorer, 0 for false, others for true
 if !exists('g:SrcExpl_isUpdateTags')
-    let g:SrcExpl_isUpdateTags = 1
+    let g:SrcExpl_isUpdateTags = 0
 endif
 
 " User interface to create a 'tags' file using exact ctags
@@ -1387,11 +1387,11 @@ function! <SID>SrcExpl_CleanUp()
     endif
 
     " Unmap the update-tags key
-    if maparg(g:SrcExpl_updateTagsKey, 'n') ==
-        \ ":call g:SrcExpl_UpdateTags()<CR>"
-        exe "nunmap " . g:SrcExpl_updateTagsKey
-    endif
-
+""    if maparg(g:SrcExpl_updateTagsKey, 'n') ==
+""        \ ":call g:SrcExpl_UpdateTags()<CR>"
+""        exe "nunmap " . g:SrcExpl_updateTagsKey
+""    endif
+""
     " Unmap the previous key
     if maparg(g:SrcExpl_prevDefKey, 'n') ==
         \ ":call g:SrcExpl_PrevDef()<CR>"
@@ -1472,17 +1472,17 @@ function! <SID>SrcExpl_Init()
     " Jump to the edit window
     silent! exe l:tmp . "wincmd w"
 
-    if g:SrcExpl_isUpdateTags != 0
-        " Update the tags file right now
-        if g:SrcExpl_UpdateTags()
-            return -2
-        endif
-    endif
-
-    if g:SrcExpl_updateTagsKey != ""
-        exe "nnoremap " . g:SrcExpl_updateTagsKey .
-            \ " :call g:SrcExpl_UpdateTags()<CR>"
-    endif
+""    if g:SrcExpl_isUpdateTags != 0
+""        " Update the tags file right now
+""        if g:SrcExpl_UpdateTags()
+""            return -2
+""        endif
+""    endif
+""
+""    if g:SrcExpl_updateTagsKey != ""
+""        exe "nnoremap " . g:SrcExpl_updateTagsKey .
+""            \ " :call g:SrcExpl_UpdateTags()<CR>"
+""    endif
 
     if g:SrcExpl_prevDefKey != ""
         exe "nnoremap " . g:SrcExpl_prevDefKey .

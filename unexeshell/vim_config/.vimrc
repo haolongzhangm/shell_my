@@ -318,7 +318,7 @@ set noundofile
 let g:SrcExpl_isUpdateTags = 0
 let g:SrcExpl_updateTagsCmd = "other_shell update_ctags"
 let g:SrcExpl_refreshTime = 600
-let g:SrcExpl_searchLocalDef = 0
+let g:SrcExpl_searchLocalDef = 1
 let g:SrcExpl_prevDefKey = '<C-\>p'
 let g:SrcExpl_nextDefKey = '<C-\>u'
 nmap <C-\>s :SrcExplToggle<CR>
