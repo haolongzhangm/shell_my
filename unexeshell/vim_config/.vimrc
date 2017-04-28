@@ -48,6 +48,7 @@ Bundle 'Valloric/YouCompleteMe'
 Bundle 'scrooloose/nerdtree'
 Bundle 'hari-rangarajan/CCTree'
 Bundle 'rdnetto/YCM-Generator', { 'branch': 'stable'}
+Bundle 'haolongzhangm/auto_update_cscope_ctags_database'
 "Bundle 'kien/ctrlp.vim'
 "Bundle 'Lokaltog/vim-powerline'
 call vundle#end()            " required
@@ -252,7 +253,9 @@ function! ShowcommadT()
 		let l:comand_args = l:command_args_buffer_name
 	elseif char2nr(l:command_args_buffer_name) == 0
 		"echo "No buffers"
-		let l:comand_args = './'
+		let l:comand_args = l:command_args_pwd
+		call setreg('z', l:comand_args)
+		return
 	else
 		"echo "relative path"
 		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
@@ -335,3 +338,7 @@ let g:SrcExpl_pluginList = [
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
 "========end for echofunc.vim===================================
+"========add for auto update cscope ctags log ==================
+let g:Auto_update_cscope_ctags_debug_log = 0
+let g:auto_run_function_when_cscope_connect = 1
+"========end for auto update cscope ctags log ==================

@@ -86,8 +86,6 @@ export HEXAGON_ROOT=/home/zhl/Qualcomm/HEXAGON_Tools
 export HEXAGON_RTOS_RELEASE=6.4.01
 export ARMTOOLS=QDSP6GCC
 #add for other shell command compelte
-complete -W "mtk_kk_old_kernel_cscope arm32_cscope arm64_cscope normal_cscope ctags_base_cscope_files arm64_cscope_ctags arm32_cscope_ctags normal_cscope_ctags ycm_config_gen" other_shell
-complete -W "mtk_kk_old_kernel_cscope arm32_cscope arm64_cscope normal_cscope ctags_base_cscope_files arm64_cscope_ctags arm32_cscope_ctags normal_cscope_ctags" auto_updatecscope
 complete -W "withqcn withoutqcn" qcom_flash.py
 complete -W "withqcn withoutqcn" qcom_flash_32.py
 alias gitlog='git log --pretty=format:'\''%h : %an : %ad : %s'\'' --topo-order --graph --date=short'
