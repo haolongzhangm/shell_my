@@ -319,7 +319,6 @@ set noundofile
 
 "=========add for srcexpl.vim====================================
 let g:SrcExpl_isUpdateTags = 0
-let g:SrcExpl_updateTagsCmd = "other_shell update_ctags"
 let g:SrcExpl_refreshTime = 600
 let g:SrcExpl_searchLocalDef = 1
 let g:SrcExpl_prevDefKey = '<C-\>p'
