@@ -340,4 +340,5 @@ let g:EchoFuncKeyPrev='<C-\>o'
 "========add for auto update cscope ctags log ==================
 let g:Auto_update_cscope_ctags_debug_log = 0
 let g:auto_run_function_when_cscope_connect = 1
+let g:check_update_when_fisrt_load_vim = 0
 "========end for auto update cscope ctags log ==================
