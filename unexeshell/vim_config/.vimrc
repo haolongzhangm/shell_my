@@ -82,6 +82,23 @@ let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
+"add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
+command! -nargs=0 -bar YouCompleteMeStartOrStop
+    \  call YouCompleteMe_Start_Or_Stop()
+let s:already_enable_youcomplete = 1
+function! YouCompleteMe_Start_Or_Stop()
+	if 1 == s:already_enable_youcomplete
+		echo "Now manual disable YouCompleteMe"
+		autocmd! ycmcompletemecursormove
+		autocmd! youcompleteme
+		set completeopt=longest,menu
+		let s:already_enable_youcomplete = 0
+	else
+		echo "Now manual enable YouCompleteMe"
+		call youcompleteme#Enable()
+		let s:already_enable_youcomplete = 1
+	endif
+endfunction
 "======================end for YouCompleteMe config============
 
 "===============for cscope=====================================
@@ -205,6 +222,7 @@ function! Myusage()
 	echo "<C-\\>a    :cscope:Find where this symbol is assigned a value"
 	echo "<C-\\>g    :EchoFunc:show next func"
 	echo "<C-\\>o    :EchoFunc:show prev func"
+	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
 endfunction
