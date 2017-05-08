@@ -8,8 +8,8 @@ set completeopt=preview,menu
 set completeopt=longest,menu
 set autoindent
 set smartindent
-set tabstop=4
-set shiftwidth=4
+"set tabstop=4
+"set shiftwidth=4
 set hlsearch incsearch ignorecase
 "==================end for vim misc==============================
 
