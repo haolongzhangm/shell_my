@@ -208,6 +208,7 @@ function! Myusage()
 	echo "F6         :cscope:Find this C symbol           "
 	echo "F7         :cscope:Find functions called by this function"
 	echo "F10        :cscope:Find this text string        "
+	echo "F12        :YouCompleteMeStartOrStop            "
 	echo "<C-a>      :let Tlist_WinWidth=43               "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/Vgallfile "
