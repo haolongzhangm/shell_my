@@ -99,6 +99,7 @@ function! YouCompleteMe_Start_Or_Stop()
 		let s:already_enable_youcomplete = 1
 	endif
 endfunction
+nnoremap <F12> :YouCompleteMeStartOrStop<CR>
 "======================end for YouCompleteMe config============
 
 "===============for cscope=====================================
