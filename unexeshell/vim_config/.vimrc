@@ -11,6 +11,9 @@ set smartindent
 "set tabstop=4
 "set shiftwidth=4
 set hlsearch incsearch ignorecase
+if has("gui_running")
+colorscheme industry
+endif
 "==================end for vim misc==============================
 
 "==========for TlistToggle and Nerdtree==========================
