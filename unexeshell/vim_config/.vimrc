@@ -173,7 +173,7 @@ nnoremap <C-f> :buffers<CR>:b<Space>
 
 "for cscope quick reset
 "auto update cscope datebase by command auto_updatecscope
-map <c-p> :cscope reset<CR>
+map <c-p> :Manualupdatedatabaseonetime<CR>
 
 "quick for marks show ,then use ' + [num] to jump
 nnoremap <C-b> :marks<CR>g
@@ -216,7 +216,7 @@ function! Myusage()
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/Vgallfile "
 	echo "<C-f>      :buffers list                        "
-	echo "<c-p>      :cscope reset                        "
+	echo "<c-p>      :Manualupdatedatabaseonetime                        "
 	echo "<C-d>      :show Myusage()                      "
 	echo "<C-h>      :show CommandT                       "
 	echo "<C-\\>p    :SrcExpl_prevDefKey                  "
