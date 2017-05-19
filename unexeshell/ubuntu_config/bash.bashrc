@@ -91,6 +91,7 @@ complete -W "withqcn withoutqcn" qcom_flash_32.py
 alias gitlog='git log --pretty=format:'\''%h : %an : %ad : %s'\'' --topo-order --graph --date=short'
 alias v=vim
 alias V=vim
+alias gvim='LANG=EN gvim'
 alias mysource=source
 source ~/.git-completion.bash
 #add for t32
