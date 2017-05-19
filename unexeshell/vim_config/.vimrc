@@ -129,10 +129,10 @@ set showmatch
 "inoremap ) <c-r>=ClosePair(')')<CR>
 inoremap { {<CR>}<ESC>O
 ""inoremap } <c-r>=ClosePair('}')<CR>
-inoremap [ []<ESC>i
+""inoremap [ []<ESC>i
 ""inoremap ] <c-r>=ClosePair(']')<CR>
-inoremap " ""<ESC>i
-inoremap ' ''<ESC>i
+""inoremap " ""<ESC>i
+""inoremap ' ''<ESC>i
 "=============end for match=====================================
 
 "=========add for auto load ctags file==========================
