@@ -105,7 +105,7 @@ endfunction
 nnoremap <F12> :YouCompleteMeStartOrStop<CR>
 "======================end for YouCompleteMe config============
 
-"===============for cscope=====================================
+"===============for cscope and ctags===========================
 nmap <F5> :cs find c <C-R>=expand("<cword>")<CR><CR>
 nmap <F6> :cs find s <C-R>=expand("<cword>")<CR><CR>
 nmap <F7> :cs find d <C-R>=expand("<cword>")<CR><CR>
@@ -116,7 +116,8 @@ nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
 nmap <C-u> :tnext<CR><CR>f
 nmap <C-y> :tprevious<CR><CR>f
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
-"===============end cscope=====================================
+nmap <C-\>t :tselect <C-R>=expand("<cword>")<CR><CR>
+"===============end cscope and ctags===========================
 
 "=========== add this for chinese==============================
 let &termencoding=&encoding
@@ -227,6 +228,7 @@ function! Myusage()
 	echo "<C-\\>a    :cscope:Find where this symbol is assigned a value"
 	echo "<C-\\>g    :EchoFunc:show next func"
 	echo "<C-\\>o    :EchoFunc:show prev func"
+	echo "<C-\\>t    :tselect func                        "
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
@@ -363,5 +365,5 @@ let g:EchoFuncKeyPrev='<C-\>o'
 "========add for auto update cscope ctags log ==================
 let g:Auto_update_cscope_ctags_debug_log = 0
 let g:auto_run_function_when_cscope_connect = 0
-let g:check_update_when_fisrt_load_vim = 0
+let g:check_update_when_fisrt_load_vim = 1
 "========end for auto update cscope ctags log ==================
