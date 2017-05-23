@@ -1,0 +1,2 @@
+dir  /etc/minicom
+mode -rw-r--r-- 1 root root
