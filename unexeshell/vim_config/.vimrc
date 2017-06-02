@@ -8,8 +8,25 @@ set completeopt=preview,menu
 set completeopt=longest,menu
 set autoindent
 set smartindent
-"set tabstop=4
-"set shiftwidth=4
+
+"===================add for codestyle switch=====================
+function! LinuxCodestyle()
+	set tabstop=8
+	set shiftwidth=8
+endfunction
+
+function! GoogleCodestyle()
+	set tabstop=4
+	set shiftwidth=4
+endfunction
+autocmd BufNewFile,BufRead *.c call LinuxCodestyle()
+autocmd BufNewFile,BufRead *.cpp call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.cc call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.c++ call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.java call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.aidl call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.mk call GoogleCodestyle()
+"===================end add for codestyle switch==================
 set hlsearch incsearch ignorecase
 if has("gui_running")
 colorscheme industry
