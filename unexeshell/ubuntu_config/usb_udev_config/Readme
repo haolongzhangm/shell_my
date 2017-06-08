@@ -1,0 +1,1 @@
+sudo cp 70-android.rules /etc/udev/rules.d/
