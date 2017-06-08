@@ -12,6 +12,7 @@
  ==========================clean build android core ================================
  cd frameworks/base; git reset --hard ; croot; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; repo sync -j4; make update-api -j6 ;  make -j6
  ===================================================================================
+ [PDF]: 9621073404
  7zip: 7za a -t7z -mx=5 test.7z test-dir ; 7za X test.7z
  ===================================================================================
  rename files:
@@ -81,5 +82,5 @@ use  fallocate to quick create a file
  ===================================================================================
  ===================================================================================
  gen YCM config
- python ~/.vim/bundle/YCM-Generator/config_gen.py . --compiler=/usr/bin/clang-3.5
+ python ~/.vim/bundle/YCM-Generator/config_gen.py . --compiler=/usr/bin/clang-3.8
  ===================================================================================
