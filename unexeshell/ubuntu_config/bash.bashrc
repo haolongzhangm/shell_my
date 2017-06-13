@@ -100,9 +100,10 @@ export T32TMP=/tmp
 export T32ID=T32
 export ADOBE_PATH=/usr/bin/evince
 export PATH=$PATH:/opt/t32/bin/pc_linux64
+export T32PDFVIEWER=/opt/t32/bin/pc_linux64/t32_startpdfviewer.sh
 #enable and config ccache
 #use command config: ./prebuilts/misc/linux-x86/ccache/ccache -M 50G
 #also command config: ccache -M 50G
 #use command to check status: ccache -s
-export USE_CCACHE=1
-export CCACHE_DIR=/media/zhl/second/.cache
+#export USE_CCACHE=1
+#export CCACHE_DIR=/media/zhl/second/.cache
