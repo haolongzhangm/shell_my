@@ -1,0 +1,5 @@
+sudo cp simsun.ttc /usr/share/fonts/
+sudo mkfontscale
+sudo mkfontdir
+sudo fc-cache -fsv
+reboot
