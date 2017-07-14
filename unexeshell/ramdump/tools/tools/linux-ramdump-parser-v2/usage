@@ -1,0 +1,10 @@
+linux:
+python ramparse.py -a RAM_DUMP/ -v RAM_DUMP/vmlinux -o out/  -x --64-bit  -s --t32-host-system=Windows
+
+ -s --t32-host-system=Windows for gen win t32.bat when run os is linux
+
+win:
+C:\Python27\python.exe ramparse.py -a G:panda_259_crash\panda_259_ta2_crash\Port_COM17  -v G:\panda_259_crash\panda_259_ta2_crash\vmlinux_LS-5201-S10A_LYF_L13EN_200_161025094632\vmlinux -o out -x --64-bit
+
+1:git clone git://codeaurora.org/quic/la/platform/vendor/qcom-opensource/tools
+or: https://source.codeaurora.org/quic/la/platform/vendor/qcom-opensource/tools/tree/linux-ramdump-parser-v2?h=LA.UM.5.3_rb1.1

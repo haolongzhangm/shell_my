@@ -1,0 +1,22 @@
+title "out"
+sys.cpu CORTEXA53
+sys.up
+data.load.binary G:\panda_259_crash\panda_259_ta2_crash\Port_COM17\OCIMEM.BIN 0x8600000
+data.load.binary G:\panda_259_crash\panda_259_ta2_crash\Port_COM17\DDRCS0.BIN 0x20000000
+data.load.binary G:\panda_259_crash\panda_259_ta2_crash\Port_COM17\DDRCS1.BIN 0x80000000
+Register.Set NS 1
+Data.Set SPR:0x30201 %Quad 0x2007d000
+Data.Set SPR:0x30202 %Quad 0x00000032B5193519
+Data.Set SPR:0x30A20 %Quad 0x000000FF440C0400
+Data.Set SPR:0x30A30 %Quad 0x0000000000000000
+Data.Set SPR:0x30100 %Quad 0x0000000004C5D93D
+Register.Set CPSR 0x3C5
+MMU.Delete
+MMU.SCAN PT 0xFFFFFF8000000000--0xFFFFFFFFFFFFFFFF
+mmu.on
+mmu.pt.list 0xffffff8000000000
+data.load.elf G:\panda_259_crash\panda_259_ta2_crash\vmlinux_LS-5201-S10A_LYF_L13EN_200_161025094632\vmlinux /nocode
+task.config C:\T32\demo\arm64\kernel\linux\linux-3.x\linux3.t32
+menu.reprogram C:\T32\demo\arm64\kernel\linux\linux-3.x\linux.men
+task.dtask
+v.v  %ASCII %STRING linux_banner

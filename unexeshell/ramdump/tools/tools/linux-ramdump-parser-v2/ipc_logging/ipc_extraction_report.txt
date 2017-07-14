@@ -1,0 +1,1 @@
+Output path: /home/zhl/mycode/qcom_parser_tool/tools/linux-ramdump-parser-v2/ipc_logging

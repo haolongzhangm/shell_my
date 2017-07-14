@@ -1,0 +1,204 @@
+;ocal &off
+ 
+ 
+ 
+if os.file.size("SYS_MINI_RDUMP")<=0x2000
+ 
+(
+ 
+ dialog
+ 
+ (
+ 
+ header "File is incomplete"
+ 
+ pos 0. 0. 26. 1.
+ 
+ text "SYS_MINI_RDUMP is incomplete."
+ 
+ pos 1. 3. 22. 1.
+ 
+ defbutton "OK" "quit"
+ 
+ close "quit"
+ 
+ )
+ 
+ enddo
+ 
+)
+ 
+ 
+system.reset
+ 
+d.load.binary SYS_MINI_RDUMP VM:0--0x2000
+ 
+if d.word(VM:0x12)==0xb7
+ 
+(
+ 
+ system.cpu CortexA53
+ 
+)
+ 
+if d.word(VM:0x12)==0x28
+ 
+(
+ 
+ system.cpu CortexA7
+ 
+)
+ 
+system.up
+ 
+ 
+ 
+d.load.elf ./vmlinux /nc
+ 
+d.load.elf ./SYS_MINI_RDUMP /nc /nosymbol /logload
+ 
+ 
+ 
+if d.word(VM:0x12)==0xb7
+ 
+(
+ 
+ &off=d.quad(VM:0x48)
+ 
+ &off=&off+0xc+((d.long(VM:&off)+3)&~3)+((d.long(VM:(&off+4))+3)&~3)
+ 
+ &off=&off+0xc+((d.long(VM:&off)+3)&~3)+0x70
+ 
+ r.s CPSR d.quad(VM:(&off+0x108))
+ 
+ r.s X0 d.quad(VM:(&off+0x00))
+ 
+ r.s X1 d.quad(VM:(&off+0x08))
+ 
+ r.s X2 d.quad(VM:(&off+0x10))
+ 
+ r.s X3 d.quad(VM:(&off+0x18))
+ 
+ r.s X4 d.quad(VM:(&off+0x20))
+ 
+ r.s X5 d.quad(VM:(&off+0x28))
+ 
+ r.s X6 d.quad(VM:(&off+0x30))
+ 
+ r.s X7 d.quad(VM:(&off+0x38))
+ 
+ r.s X8 d.quad(VM:(&off+0x40))
+ 
+ r.s X9 d.quad(VM:(&off+0x48))
+ 
+ r.s X10 d.quad(VM:(&off+0x50))
+ 
+ r.s X11 d.quad(VM:(&off+0x58))
+ 
+ r.s X12 d.quad(VM:(&off+0x60))
+ 
+ r.s X13 d.quad(VM:(&off+0x68))
+ 
+ r.s X14 d.quad(VM:(&off+0x70))
+ 
+ r.s X15 d.quad(VM:(&off+0x78))
+ 
+ r.s X16 d.quad(VM:(&off+0x80))
+ 
+ r.s X17 d.quad(VM:(&off+0x88))
+ 
+ r.s X18 d.quad(VM:(&off+0x90))
+ 
+ r.s X19 d.quad(VM:(&off+0x98))
+ 
+ r.s X20 d.quad(VM:(&off+0xA0))
+ 
+ r.s X21 d.quad(VM:(&off+0xA8))
+ 
+ r.s X22 d.quad(VM:(&off+0xB0))
+ 
+ r.s X23 d.quad(VM:(&off+0xB8))
+ 
+ r.s X24 d.quad(VM:(&off+0xC0))
+ 
+ r.s X25 d.quad(VM:(&off+0xC8))
+ 
+ r.s X26 d.quad(VM:(&off+0xD0))
+ 
+ r.s X27 d.quad(VM:(&off+0xD8))
+ 
+ r.s X28 d.quad(VM:(&off+0xE0))
+ 
+ r.s X29 d.quad(VM:(&off+0xE8))
+ 
+ r.s X30 d.quad(VM:(&off+0xF0))
+ 
+ r.s SP d.quad(VM:(&off+0xF8))
+ 
+ r.s PC d.quad(VM:(&off+0x100))
+ 
+)
+ 
+if d.word(VM:0x12)==0x28
+ 
+(
+ 
+ &off=d.long(VM:0x38)
+ 
+ &off=&off+0xc+((d.long(VM:&off)+3)&~3)+((d.long(VM:(&off+4))+3)&~3)
+ 
+ &off=&off+0xc+((d.long(VM:&off)+3)&~3)+0x48
+ 
+ r.s CPSR d.long(VM:(&off+0x40))
+ 
+ r.s R0 d.long(VM:(&off+0x00))
+ 
+ r.s R1 d.long(VM:(&off+0x04))
+ 
+ r.s R2 d.long(VM:(&off+0x08))
+ 
+ r.s R3 d.long(VM:(&off+0x0c))
+ 
+ r.s R4 d.long(VM:(&off+0x10))
+ 
+ r.s R5 d.long(VM:(&off+0x14))
+ 
+ r.s R6 d.long(VM:(&off+0x18))
+ 
+ r.s R7 d.long(VM:(&off+0x1c))
+ 
+ r.s R8 d.long(VM:(&off+0x20))
+ 
+ r.s R9 d.long(VM:(&off+0x24))
+ 
+ r.s R10 d.long(VM:(&off+0x28))
+ 
+ r.s R11 d.long(VM:(&off+0x2c))
+ 
+ r.s R12 d.long(VM:(&off+0x30))
+ 
+ r.s R13 d.long(VM:(&off+0x34))
+ 
+ r.s R14 d.long(VM:(&off+0x38))
+ 
+ r.s R15 d.long(VM:(&off+0x3c))
+ 
+)
+ 
+ 
+ 
+setup.v %hex.on %string.on
+ 
+winclear
+ 
+winpos 0% 0% 50% 100%
+ 
+w.v.f /a /l
+ 
+winpos 50% 0%
+ 
+w.r
+ 
+winpos 50% 30%
+ 
+d.l

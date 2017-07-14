@@ -1,5 +1,0 @@
-python ramparse.py -a RAM_DUMP/ -v RAM_DUMP/vmlinux -o out/  -x --64-bit
-
-python ramparse.py -e ./ramdump/DDRCS0.BIN 0x20000000 0x7fffffff -e ./ramdump/DDRCS1.BIN 0x80000000 0xffffffff -e ./ramdump/OCIMEM.BIN 0x8600000 0x8604000 --phys-offset=0x20000000 --everything --vmlinux ./ramdump/vmlinux "--force-hardware=8939" -o out/ -x --64-bit
-
-

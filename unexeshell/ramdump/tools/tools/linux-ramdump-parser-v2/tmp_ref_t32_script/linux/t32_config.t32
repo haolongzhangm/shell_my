@@ -1,0 +1,17 @@
+OS=
+ID=T32_1000002
+TMP=/tmp
+SYS=/opt/t32
+HELP=/opt/t32/pdf
+
+PBI=SIM
+
+SCREEN=
+FONT=SMALL
+HEADER=Trace32-ScorpionSimulator
+
+
+RCL=NETASSIST
+PACKLEN=1024
+PORT=28233
+
