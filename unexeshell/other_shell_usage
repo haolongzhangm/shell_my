@@ -84,3 +84,6 @@ use  fallocate to quick create a file
  gen YCM config
  python ~/.vim/bundle/YCM-Generator/config_gen.py . --compiler=/usr/bin/clang-3.8
  ===================================================================================
+ import ros env
+ source /opt/ros/kinetic/setup.bash
+ ===================================================================================
