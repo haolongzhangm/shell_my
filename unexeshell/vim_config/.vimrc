@@ -334,8 +334,26 @@ endfunction
 
 map f :call ShowFuncName() <CR>
 map F :call ShowFuncName() <CR>
-map , :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F5>
-map . :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
+
+function! Map_to_func_head_python_style()
+	map , [[w<F5>
+	map . [[w
+endfunction
+
+function! Map_to_func_head_c_style()
+	map , :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F5>
+	map . :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
+endfunction
+
+autocmd BufNewFile,BufRead *.c call Map_to_func_head_c_style()
+autocmd BufNewFile,BufRead *.cpp call Map_to_func_head_c_style()
+autocmd BufNewFile,BufRead *.cc call Map_to_func_head_c_style()
+autocmd BufNewFile,BufRead *.c++ call Map_to_func_head_c_style()
+autocmd BufNewFile,BufRead *.java call Map_to_func_head_c_style()
+autocmd BufNewFile,BufRead *.aidl call Map_to_func_head_c_style()
+autocmd BufNewFile,BufRead *.mk call Map_to_func_head_c_style()
+autocmd BufNewFile,BufRead *.py call Map_to_func_head_python_style()
+autocmd BufNewFile,BufRead *.vim call Map_to_func_head_python_style()
 "==================end for quick show func by enter 'f'==========
 
 "==================add source vimrc_example.vim==================
