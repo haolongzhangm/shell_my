@@ -54,9 +54,9 @@ def check_needed_file():
 #now we get the SBL file eg : prog_emmc_firehose_*
 def find_sbl_name():
     global sbl_name
-    for sbl_name in glob.glob("prog_emmc_firehose*"):
-        print('sbl file %s' % sbl_name)
-    if len(glob.glob("prog_emmc_firehose*")) != 1:
+    for sbl_name in glob.glob("prog_*"):
+        print('sbl file: %s' % sbl_name)
+    if len(glob.glob("prog_*")) != 1:
         print("No sbl or so many sbl file find ,check fisrt ,exit now")
         exit()
 
