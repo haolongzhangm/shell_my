@@ -1,11 +1,3 @@
-./mm/page-writeback.c:EXPORT_SYMBOL_GPL(dirty_writeback_interval);
-./mm/page-writeback.c:EXPORT_SYMBOL(laptop_mode);
-./mm/page-writeback.c:EXPORT_SYMBOL_GPL(wb_writeout_inc);
-./mm/page-writeback.c:EXPORT_SYMBOL(bdi_set_max_ratio);
-./mm/page-writeback.c:EXPORT_SYMBOL(balance_dirty_pages_ratelimited);
-./mm/page-writeback.c:EXPORT_SYMBOL(tag_pages_for_writeback);
-./mm/page-writeback.c:EXPORT_SYMBOL(write_cache_pages);
-./mm/page-writeback.c:EXPORT_SYMBOL(generic_writepages);
 ./mm/page-writeback.c:EXPORT_SYMBOL(write_one_page);
 ./mm/page-writeback.c:EXPORT_SYMBOL(account_page_dirtied);
 ./mm/page-writeback.c:EXPORT_SYMBOL(__set_page_dirty_nobuffers);
@@ -74,6 +66,7 @@
 ./mm/vmstat.c:EXPORT_SYMBOL(mod_zone_page_state);
 ./mm/vmstat.c:EXPORT_SYMBOL(inc_zone_page_state);
 ./mm/vmstat.c:EXPORT_SYMBOL(dec_zone_page_state);
+--------------------------------------------------
 ./mm/kmemleak.c:EXPORT_SYMBOL_GPL(kmemleak_alloc);
 ./mm/kmemleak.c:EXPORT_SYMBOL_GPL(kmemleak_alloc_percpu);
 ./mm/kmemleak.c:EXPORT_SYMBOL_GPL(kmemleak_free);
@@ -84,6 +77,7 @@
 ./mm/kmemleak.c:EXPORT_SYMBOL(kmemleak_ignore);
 ./mm/kmemleak.c:EXPORT_SYMBOL(kmemleak_scan_area);
 ./mm/kmemleak.c:EXPORT_SYMBOL(kmemleak_no_scan);
+--------------------------------------------------
 ./mm/migrate.c:EXPORT_SYMBOL(migrate_page);
 ./mm/migrate.c:EXPORT_SYMBOL(buffer_migrate_page);
 ./mm/vmscan.c:EXPORT_SYMBOL(register_shrinker);
