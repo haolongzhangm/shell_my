@@ -237,15 +237,15 @@ function! Myusage()
 	echo "<c-p>      :Manualupdatedatabaseonetime                        "
 	echo "<C-d>      :show Myusage()                      "
 	echo "<C-h>      :show CommandT                       "
-	echo "<C-\\>p    :SrcExpl_prevDefKey                  "
-	echo "<C-\\>u    :SrcExpl_nextDefKey                  "
-	echo "<C-\\>s    :SrcExplToggle  open/close           "
-	echo "<C-\\>c    :SrcExpl_winHeight config            "
-	echo "<C-\\>i    :cscope:Find files #including this file"
-	echo "<C-\\>a    :cscope:Find where this symbol is assigned a value"
-	echo "<C-\\>g    :EchoFunc:show next func"
-	echo "<C-\\>o    :EchoFunc:show prev func"
-	echo "<C-\\>t    :tselect func                        "
+	echo "<C-\\>p     :SrcExpl_prevDefKey                  "
+	echo "<C-\\>u     :SrcExpl_nextDefKey                  "
+	echo "<C-\\>s     :SrcExplToggle  open/close           "
+	echo "<C-\\>c     :SrcExpl_winHeight config            "
+	echo "<C-\\>i     :cscope:Find files #including this file"
+	echo "<C-\\>a     :cscope:Find where this symbol is assigned a value"
+	echo "<C-\\>g     :EchoFunc:show next func"
+	echo "<C-\\>o     :EchoFunc:show prev func"
+	echo "<C-\\>t     :tselect func                        "
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
@@ -399,6 +399,6 @@ let g:EchoFuncKeyPrev='<C-\>o'
 "========end for echofunc.vim===================================
 "========add for auto update cscope ctags log ==================
 let g:Auto_update_cscope_ctags_debug_log = 0
-let g:auto_run_function_when_cscope_connect = 0
+let g:auto_run_function_when_cscope_connect = 1
 let g:check_update_when_first_load_vim = 1
 "========end for auto update cscope ctags log ==================
