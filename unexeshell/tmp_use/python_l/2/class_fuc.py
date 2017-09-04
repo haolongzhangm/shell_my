@@ -6,6 +6,7 @@ class func_foo(object):
     def __init__(self, name):
         self.name = name
         print('name = %s' % self.name)
+        self.static_func()
 
     def general_func(self):
         print('this is a general_func')
