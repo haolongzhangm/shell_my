@@ -1,0 +1,177 @@
+=比较=
+
+先来回顾一下通常情况下(至少教科书上)是如何定义和区分多进程和多线程的:
+
+进程:具有一定独立功能的程序关于某个数据集合上的一次运行活动,进程是系统进行资源分配的基本单位
+
+线程:线程是进程中的一个实体，作为系统调度基本单位
+
+总体来说，进程偏向于资源,线程偏向于调度。
+
+那么具体问题时到底是应该选择线程还是进程呢，如果仅仅基于上述差异，前辈总结了一些
+
+经验:
+
+[[File:diff_p_w_t.png]]
+
+1> 需要频繁创建销毁的优先用线程
+
+2> 需要进行大量计算的优先使用线程
+
+3> 强相关的处理用线程，弱相关的处理用进程
+
+4> 可能要扩展到多机分布的用进程，多核分布的用线程
+
+那么上述准则在python上适用吗? 答案是不太适用。
+
+导致的原因是，(C)python GIL (Global Interpreter Lock)的限制导致的。
+
+什么是GIL，官方解释:
+
+<source language="c">
+
+In CPython, the global interpreter lock, or GIL, 
+
+is a mutex that prevents multiple native threads 
+
+from executing Python bytecodes at once. This lock
+
+ is necessary mainly because CPython’s memory 
+
+management is not thread-safe. (However, since the GIL exists,
+
+ other features have grown to depend on the guarantees that it enforces.)
+
+
+</source>
+
+由于GIL， python的多线程和多进程的选择变得和传统的选择略显不同，
+
+基本上形成了如下的准则:
+
+1> cpu 密集型程序选择多进程
+
+2> IO 密集型程序选择多线程
+
+
+=相应API=
+
+下面我们来看看 python 线程和进程 相应的API 吧
+
+===多线程API===
+
+<source language="c">
+
+隶属于包import threading
+
+构造方法
+
+Thread(group=None, target=None, name=None, args=(), kwargs={}) 
+
+　　group: 线程组，目前还没有实现，库引用中提示必须是None； 
+
+　　target: 要执行的方法； 
+
+　　name: 线程名； 
+
+　　args/kwargs: 要传入方法的参数。
+
+对实例的相关操作
+
+　isAlive(): 返回线程是否在运行。正在运行指启动后、终止前。 
+
+　get/setName(name): 获取/设置线程名。 
+
+　start():  线程准备就绪，等待CPU调度
+
+　is/setDaemon(bool): 获取/设置是后台线程（默认前台线程（False））。（在start之前设置）
+
+　start(): 启动线程。 
+
+　join([timeout]): 阻塞当前上下文环境的线程，直到调用此方法的线程终止或到达指定的timeout（可选参数）
+
+锁相关API
+
+threading.Lock()，Rlock（）
+
+acquire([timeout]):
+
+release(): 
+
+</source>
+
+
+
+===多进程API===
+
+<source language="c">
+
+隶属于包import multiprocessing (Process, Manager)
+
+构造方法：
+
+Process([group [, target [, name [, args [, kwargs]]]]])
+
+　　group: 线程组，目前还没有实现，库引用中提示必须是None；
+ 
+　　target: 要执行的方法； 
+
+　　name: 进程名； 
+
+　　args/kwargs: 要传入方法的参数。
+
+实例方法：
+
+　　is_alive()：返回进程是否在运行。
+
+　　join([timeout])：阻塞当前上下文环境的进程程，直到调用此方法的进程终止或到达指定的timeout（可选参数）。
+
+　　start()：进程准备就绪，等待CPU调度
+
+　　run()：strat()调用run方法，如果实例进程时未制定传入target，这star执行t默认run()方法。
+
+　　terminate()：不管任务是否完成，立即停止工作进程
+
+锁 multiprocessing.Lock()
+
+acquire([timeout]):
+
+release():
+
+</source>
+
+
+=进程/线程池=
+
+当一个任务需要拆分成大量的线程或者进程的时候，我们不可能无休止的生成大量的线程或者进程，和比较有名的
+
+fork 炸弹是一个道理，一下fork大量的线程或者进程，系统调用fork 消耗大量的资源，反而执行效果会更慢，甚至
+
+直接把系统弄死，为了防止大量进程或线程的大量并发，引入pool的概率来防止并发，下面以进程池为例子（线程池
+
+使用方法类似）
+
+<source language="c">
+
+import multiprocessing
+procssess_task = []
+for xx in yyy:
+	procssess_task.append(xx)  #把所有任务先加入到一个列表中
+
+task_pool = multiprocessing.Pool(processes=12) #实例化一个进程池，并且制定最多进程数目processes=12
+task_pool.map(worker_i, task_list_args) #绑定以及分发任务
+
+def worker_i(i):
+
+    args_t = []
+    ....
+    ....
+
+PS: processes=12一般配置成CPU能虚拟化线程数的两倍
+
+比如一个4核8线程的i7 CPU, processes则建议设置成16
+
+
+</source>
+
+

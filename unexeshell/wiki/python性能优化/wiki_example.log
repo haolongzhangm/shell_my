@@ -1,0 +1,110 @@
+
+=背景=
+
+在编程语言中，python虽然方便但是运行效率却极低，主要源自python语言的如下几个原因：
+
+1: python是解释执行型语言，所以无法先编译成机器码，必须运行时逐条翻译和编译，有人
+
+或许会问，java也算解释型语言，为什么java的效率会高于python，其中很大一部分因素是因
+
+为java支持JIT，而python不支持JIT(JIT:just in time compiler)
+
+2: python是动态语言，一个变量所指向对象的类型在运行时才确定（这也是python定义变量的
+
+时候不指定类型），这导致了python解析器无法做分支预测，进一步导致了上述1点中表述的无法
+
+支持JIT 的原因
+
+3: python中一切都是对象，对象的维护意味着更多的资源开销，
+
+所以在一定程度上，使用python就不得不接受它的慢，当然也不是完全说当python代码在遇到性能
+
+瓶颈的时候一点办法没有（好的代码逻辑总比差的代码逻辑执行快吧）
+
+当遇到性能问题时或者想优化python程序性能时，首先是利用一些方法找他程序哪个地方慢，
+
+然后再思考慢的部分是否真的需要，或者是否有好的方法替代或者有更好的逻辑实现。
+
+和其他语言或者OS一样，python也存在一些主流的trace来发现问题，主流的是：CProfile，Profile、hotshot
+
+CProfile:C语言实现的trace 模块
+
+Profile:python实现的trace 模块
+
+hotshot: C语言实现的trace模块，但是不支持调试多线程
+
+了解和使用CProfile即可
+
+=CProfile=
+
+==使用方法==
+
+有两种方法可以快速使用CProfile
+
+
+<source language="c">
+
+方式一（非侵入式）: python -m cProfile -s [sort_config] -o [out.profile] test.py
+
+-s: 结果排序方式，默认是代码调用顺序，可配置成如下:
+
+'calls'  	call count
+'cumulative'	cumulative time
+'cumtime'	cumulative time
+'file'	        file name
+'filename'	file name
+'module'	file name
+'ncalls'	call count
+'pcalls'	primitive call count
+'line'	        line number
+'name'	        function name
+'nfl'	        name/file/line
+'stdname'	standard name
+'time'	        internal time
+'tottime'	internal time
+
+通过-o参数导出profile文件，便于后面对profile进行离线分析。
+
+
+</source>
+
+方式二（侵入式）:也就是需要在被调试的代码中添加profile语句
+
+
+<source language="c">
+
+常用嵌入语句：
+
+1: import cProfile pstats导入cProfile 类
+
+2: p = cProfile.Profile() 实例化cProfile对象
+
+3: p.run ('func_interface(args, *arg, **a)' ), 对一个函数入口就行调试
+
+4：p.sort_stats('time', 'cumulative') 设置结果排序方式
+
+5：pr.enable() 开始局部调试
+
+6: pr.disable() 结束局部调试
+
+
+
+
+ps: 对于离线的.profile如何查看呢？这里直接推荐python自带的pstats
+
+使用样例
+
+import pstats
+p = pstats.Stats("eg.profile")
+
+p.sort_stats("cumulative")
+
+<pstats.Stats instance at 0x177dcf8>
+
+p.print_stats()
+
+</source>
+
+结果示例
+
+[[File:py_profile.png]]
