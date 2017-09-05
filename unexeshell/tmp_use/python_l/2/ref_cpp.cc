@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 
 using namespace std;
 
@@ -12,8 +13,9 @@ class Foo
 	
 	public:
 		int get_value();
-		int value_p;
+		int value_p = 20;
 		void update_value(int);
+		static int tmo();
 		static void p_value();
 };
 
@@ -47,8 +49,12 @@ int main()
 	//Foo::p_value();
 
 	Foo *foo = new Foo;
-	cout << foo->get_value() << "\n";
+	Foo *foo_s = new Foo;
+	//cout << foo->get_value() << "\n";
 
-	foo->update_value(9);
-	cout << foo->get_value() << "\n";
+	cout <<  foo->p_value << "\n" <<  foo_s->p_value << "\n";
+	printf("foo->p_value = %p, foo_s->p_value = %p\n", foo->p_value, foo_s->p_value);
+
+	//foo->update_value(9);
+	//cout << foo->get_value() << "\n";
 }
