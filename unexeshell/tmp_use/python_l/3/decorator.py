@@ -4,6 +4,7 @@ import time
 
 #'''
 #step one
+@measure_time
 def foo():
     print('foo')
     a = 0
@@ -51,10 +52,10 @@ def measure_time(func):
         print('%s use time %f ms' % (func.__name__, (end_time - start_time) * 10))
 
     return wrapper
-
+'''
 foo = measure_time(foo)
 foo_2 = measure_time(foo_2)
-#'''
+'''
 
 
 #step four
