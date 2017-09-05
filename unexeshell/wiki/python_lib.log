@@ -1,0 +1,4 @@
+#预留一/两个TAB	:冒号，英文字符	
+numpy		:是Python的一种开源的数值计算扩展。这种工具可用来存储和处理大型矩阵, NumPy将Python相当于变成一种免费的更强大的MatLab系统
+skimage		:图像处理库
+django		:web 框架
