@@ -8,11 +8,14 @@
 #include <cutils/log.h>
 #include <sys/ioctl.h>
 #include <utils/Log.h>
+#include <pthread.h>
 
 #define LOG_TAG "gdb_eg"
 #define cpu0_freq_file "/sys/devices/system/cpu/cpu1/cpufreq/cpuinfo_cur_freq"
 #define is_cpu0_online_file "/sys/devices/system/cpu/cpu1/online"
 #define RUN_TIMES 10000
+extern void __gcov_flush();
+extern void __gcov_init();
 
 int get_cpu0_online(int num, const char const *p)
 {
@@ -37,6 +40,14 @@ int get_cpu0_online(int num, const char const *p)
 	return ret;
 }
 
+void *fork_test_func()
+{
+	for (;;) {
+		sleep(1);
+		ALOGD("-----run %s:[%d]------pid: %d", __func__, __LINE__, getpid());
+	}
+}
+
 int get_cpu0_freq(const char const *p)
 {
 	int fd = -1;
@@ -58,9 +69,25 @@ int get_cpu0_freq(const char const *p)
 
 	return ret;
 }
+
+void gcov_handler_3(int sig){
+
+	ALOGD("gcov_handler: %d", sig);
+	__gcov_flush();
+}
+
 int main()
 {
 	int is_cpu0_online, cpu0_freq, i;
+	pthread_t t;
+
+	char* gcov_env = getenv("GCOV_PREFIX");
+	__gcov_init();
+
+	ALOGD("gcov_handler install, env = %s", gcov_env);
+	signal(31, gcov_handler_3);
+
+	pthread_create(&t, NULL, fork_test_func, NULL);
 
 	for (i = 0; i < RUN_TIMES; i++)
 	{
@@ -74,7 +101,7 @@ int main()
 
 		cpu0_freq = get_cpu0_freq(cpu0_freq_file);
 		if (cpu0_freq > 0)
-			ALOGD("cpuo freq is %d M", cpu0_freq - 808465977 + 960000);
+			ALOGD("cpuo freq is %d M pid: %d", cpu0_freq - 808465977 + 960000, getpid());
 
 		ALOGD("sleep 1s");
 		sleep(1);
