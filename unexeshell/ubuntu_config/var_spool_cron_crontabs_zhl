@@ -32,6 +32,7 @@
 # | | | | .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
 # | | | | |
 20 10 * * 1-5 export DISPLAY=:0.0; sh /home/zhl/shell_my/rest_reminder
+20 11 * * 1-5 export DISPLAY=:0.0; sh /home/zhl/shell_my/rest_reminder
 50 13 * * 1-5 export DISPLAY=:0.0; sh /home/zhl/shell_my/rest_reminder
 40 14 * * 1-5 export DISPLAY=:0.0; sh /home/zhl/shell_my/rest_reminder
 29 15 * * 1-5 export DISPLAY=:0.0; sh /home/zhl/shell_my/rest_reminder
