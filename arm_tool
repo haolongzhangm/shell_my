@@ -4,7 +4,7 @@ echo =======================example arm..objdump addr2line etc =================
 echo ======================-have to use . or source into include shell env ========================
 . 8939_1_l
 . build/envsetup.sh
-lunch mirageplus01a_msm8916_64-userdebug
+lunch panda01a_msm8952_64-userdebug
 cd -
 echo =======================eheck result ====================================================
 arm-linux-androideabi-objcopy --version
