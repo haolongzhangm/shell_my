@@ -3,7 +3,7 @@ echo ===============================================================
 #. sun_java
 echo "Now into qcom a android project ==========mobeeplus reliance customer"
 echo ===============================================================
-cd /media/zhl/second/8939_1_l/msm8939-la-2-1/LINUX/android
+cd /media/zhl/second/code/8976_1_qcom/msm8976/LINUX/android/
 pwd
 function print_usage(){
 echo Usage!!
