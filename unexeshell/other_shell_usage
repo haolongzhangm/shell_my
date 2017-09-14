@@ -87,3 +87,6 @@ use  fallocate to quick create a file
  import ros env
  source /opt/ros/kinetic/setup.bash
  ===================================================================================
+ gdb import .gdbinit command:
+ gdb -iex 'add-auto-load-safe-path .'
+ ===================================================================================
