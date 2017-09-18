@@ -311,7 +311,7 @@ python << EOF
 import vim
 tmp_str = vim.eval("l:comand_args")
 command_str = "call setreg('z', '%s')" %  (tmp_str[:tmp_str.rindex("/")])
-command_str_f = "call setreg('*', '%s')" %  (tmp_str[tmp_str.rindex("/") + 1:])
+command_str_f = "call setreg('*', '%s')" %  (tmp_str)
 vim.command(command_str)
 vim.command(command_str_f)
 EOF
