@@ -44,6 +44,6 @@ if 'null' == system_argc:
     print('ERR HAPPENED!')
     exit
 
-run = 'cd %s' % system_argc
+run = 'gnome-terminal --working-directory=%s' % system_argc
 print(run)
 os.system(run)
