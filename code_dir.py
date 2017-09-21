@@ -3,7 +3,9 @@
 import os.path
 import os
 
+#customer you code dir preifx
 code_dir_prefix = ['/home/zhl/mycode', '/media/zhl/second/code/']
+
 index = 0
 code_dir = {}
 
@@ -17,8 +19,9 @@ for dir_i in code_dir_prefix:
                 code_dir[index] = file_d
 
 if 0 == len(code_dir):
-    print('Can not find dir form code_dir_prefix, pls config it')
+    print('Can not find valid dir form code_dir_prefix, pls config it')
     exit()
+
 print('-------------------------------------------------------')
 print('code inde info:')
 for key in code_dir:
@@ -28,7 +31,11 @@ system_argc = 'null'
 while True:
     try:
         print('please input the valid index number or code dir')
-        choose = raw_input(':>')
+        try:
+            choose = raw_input(':>')
+        except (KeyboardInterrupt, EOFError):
+            print()
+            exit()
         try:
             if code_dir.has_key(int(choose)):
                 system_argc = code_dir[int(choose)]
@@ -37,7 +44,7 @@ while True:
             if choose in code_dir.values():
                 system_argc = choose
                 break
-    except NameError, SyntaxError:
+    except (NameError, SyntaxError):
         continue
 
 if 'null' == system_argc:
