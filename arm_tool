@@ -2,7 +2,7 @@
 echo ========================export arm tools at current dir=======================================
 echo =======================example arm..objdump addr2line etc ====================================
 echo ======================-have to use . or source into include shell env ========================
-. 8939_1_l
+. 8976_1_qcom
 . build/envsetup.sh
 lunch panda01a_msm8952_64-userdebug
 cd -

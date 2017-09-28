@@ -4,7 +4,7 @@ echo ===============================================================
 echo "Now into qcom a android project =====8976 msm proj"
 echo ===============================================================
 echo ===============================================================
-cd /media/zhl/second/8976_1_qcom/msm8976
+cd /media/zhl/second/code/8976_1_qcom/msm8976/LINUX/android
 pwd
 function print_usage(){
 echo Usage!!
