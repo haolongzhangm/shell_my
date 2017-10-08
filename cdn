@@ -2,7 +2,14 @@
 
 if [ $# -eq 0 ]
 then
-	cd
+	echo "Usage:"
+	echo "      source cdn [num]: back to num"
+	echo "      source cdn ["dir"] : back to "dir""
+	echo "      eg: when you at dir:"
+	echo "      /home/zhl/mycode/linux_kernel_learn/drivers/cpufreq"
+	echo "      you can use below command to 'mycode' dir qucikly"
+	echo "      :  source cdn mycode or . cdn 3"
+	exit
 fi
 
 if [ $# -gt 1 ]
@@ -10,11 +17,25 @@ then
 	echo "need only one parm"
 fi
 
-if [ $# -eq 1 ]
+if [[ $1 =~ ^[0-9]+$ ]]
 then
 for loop_i in $(seq 1 $1)
 do
 	echo $loop_i
 	cd ..
 done
+else
+	echo "PWD: $PWD"
+	echo "TODIR: $1"
+	Index=`awk 'BEGIN{print match("'$PWD'","'$1'")}'`
+	echo "Index: $Index"
+	if [[ $Index = 0 ]]
+	then
+		echo "ERR: can not find $1 from $PWD"
+		exit
+	fi
+	tmp=$PWD
+	new_dir="${tmp:0:$Index-1}""$1"
+	echo "Now go to dir: $new_dir"
+	cd $new_dir
 fi
