@@ -208,6 +208,9 @@ nnoremap <C-e> :registers<CR>
 "then use [num] + ctrl + o to jump back
 "or   use [num] + ctrl + i to jump forward
 nnoremap <C-j> :jumps<CR>
+
+"quick delete current buffer
+nmap <C-\>d :bdelete<CR>
 "=========end for command and customer shortcut key============
 
 "=========ADD for add Myusage==================================
@@ -246,6 +249,7 @@ function! Myusage()
 	echo "<C-\\>g     :EchoFunc:show next func"
 	echo "<C-\\>o     :EchoFunc:show prev func"
 	echo "<C-\\>t     :tselect func                        "
+	echo "<C-\\>d     :bdelete current buffer              "
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
