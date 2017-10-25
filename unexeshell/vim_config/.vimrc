@@ -8,7 +8,7 @@ set completeopt=preview,menu
 set completeopt=longest,menu
 set autoindent
 set smartindent
-
+au BufNewFile,BufRead *.cu set filetype=cpp
 "===================add for codestyle switch=====================
 function! LinuxCodestyle()
 	set tabstop=8
