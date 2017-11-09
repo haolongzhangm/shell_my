@@ -1,0 +1,12 @@
+[user]
+	email = haolong.zhang@ck-telecom.com
+	name = haolong.zhang
+[core]
+	editor = vim
+	excludesfile = ~/.gitignore_global
+[http]
+[https]
+[http]
+[https]
+[color]
+	ui = auto
