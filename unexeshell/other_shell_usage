@@ -90,3 +90,6 @@ use  fallocate to quick create a file
  gdb import .gdbinit command:
  gdb -iex 'add-auto-load-safe-path .'
  ===================================================================================
+ python tab:
+ import readline, rlcompleter; readline.parse_and_bind("tab: complete")
+ ===================================================================================

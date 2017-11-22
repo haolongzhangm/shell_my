@@ -4,7 +4,7 @@ import os
 import sys
 import getpass
 
-share_dir = "~/desktop/tmp_file/"
+share_dir = "~/Desktop/tmp_file/"
 
 def usage():
     print("cp_to_share.py xx xx xx")
