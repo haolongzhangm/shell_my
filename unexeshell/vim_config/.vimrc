@@ -9,15 +9,18 @@ set completeopt=longest,menu
 set autoindent
 set smartindent
 au BufNewFile,BufRead *.cu set filetype=cpp
+au BufNewFile,BufRead *.opencl set filetype=cpp
 "===================add for codestyle switch=====================
 function! LinuxCodestyle()
 	set tabstop=8
 	set shiftwidth=8
+	set noexpandtab
 endfunction
 
 function! GoogleCodestyle()
-	set tabstop=4
-	set shiftwidth=4
+	set tabstop=2
+	set shiftwidth=2
+	set expandtab
 endfunction
 autocmd BufNewFile,BufRead *.c call LinuxCodestyle()
 autocmd BufNewFile,BufRead *.cpp call GoogleCodestyle()
@@ -26,6 +29,9 @@ autocmd BufNewFile,BufRead *.c++ call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.java call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.aidl call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.mk call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.cu call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.hpp call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.opencl call GoogleCodestyle()
 "===================end add for codestyle switch==================
 set hlsearch incsearch ignorecase
 if has("gui_running")
