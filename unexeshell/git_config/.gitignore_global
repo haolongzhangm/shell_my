@@ -4,3 +4,4 @@ cscope.out
 cscope.out.in
 cscope.out.po
 *.swp
+.auto_cscope_ctags
