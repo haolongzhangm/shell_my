@@ -93,7 +93,9 @@ alias v=vim
 alias V=vim
 alias gvim='LANG=EN gvim'
 alias mysource=source
-source ~/.git-completion.bash
+alias cdf='cd $(find . -type d| pick)'
+alias cdn='source cdn'
+#source ~/.git-completion.bash
 #add for t32
 export T32SYS=/opt/t32
 export T32TMP=/tmp
@@ -101,6 +103,7 @@ export T32ID=T32
 export ADOBE_PATH=/usr/bin/evince
 export PATH=$PATH:/opt/t32/bin/pc_linux64
 export T32PDFVIEWER=/opt/t32/bin/pc_linux64/t32_startpdfviewer.sh
+export NDK_ROOT=/media/zhl/second/code/android-ndk-r14b
 #enable and config ccache
 #use command config: ./prebuilts/misc/linux-x86/ccache/ccache -M 50G
 #also command config: ccache -M 50G

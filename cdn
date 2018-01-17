@@ -1,17 +1,5 @@
 #!/bin/bash
 
-if [ $# -eq 0 ]
-then
-	echo "Usage:"
-	echo "      source cdn [num]: back to num"
-	echo "      source cdn ["dir"] : back to "dir""
-	echo "      eg: when you at dir:"
-	echo "      /home/zhl/mycode/linux_kernel_learn/drivers/cpufreq"
-	echo "      you can use below command to 'mycode' dir qucikly"
-	echo "      :  source cdn mycode or . cdn 3"
-	exit
-fi
-
 if [ $# -gt 1 ]
 then
 	echo "need only one parm"
@@ -26,16 +14,27 @@ do
 done
 else
 	echo "PWD: $PWD"
-	echo "TODIR: $1"
-	Index=`awk 'BEGIN{print match("'$PWD'","'$1'")}'`
-	echo "Index: $Index"
-	if [[ $Index = 0 ]]
+	if [ $# -eq 0 ]
 	then
-		echo "ERR: can not find $1 from $PWD"
-		exit
+		echo "Usage:"
+		echo "      step one: add alias cdf='source cdf' into /etc/bash.bashrc"
+		echo "      cdn [num]: back to num"
+		echo "      cdn ["dir"] : back to "dir""
+		echo "      eg: when you at dir:"
+		echo "      /home/zhl/mycode/linux_kernel_learn/drivers/cpufreq"
+		echo "      you can use below command to 'mycode' dir qucikly"
+		echo "      :cdn mycode or . cdn 3"
+	else
+		echo "TODIR: $1"
+		Index=`awk 'BEGIN{print match("'$PWD'","'$1'")}'`
+		echo "Index: $Index"
+		if [[ $Index = 0 ]]
+		then
+			echo "ERR: can not find $1 from $PWD"
+		fi
+		tmp=$PWD
+		new_dir="${tmp:0:$Index-1}""$1"
+		echo "Now go to dir: $new_dir"
+		cd $new_dir
 	fi
-	tmp=$PWD
-	new_dir="${tmp:0:$Index-1}""$1"
-	echo "Now go to dir: $new_dir"
-	cd $new_dir
 fi
