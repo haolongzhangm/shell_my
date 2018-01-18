@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 import os
+import sys
 
+if 2 != len(sys.argv):
+    print('need a param, device sn')
+    exit()
+
+sn = sys.argv[1]
 tuner_bin = ['clblast_tuner_copy_fast', 'clblast_tuner_copy_pad', 'clblast_tuner_invert',
         'clblast_tuner_routine_xgemm', 'clblast_tuner_routine_xtrsv',
         'clblast_tuner_transpose_fast', 'clblast_tuner_transpose_pad',
@@ -8,17 +14,18 @@ tuner_bin = ['clblast_tuner_copy_fast', 'clblast_tuner_copy_pad', 'clblast_tuner
         'clblast_tuner_xgemm', 'clblast_tuner_xgemm_direct',
         'clblast_tuner_xgemv', 'clblast_tuner_xger']
 
-os.system('adb wait-for-devices')
-os.system('adb root')
-os.system('adb remount')
-os.system('adb shell stop thermal-engine')
-os.system('adb shell mkdir sdcard/tuner_jason')
-os.system('adb shell rm sdcard/tuner_jason/*.json')
+print("wait for devices")
+os.system('adb -s %s wait-for-devices' % sn)
+os.system('adb -s %s root' % sn)
+os.system('adb -s %s remount' % sn)
+os.system('adb -s %s shell stop thermal-engine' % sn)
+os.system('adb -s %s shell mkdir sdcard/tuner_jason' % sn)
+os.system('adb -s %s shell rm sdcard/tuner_jason/*.json' % sn)
 
 for i in tuner_bin:
-    run_cmd = "adb shell \'cd sdcard/tuner_jason ; pwd; %s\'" % (i)
+    run_cmd = "adb -s %s shell \'cd sdcard/tuner_jason ; pwd; %s\'" % (sn, i)
     print(run_cmd)
     os.system(run_cmd)
 
 os.system('mkdir tmp_result')
-os.system('adb pull sdcard/tuner_jason/ tmp_result/')
+os.system('adb -s %s pull sdcard/tuner_jason/ tmp_result/' % sn)
