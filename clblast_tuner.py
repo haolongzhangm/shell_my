@@ -28,5 +28,6 @@ for i in tuner_bin:
     print(run_cmd)
     os.system(run_cmd)
 
-os.system('mkdir tmp_result')
-os.system('adb -s %s pull sdcard/tuner_jason/ tmp_result/' % sn)
+out_dir = 'tuner_result_for_%s' % sn
+os.system('mkdir %s' % out_dir)
+os.system('adb -s %s pull sdcard/tuner_jason/ %s/' % (sn, out_dir))
