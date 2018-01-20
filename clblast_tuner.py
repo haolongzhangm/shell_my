@@ -4,6 +4,7 @@ import sys
 
 if 2 != len(sys.argv):
     print('need a param, device sn')
+    os.system('adb devices')
     exit()
 
 sn = sys.argv[1]
