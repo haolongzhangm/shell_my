@@ -22,6 +22,8 @@ os.system('adb -s %s remount' % sn)
 os.system('adb -s %s shell stop thermal-engine' % sn)
 os.system('adb -s %s shell mkdir sdcard/tuner_jason' % sn)
 os.system('adb -s %s shell rm sdcard/tuner_jason/*.json' % sn)
+print("DO PRECHECK FIRSTLY")
+os.system('adb -s %s shell cl_precheck' % sn)
 
 for i in tuner_bin:
     run_cmd = "adb -s %s shell \'cd sdcard/tuner_jason ; pwd; %s\'" % (sn, i)
