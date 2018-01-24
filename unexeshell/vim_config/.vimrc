@@ -32,6 +32,7 @@ autocmd BufNewFile,BufRead *.mk call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.cu call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.hpp call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.opencl call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.vim call GoogleCodestyle()
 "===================end add for codestyle switch==================
 set hlsearch incsearch ignorecase
 if has("gui_running")
