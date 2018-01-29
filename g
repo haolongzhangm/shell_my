@@ -1,2 +1,3 @@
 #!/bin/sh
-git log --author=haolong.zhang --stat
+git branch
+git status
