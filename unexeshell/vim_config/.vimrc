@@ -317,11 +317,20 @@ function! ShowcommadT()
 	"use plug commandt buildin-func commandt#FileFinder
 	"call commandt#FileFinder(l:command_args_pwd)
 	echo 'CUR: ' . l:command_args_pwd
+	let l:project_dir = 'null'
+	if cscope_connection() > 0
+		echo 'ITE: ' . g:csdbpath
+		let l:project_dir = g:csdbpath
+	endif
 if has('python') || has('python3')
 python << EOF
 import vim
 tmp_str = vim.eval("l:comand_args")
-command_str = "call setreg('z', '%s')" %  (tmp_str[:tmp_str.rindex("/")])
+project_dir = vim.eval("l:project_dir")
+if project_dir == 'null':
+	command_str = "call setreg('z', '%s')" %  (tmp_str[:tmp_str.rindex("/")])
+else:
+	command_str = "call setreg('z', '%s')" %  (project_dir)
 command_str_f = "call setreg('*', '%s')" %  (tmp_str)
 vim.command(command_str)
 vim.command(command_str_f)
