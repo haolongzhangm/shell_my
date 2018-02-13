@@ -3,6 +3,7 @@ import os
 import time
 import getopt
 import sys
+import platform
 
 #haolong.zhang v0.1 2018.2
 def customer_do_something():
@@ -64,23 +65,31 @@ def get_file_type(may_push_file):
 
     elf_mode = 'null'
     elf_type = 'null'
-    with open(may_push_file, 'rb') as f:
-        #get elf bit code
-        b = f.read(24).encode('hex')
-        if '7f454c460201010000000000000000000300b70001000000' == b:
+    if platform.system() == 'Linux':
+        tmp = os.popen('file %s' % may_push_file).read()
+        if tmp.find('ELF 64-bit LSB') >= 0:
             elf_mode = 'arm64'
-        elif '7f454c460101010000000000000000000300280001000000' == b:
+        elif tmp.find('ELF 32-bit LSB') >= 0:
             elf_mode = 'arm'
 
-        if elf_mode != 'null':
-            index = may_push_file.rfind('.')
-            if index >= 0:
-                if may_push_file[index+1:] == 'so':
-                    elf_type = 'so'
-                else:
-                    elf_type = 'bin'
+    else:
+        with open(may_push_file, 'rb') as f:
+            #get elf bit code
+            b = f.read(24).encode('hex')
+            if '7f454c460201010000000000000000000300b70001000000' == b:
+                elf_mode = 'arm64'
+            elif '7f454c460101010000000000000000000300280001000000' == b:
+                elf_mode = 'arm'
+
+    if elf_mode != 'null':
+        index = may_push_file.rfind('.')
+        if index >= 0:
+            if may_push_file[index+1:] == 'so':
+                elf_type = 'so'
             else:
                 elf_type = 'bin'
+        else:
+            elf_type = 'bin'
 
     file_type = elf_mode + '_' +elf_type
     return file_type
