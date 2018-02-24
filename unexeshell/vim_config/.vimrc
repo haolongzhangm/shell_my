@@ -10,6 +10,7 @@ set autoindent
 set smartindent
 au BufNewFile,BufRead *.cu set filetype=cpp
 au BufNewFile,BufRead *.opencl set filetype=cpp
+au BufNewFile,BufRead *.cl set filetype=cpp
 "===================add for codestyle switch=====================
 function! LinuxCodestyle()
 	set tabstop=8
@@ -420,7 +421,7 @@ let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
 "========end for echofunc.vim===================================
 "========add for auto update cscope ctags log ==================
-let g:Auto_update_cscope_ctags_debug_log = 0
-let g:auto_run_function_when_cscope_connect = 1
+let g:Auto_update_cscope_ctags_debug_log = 1
+let g:auto_run_function_when_cscope_connect = 0
 let g:check_update_when_first_load_vim = 1
 "========end for auto update cscope ctags log ==================
