@@ -65,16 +65,16 @@ nnoremap <C-a> :let Tlist_WinWidth=43
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'VundleVim/Vundle.Vim'
-Plugin 'tpope/vim-fugitive'
-Plugin 'L9'
+"Plugin 'tpope/vim-fugitive'
+"Plugin 'L9'
 Plugin 'wincent/command-t'
-Plugin 'file:///home/gmarik/path/to/plugin'
-Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+"Plugin 'file:///home/gmarik/path/to/plugin'
+"Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 Bundle 'Valloric/ListToggle'
-Bundle 'scrooloose/syntastic'
+"Bundle 'scrooloose/syntastic'
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'scrooloose/nerdtree'
-Bundle 'hari-rangarajan/CCTree'
+"Bundle 'hari-rangarajan/CCTree'
 Bundle 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Bundle 'haolongzhangm/auto_update_cscope_ctags_database'
 "Bundle 'kien/ctrlp.vim'
