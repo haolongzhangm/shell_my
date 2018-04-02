@@ -323,8 +323,8 @@ function! ShowcommadT()
 		echo 'ITE: ' . g:csdbpath
 		let l:project_dir = g:csdbpath
 	endif
-if has('python') || has('python3')
-python << EOF
+if has('pythonx')
+pyx << EOF
 import vim
 tmp_str = vim.eval("l:comand_args")
 project_dir = vim.eval("l:project_dir")
