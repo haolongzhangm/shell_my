@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#coding=utf-8
 
 #v0.1 20180404 zhl
 
@@ -11,13 +12,16 @@ import multiprocessing
 from multiprocessing import Process, Manager, cpu_count
 
 #config
-convert_imageset_command_head = 'export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH; ./convert_imageset '
-valid_txt_tag = 'sub_database.txt'
-summary_log_file_head = 'out/summary_log'
 resize_h = 224
 resize_w = 224
 shuffle = True
 batch_fusion = True
+category = {'食物':0, '夜景':1, '人':3, '其他':4}
+support_picture = ['.jpg', '.jpeg', '.png', '.bmp']
+
+convert_imageset_command_head = 'export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH; ./convert_imageset '
+valid_txt_tag = 'sub_database.txt'
+summary_log_file_head = 'out/summary_log'
 #end config
 
 def check_args_and_env():
@@ -37,12 +41,64 @@ def check_args_and_env():
 def get_lmdb_name(t):
     return t.replace('.', '_').replace('/', '_') + '_lmdb'
 
+def get_category_id(m):
+    ret = category['其他']
+    for i in m:
+        try:
+            ret = category[i]
+            break
+        except KeyError:
+            continue
+
+    return ret
+
+def update_valid_txt_tag_fn(command):
+    need_update_dir = command[0]
+    lock = command[1]
+    i = command[2]
+
+    pid = os.getpid()
+    need_update = False
+    lmdb_path_data = i + get_lmdb_name(i) + '/data.mdb'
+    if not os.path.isfile(lmdb_path_data):
+        need_update = True
+    else:
+        newer_command = 'find %s -newer %s' % (i, lmdb_path_data)
+        #print(newer_command)
+        t = os.popen(newer_command).read().split('\n')
+        for u in t:
+            if len(u) > 0 and u.find('lock.mdb') < 0:
+                need_update = True
+                break
+
+    #update valid_txt_tag
+    if need_update:
+        lock.acquire()
+        need_update_dir.append(i)
+        lock.release()
+
+        split_path = i.split('/')
+        category = get_category_id(split_path)
+        with open(i+valid_txt_tag, 'r+') as tag:
+            for t in support_picture:
+                find_command = 'find %s -name *%s' % (i, t)
+                pic_list = os.popen(find_command).read().split('\n')
+                for p in pic_list:
+                    if len(p) > len(i):
+                        line = '%s %d' % (p[len(i):],  category)
+                        #print(line)
+                        tag.write(line)
+                        tag.write('\n')
+
+    print('[update valid_txt_tag at pwd %s [need_update:%s] Thread ID %d FINISH' % (i, need_update, need_update))
+
 def find_handle_subdir():
     global sub_dir
     sub_dir = []
-    need_update_dir = []
     r_index = len(valid_txt_tag)
     #Use linux find command to speed
+    #if database support git, may imp
+    #speed version base on git diff
     find_command = 'find %s -name %s' % (sys.argv[1], valid_txt_tag)
     t = os.popen(find_command).read().split('\n')
 
@@ -55,25 +111,19 @@ def find_handle_subdir():
         print('may caused by invaild args')
         exit(-1)
 
+    multiprocessing_number = cpu_count() * 2
+    task_pool = multiprocessing.Pool(processes=multiprocessing_number)
+    task_pool_args = []
+    manager = Manager()
+    lock = manager.Lock()
+    need_update_dir = manager.list()
     for i in sub_dir:
-        need_update = False
-        lmdb_path_data = i + get_lmdb_name(i) + '/data.mdb'
-        if not os.path.isfile(lmdb_path_data):
-            need_update = True
-        else:
-            newer_command = 'find %s -newer %s' % (i, lmdb_path_data)
-            #print(newer_command)
-            t = os.popen(newer_command).read().split('\n')
-            for u in t:
-                if len(u) > 0 and u.find('lock.mdb') < 0:
-                    need_update = True
-                    break
+        args = (need_update_dir, lock, i)
+        task_pool_args.append(args)
 
-        if need_update:
-            print('FIND NEED UPDATE DIR: %s' % i)
-            need_update_dir.append(i)
-        else:
-            print('NO NEED update DIR: %s' % i)
+    task_pool.map(update_valid_txt_tag_fn, task_pool_args)
+    task_pool.close()
+    task_pool.join()
 
     return need_update_dir
 
@@ -89,7 +139,7 @@ def write_log(str, file):
         f.write(str)
         f.write('\n')
 
-def multiprocessing_fn(command):
+def update_lmdb_fn(command):
     pid = os.getpid()
     os.system(command[0])
     ret = os.popen(command[1]).read().split('\n')
@@ -97,7 +147,7 @@ def multiprocessing_fn(command):
         if i.find('Could not open or find file') >=0:
             print('Err handle file: %s' % i)
             write_log_with_lock(i, log_file, command[2])
-    print('Thread ID %d FINISH' % pid)
+    print('[update sublmdb]Thread ID %d FINISH' % pid)
 
 def update_subdir_lmdb(d):
     global log_file
@@ -112,7 +162,7 @@ def update_subdir_lmdb(d):
     manager = Manager()
     lock = manager.Lock()
     for t in d:
-        print("Now update subdir lmdb%s" % t)
+        print("Now update subdir lmdb %s" % t)
         subdir_lmdb_command_b = '%s --resize_height=%d --resize_width=%d' \
                 % (convert_imageset_command_head, resize_h, resize_w)
         if shuffle:
@@ -128,7 +178,7 @@ def update_subdir_lmdb(d):
         task_pool_args.append(args)
         updated_lmdb.append(t+get_lmdb_name(t))
 
-    task_pool.map(multiprocessing_fn, task_pool_args)
+    task_pool.map(update_lmdb_fn, task_pool_args)
     task_pool.close()
     task_pool.join()
 
@@ -159,6 +209,7 @@ def do_fusion(t):
             else:
                 for (key, value) in t_i:
                     new_database.put(key, value)
+            env_i.close()
 
         total_lmdb_t_e.commit()
         total_lmdb_t.close()
