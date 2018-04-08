@@ -17,11 +17,13 @@ resize_w = 224
 shuffle = True
 batch_fusion = True
 category = {'食物':0, '夜景':1, '人':3, '其他':4}
-support_picture = ['.jpg', '.jpeg', '.png', '.bmp']
+support_picture = ['.jpg', '.jpeg', '.png', '.bmp', '.JPG']
 
 convert_imageset_command_head = 'export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH; ./convert_imageset '
 valid_txt_tag = 'sub_database.txt'
 summary_log_file_head = 'out/summary_log'
+#Process pool numbers = cpu_count * process_multiple
+process_multiple = 2
 #end config
 
 def check_args_and_env():
@@ -40,6 +42,18 @@ def check_args_and_env():
 
 def get_lmdb_name(t):
     return t.replace('.', '_').replace('/', '_') + '_lmdb'
+
+def check_convert_imageset_command():
+    cmd = convert_imageset_command_head + ' 2>&1'
+    t = os.popen(cmd).read()
+    if t.find('error while loading shared') >= 0:
+        print('convert_imageset command env check failed!')
+        print('ERR detail:')
+        print(t)
+        print('possible solution:')
+        print('1:read caffe_src/docs/install_apt.md apt-get install')
+        print('2:build caffe at u env, then put convert_imageset and libcaffe.so.1.0.0 to here')
+        exit(-1)
 
 def get_category_id(m):
     ret = category['其他']
@@ -79,7 +93,7 @@ def update_valid_txt_tag_fn(command):
 
         split_path = i.split('/')
         category = get_category_id(split_path)
-        with open(i+valid_txt_tag, 'r+') as tag:
+        with open(i+valid_txt_tag, 'w') as tag:
             for t in support_picture:
                 find_command = 'find %s -name *%s' % (i, t)
                 pic_list = os.popen(find_command).read().split('\n')
@@ -90,7 +104,7 @@ def update_valid_txt_tag_fn(command):
                         tag.write(line)
                         tag.write('\n')
 
-    print('[update valid_txt_tag at pwd %s [need_update:%s] Thread ID %d FINISH' % (i, need_update, need_update))
+    print('[update valid_txt_tag at pwd %s ][need_update:%s] Thread ID %d FINISH' % (i, need_update, pid))
 
 def find_handle_subdir():
     global sub_dir
@@ -111,7 +125,8 @@ def find_handle_subdir():
         print('may caused by invaild args')
         exit(-1)
 
-    multiprocessing_number = cpu_count() * 2
+    multiprocessing_number = cpu_count() * process_multiple
+    print('handle with max %d Process' % multiprocessing_number)
     task_pool = multiprocessing.Pool(processes=multiprocessing_number)
     task_pool_args = []
     manager = Manager()
@@ -139,15 +154,27 @@ def write_log(str, file):
         f.write(str)
         f.write('\n')
 
+def show_message(per, title):
+    t = time.strftime('%Y-%m-%d-%H:%M:%S',time.localtime(time.time()))
+    print('[%3d/100][%s][%s]' % (per, t, title))
+
 def update_lmdb_fn(command):
     pid = os.getpid()
     os.system(command[0])
     ret = os.popen(command[1]).read().split('\n')
+    lock = command[2]
+    total_size = command[3]
+    loop = command[4]
     for i in ret:
         if i.find('Could not open or find file') >=0:
             print('Err handle file: %s' % i)
-            write_log_with_lock(i, log_file, command[2])
-    print('[update sublmdb]Thread ID %d FINISH' % pid)
+            write_log_with_lock(i, log_file, lock)
+
+    lock.acquire()
+    loop['count'] = loop['count'] + 1
+    lock.release()
+    message = 'update sublmdb Thread ID %d FINISH' % pid
+    show_message(float(loop['count'])/total_size*100, message)
 
 def update_subdir_lmdb(d):
     global log_file
@@ -156,11 +183,14 @@ def update_subdir_lmdb(d):
         print('NO update find! skip')
         return False
 
-    multiprocessing_number = cpu_count() * 2
+    multiprocessing_number = cpu_count() * process_multiple
+    print('handle with max %d Process' % multiprocessing_number)
     task_pool = multiprocessing.Pool(processes=multiprocessing_number)
     task_pool_args = []
     manager = Manager()
     lock = manager.Lock()
+    share_d = manager.dict()
+    share_d['count'] = 0
     for t in d:
         print("Now update subdir lmdb %s" % t)
         subdir_lmdb_command_b = '%s --resize_height=%d --resize_width=%d' \
@@ -174,7 +204,7 @@ def update_subdir_lmdb(d):
         subdir_lmdb_command_b = subdir_lmdb_command_b + '2>&1' + ' '
         #print(subdir_lmdb_command_b)
         rm_old_lmdb_command = 'rm -rf %s' % (t + get_lmdb_name(t))
-        args = (rm_old_lmdb_command, subdir_lmdb_command_b, lock)
+        args = (rm_old_lmdb_command, subdir_lmdb_command_b, lock, len(d), share_d)
         task_pool_args.append(args)
         updated_lmdb.append(t+get_lmdb_name(t))
 
@@ -199,8 +229,8 @@ def do_fusion(t):
         loop = 0
         for i in sub_dir:
             loop = loop + 1
-            t = time.strftime('%Y-%m-%d-%H:%M:%S',time.localtime(time.time()))
-            print('[%3d/100] [%s] fusion subdir: %s' % (float(loop)/size*100, t, i+get_lmdb_name(i)))
+            message = 'fusion subdir:' + i+get_lmdb_name(i)
+            show_message(float(loop)/size*100, message)
             env_i = lmdb.open(i + get_lmdb_name(i))
             t_n = env_i.begin()
             t_i = t_n.cursor()
@@ -242,6 +272,7 @@ def commit_update_subdir_log(t):
         write_log(i, log_file)
 
 check_args_and_env()
+check_convert_imageset_command()
 create_log_file()
 handle_dir = find_handle_subdir()
 t = update_subdir_lmdb(handle_dir)
