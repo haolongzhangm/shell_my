@@ -95,7 +95,7 @@ def update_valid_txt_tag_fn(command):
         category = get_category_id(split_path)
         with open(i+valid_txt_tag, 'w') as tag:
             for t in support_picture:
-                find_command = 'find %s -name *%s' % (i, t)
+                find_command = 'find %s -name *"%s"' % (i, t)
                 pic_list = os.popen(find_command).read().split('\n')
                 for p in pic_list:
                     if len(p) > len(i):
