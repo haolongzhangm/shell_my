@@ -39,6 +39,7 @@ set hlsearch incsearch ignorecase
 if has("gui_running")
 colorscheme industry
 endif
+nmap <F3> :!goldendict <C-R>=expand("<cword>")<CR><CR>
 "==================end for vim misc==============================
 
 "==========for TlistToggle and Nerdtree==========================
@@ -47,7 +48,7 @@ let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Auto_Open = 1
 map <F9> :NERDTreeMirror<CR>
 map <F9> :NERDTreeToggle<CR>
-nn <silent><F3> :exec("NERDTree ".expand('%:h'))<CR>
+"nn <silent><F3> :exec("NERDTree ".expand('%:h'))<CR>
 let NERDTreeWinPos='right'
 set nocompatible              " be iMproved, required
 filetype off                  " required
@@ -234,7 +235,8 @@ function! Myusage()
 	echo ".          : jump to cursor locateion Fuc name  "
 	echo "f/F        : just show cursor  locateion Func name"
 	echo "F2         :cscope:Find this file                "
-	echo "F3/F9      : NERDTree,F3 buffer file,F9 PWD file"
+	echo "F3         :goldendict words[need install goldendict]"
+	echo "F9         :NERDTree PWD file"
 	echo "F4         :TlistToggle                         "
 	echo "F5         :cscope:Find functions calling this function"
 	echo "F6         :cscope:Find this C symbol           "
