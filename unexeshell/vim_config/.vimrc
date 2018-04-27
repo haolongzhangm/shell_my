@@ -129,6 +129,7 @@ function! YouCompleteMe_Start_Or_Stop()
 	endif
 endfunction
 nnoremap <F12> :YouCompleteMeStartOrStop<CR>
+nmap <C-\>r :YcmCompleter GoToDefinition<CR><CR>
 "======================end for YouCompleteMe config============
 
 "===============for cscope and ctags===========================
@@ -259,6 +260,7 @@ function! Myusage()
 	echo "<C-\\>g     :EchoFunc:show next func"
 	echo "<C-\\>o     :EchoFunc:show prev func"
 	echo "<C-\\>t     :tselect func                        "
+	echo "<C-\\>r     :YcmCompleter GoToDefinition                        "
 	echo "<C-\\>d     :bdelete current buffer              "
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 let g:EchoFuncKeyNext='<C-\>g'
