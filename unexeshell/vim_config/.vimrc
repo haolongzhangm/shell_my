@@ -129,7 +129,7 @@ function! YouCompleteMe_Start_Or_Stop()
 	endif
 endfunction
 nnoremap <F12> :YouCompleteMeStartOrStop<CR>
-nmap <C-\>r :YcmCompleter GoToDefinition<CR><CR>
+nmap <C-\>r :YcmCompleter GoToDefinition<CR>
 "======================end for YouCompleteMe config============
 
 "===============for cscope and ctags===========================
