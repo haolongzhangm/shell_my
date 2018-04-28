@@ -155,7 +155,7 @@ set fileencodings=utf-8,gbk
 set showmatch
 "add for vim { < ( match
 "inoremap ) <c-r>=ClosePair(')')<CR>
-inoremap { {<CR>}<ESC> k k $
+inoremap { {<CR>}<ESC>O
 ""inoremap } <c-r>=ClosePair('}')<CR>
 ""inoremap [ []<ESC>i
 ""inoremap ] <c-r>=ClosePair(']')<CR>
