@@ -143,7 +143,7 @@ nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
 nmap <C-u> :tnext<CR><CR>f
 nmap <C-y> :tprevious<CR><CR>f
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
-nmap <C-p> :tselect <C-R>=expand("<cword>")<CR><CR>
+nmap <C-p> :tjump <C-R>=expand("<cword>")<CR><CR>
 "===============end cscope and ctags===========================
 
 "=========== add this for chinese==============================
@@ -248,7 +248,7 @@ function! Myusage()
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/Vgallfile "
 	echo "<C-f>      :buffers list                        "
-	echo "<c-p>      :tselect func                        "
+	echo "<c-p>      :tjump func                        "
 	echo "<C-d>      :show Myusage()                      "
 	echo "<C-h>      :show CommandT                       "
 	echo "<C-\\>p     :SrcExpl_prevDefKey                  "
