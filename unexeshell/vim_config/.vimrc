@@ -143,7 +143,7 @@ nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
 nmap <C-u> :tnext<CR><CR>f
 nmap <C-y> :tprevious<CR><CR>f
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
-nmap <C-\>t :tselect <C-R>=expand("<cword>")<CR><CR>
+nmap <C-p> :tselect <C-R>=expand("<cword>")<CR><CR>
 "===============end cscope and ctags===========================
 
 "=========== add this for chinese==============================
@@ -201,7 +201,7 @@ nnoremap <C-f> :buffers<CR>:b<Space>
 
 "for cscope quick reset
 "auto update cscope datebase by command auto_updatecscope
-map <c-p> :Manualupdatedatabaseonetime<CR>
+map <c-\>t :Manualupdatedatabaseonetime<CR>
 
 "quick for marks show ,then use ' + [num] to jump
 nnoremap <C-b> :marks<CR>g
@@ -248,7 +248,7 @@ function! Myusage()
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/Vgallfile "
 	echo "<C-f>      :buffers list                        "
-	echo "<c-p>      :Manualupdatedatabaseonetime                        "
+	echo "<c-p>      :tselect func                        "
 	echo "<C-d>      :show Myusage()                      "
 	echo "<C-h>      :show CommandT                       "
 	echo "<C-\\>p     :SrcExpl_prevDefKey                  "
@@ -259,7 +259,7 @@ function! Myusage()
 	echo "<C-\\>a     :cscope:Find where this symbol is assigned a value"
 	echo "<C-\\>g     :EchoFunc:show next func"
 	echo "<C-\\>o     :EchoFunc:show prev func"
-	echo "<C-\\>t     :tselect func                        "
+	echo "<C-\\>t     :Manualupdatedatabaseonetime                        "
 	echo "<C-\\>r     :YcmCompleter GoToDefinition                        "
 	echo "<C-\\>d     :bdelete current buffer              "
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
