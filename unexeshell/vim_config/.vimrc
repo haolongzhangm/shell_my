@@ -260,6 +260,7 @@ function! Myusage()
 	echo "<C-\\>g     :EchoFunc:show next func"
 	echo "<C-\\>o     :EchoFunc:show prev func"
 	echo "<C-\\>t     :Manualupdatedatabaseonetime                        "
+	echo "<C-\\>f     :CommandTBuffer"
 	echo "<C-\\>r     :YcmCompleter GoToDefinition                        "
 	echo "<C-\\>d     :bdelete current buffer              "
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
@@ -347,6 +348,7 @@ endif
 endfunction
 
 nnoremap <C-h> :call ShowcommadT()<CR>:CommandT <C-r>z
+map <c-\>f :CommandTBuffer<CR>
 "==================end for command-t=============================
 
 "==================add for quick show func by enter 'f'==========
