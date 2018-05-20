@@ -7,11 +7,14 @@ fi
 
 if [[ $1 =~ ^[0-9]+$ ]]
 then
+	back_to="./"
 for loop_i in $(seq 1 $1)
 do
 	echo $loop_i
-	cd ..
+	back_to=${back_to}"../"
 done
+	echo ${back_to}
+	cd ${back_to}
 else
 	echo "PWD: $PWD"
 	if [ $# -eq 0 ]
