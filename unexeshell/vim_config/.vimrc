@@ -1,6 +1,6 @@
 " below add by haolong.zhang test 20140819
 "===================misc for vim=================================
-"set nu
+set nu
 set relativenumber
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
 syntax on
