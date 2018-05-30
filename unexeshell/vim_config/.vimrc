@@ -233,9 +233,11 @@ function! Myusage()
 	echo "registers  : <C-e> :  \"+ [register] + p        "
 	echo "jumps      : <C-j> : [num] + ctrl + o <<back    "
 	echo "                   : [num] + ctrl + i <<forward "
-	echo ",          : jump to cursor localtion Fuc call Fuc"
-	echo ".          : jump to cursor locateion Fuc name  "
-	echo "f/F        : just show cursor  locateion Func name"
+	echo ",/;          : repeat do f/F(find command)<vim default>"
+	echo ".          : repeat do the last command of Normal model<vim default>"
+	echo "<C-\\>,	 : jump to cursor localtion Fuc call Fuc"
+	echo "<C-\\>.	 : jump to cursor locateion Fuc name  "
+	echo "f/F        : find w in line <vim default>"
 	echo "F2         :cscope:Find this file                "
 	echo "F3         :goldendict words[need install goldendict]"
 	echo "F9         :NERDTree PWD file"
@@ -261,7 +263,8 @@ function! Myusage()
 	echo "<C-\\>g     :EchoFunc:show next func"
 	echo "<C-\\>o     :EchoFunc:show prev func"
 	echo "<C-\\>t     :Manualupdatedatabaseonetime                        "
-	echo "<C-\\>f     :CommandTBuffer"
+	echo "<C-\\>f/F     :CommandTBuffer"
+	echo "<C-\\>v/V     :show function name"
 	echo "<C-\\>r     :YcmCompleter GoToDefinition                        "
 	echo "<C-\\>d     :bdelete current buffer              "
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
@@ -350,6 +353,7 @@ endfunction
 
 nnoremap <C-h> :call ShowcommadT()<CR>:CommandT <C-r>z
 map <c-\>f :CommandTBuffer<CR>
+map <c-\>F :CommandTBuffer<CR>
 "==================end for command-t=============================
 
 "==================add for quick show func by enter 'f'==========
@@ -362,8 +366,8 @@ function! ShowFuncName()
 	call search("\\%" . lnum . "l" . "\\%" . col . "c")
 endfunction
 
-map f :call ShowFuncName() <CR>
-map F :call ShowFuncName() <CR>
+map <c-\>v :call ShowFuncName() <CR>
+map <c-\>V :call ShowFuncName() <CR>
 
 function! Map_to_func_head_python_style()
 	map , [[w<F5>
@@ -371,8 +375,8 @@ function! Map_to_func_head_python_style()
 endfunction
 
 function! Map_to_func_head_c_style()
-	map , :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F5>
-	map . :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
+	map <c-\>, :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F5>
+	map <c-\>. :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
 endfunction
 
 autocmd BufNewFile,BufRead *.c call Map_to_func_head_c_style()
