@@ -1,6 +1,7 @@
 " below add by haolong.zhang test 20140819
 "===================misc for vim=================================
-set nu
+"set nu
+set relativenumber
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
 syntax on
 set nocp
@@ -194,7 +195,7 @@ noremap <C-K> :Vgthisfile <C-R>=expand("<cword>")<CR><CR>
 noremap <C-l> :Vgallfile <C-R>=expand("<cword>")<CR><CR>
 command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
-noremap y "+y
+"noremap y "+y
 noremap Y "+Y
 "map C-f to show buffers
 nnoremap <C-f> :buffers<CR>:b<Space>
