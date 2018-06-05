@@ -141,8 +141,8 @@ nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
 "nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR> "use vim defaule
 "ctrl+]to find define tag
 nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
-nmap <C-u> :tnext<CR><CR>f
-nmap <C-y> :tprevious<CR><CR>f
+nmap <C-u> :tnext<CR><CR>:call ShowFuncName() <CR>
+nmap <C-y> :tprevious<CR><CR>:call ShowFuncName() <CR>
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
 nmap <C-p> :tjump <C-R>=expand("<cword>")<CR><CR>
 "===============end cscope and ctags===========================
@@ -196,7 +196,7 @@ noremap <C-l> :Vgallfile <C-R>=expand("<cword>")<CR><CR>
 command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
 "noremap y "+y
-noremap Y "+Y
+"noremap Y "+Y
 "map C-f to show buffers
 nnoremap <C-f> :buffers<CR>:b<Space>
 
