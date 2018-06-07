@@ -93,3 +93,13 @@ use  fallocate to quick create a file
  python tab:
  import readline, rlcompleter; readline.parse_and_bind("tab: complete")
  ===================================================================================
+ quick build android native outof AOSP code
+ echo "project("Hello_test" C CXX) " > CMakeLists.txt
+ echo "add_executable(Hello_test ./main.cpp)" >> CMakeLists.txt
+ cmake  -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake"  -DANDROID_ABI="armeabi-v7a with NEON" -DCMAKE_BUILD_TYPE="Release"  -DANDROID_NATIVE_API_LEVEL="21" -DANDROID_NDK="${ANDROID_NDK}" -DANDROID_USE_OPENMP=ON
+ make
+
+ or use do './build/tools/make_standalone_toolchain.py' from NDK to create standalone_toolchain.py
+ then
+ aarch64-linux-android-gcc 
+ ===================================================================================
