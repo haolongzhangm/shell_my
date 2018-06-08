@@ -111,8 +111,8 @@ export NDK_ROOT=/media/zhl/second/code/android-ndk-r14b
 #use command to check status: ccache -s
 #export USE_CCACHE=1
 #export CCACHE_DIR=/media/zhl/second/.cache
-function cd {
-	builtin cd "$@" && ls --color
+function cdl {
+	builtin cd "$@" && ls --color && find . -maxdepth 1 -type d
 }
 
 function cdn {
