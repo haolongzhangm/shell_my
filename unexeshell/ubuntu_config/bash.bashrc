@@ -66,6 +66,8 @@ if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-no
 		fi
 	}
 fi
+################################################################################################################
+#always merge from here
 #add for java hoome
 ##now close export java env at here, redefine java env by command: . sun_java_env
 #export JAVA_HOME=/home/zhl/java_home/jdk1.6.0_26
@@ -80,7 +82,7 @@ export ARMLIB=/media/zhl/second/old_home_dir/ARM_Compiler_5/lib
 export ARMINC=/media/zhl/second/old_home_dir/include
 #add for hicam build shell compelte
 complete -W "n_pr n_kernel n_bootimage n_recovery n_lk n_all r_pr r_kernel r_bootimage r_recovery r_lk r_all" hicam
-complete -W "8939_1_l 8976_1_qcom hicam 8976_2_qcom cdn" mysource
+complete -W "8939_1_l 8976_1_qcom hicam 8976_2_qcom" mysource
 #add for qcom modem build tool env
 export HEXAGON_ROOT=/home/zhl/Qualcomm/HEXAGON_Tools
 export HEXAGON_RTOS_RELEASE=6.4.01
@@ -94,7 +96,6 @@ alias V=vim
 alias gvim='LANG=EN gvim'
 alias mysource=source
 alias cdf='cd $(find . -type d| pick)'
-alias cdn='source cdn'
 #source ~/.git-completion.bash
 #add for t32
 export T32SYS=/opt/t32
@@ -110,3 +111,50 @@ export NDK_ROOT=/media/zhl/second/code/android-ndk-r14b
 #use command to check status: ccache -s
 #export USE_CCACHE=1
 #export CCACHE_DIR=/media/zhl/second/.cache
+function cd {
+	builtin cd "$@" && ls --color
+}
+
+function cdn {
+if [ $# -gt 1 ]
+then
+	echo "need only one parm"
+fi
+
+if [[ $1 =~ ^[0-9]+$ ]]
+then
+	back_to="./"
+for loop_i in $(seq 1 $1)
+do
+	echo $loop_i
+	back_to=${back_to}"../"
+done
+	echo ${back_to}
+	builtin cd ${back_to} && ls --color
+else
+	echo "PWD: $PWD"
+	if [ $# -eq 0 ]
+	then
+		echo "Usage:"
+		echo "      cdn [num]: back to num"
+		echo "      cdn ["dir"] : back to "dir""
+		echo "      eg: when you at dir:"
+		echo "      /home/zhl/mycode/linux_kernel_learn/drivers/cpufreq"
+		echo "      you can use below command to 'mycode' dir qucikly"
+		echo "      :cdn mycode or . cdn 3"
+	else
+		echo "TODIR: $1"
+		Index=`awk 'BEGIN{print match("'$PWD'","'$1'")}'`
+		echo "Index: $Index"
+		if [[ $Index = 0 ]]
+		then
+			echo "ERR: can not find $1 from $PWD"
+		fi
+		tmp=$PWD
+		new_dir="${tmp:0:$Index-1}""$1"
+		echo "Now go to dir: $new_dir"
+		cd $new_dir
+	fi
+fi
+
+}
