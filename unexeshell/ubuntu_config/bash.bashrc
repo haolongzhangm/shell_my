@@ -158,3 +158,4 @@ else
 fi
 
 }
+alias codedir='cd $(find ~/mycode/ /media/zhl/second/code -maxdepth 1 -type d| pick)'

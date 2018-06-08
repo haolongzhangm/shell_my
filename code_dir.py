@@ -4,6 +4,13 @@ import os.path
 import os
 
 #customer you code dir preifx
+
+print("this command already be discarded")
+print("please use command: codedir")
+print("quick add 'codedir' by do:")
+print("write alias codedir='cd $(find ~/mycode/ /media/zhl/second/code -maxdepth 1 -type d| pick)' to /etc/bash.bashrc")
+print("then reopen terminal")
+exit()
 code_dir_prefix = ['/home/zhl/mycode', '/media/zhl/second/code/']
 
 index = 0
