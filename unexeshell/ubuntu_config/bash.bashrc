@@ -159,3 +159,6 @@ fi
 
 }
 alias codedir='cd $(find ~/mycode/ /media/zhl/second/code -maxdepth 1 -type d| pick)'
+#easy copy history command, after pick, use shift + Insert to do command
+#also use command:  cat Release.key | xsel ,then use ctrl + v to paste
+alias h="history| pick |cut -c 8- | xsel"
