@@ -158,7 +158,7 @@ else
 fi
 
 }
-alias codedir='cd $(find ~/mycode/ /media/zhl/second/code -maxdepth 1 -type d| pick)'
+alias codedir='cd $(find ~/mycode/ /media/zhl/second/code ~/Desktop/tmp_file/caffe_file/ -maxdepth 1 -type d| pick)'
 function h {
 	`history | pick | cut -c 8-`
 }
