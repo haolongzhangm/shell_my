@@ -140,7 +140,7 @@ nmap <F6> :cs find s <C-R>=expand("<cword>")<CR><CR>
 nmap <F7> :cs find d <C-R>=expand("<cword>")<CR><CR>
 nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
 "nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR> "use vim defaule
-"ctrl+]to find define tag
+"ctrl+] or ctrl+p to find define tag
 nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
 nmap <C-u> :tnext<CR><CR>:call ShowFuncName() <CR>
 nmap <C-y> :tprevious<CR><CR>:call ShowFuncName() <CR>
@@ -238,6 +238,7 @@ function! Myusage()
 	echo ".          : repeat do the last command of Normal model<vim default>"
 	echo "<C-\\>,	 : jump to cursor localtion Fuc call Fuc"
 	echo "<C-\\>.	 : jump to cursor locateion Fuc name  "
+	echo "<C-\\>/	 : jump to cursor locateion Fuc refers  "
 	echo "f/F        : find w in line <vim default>"
 	echo "F2         :cscope:Find this file                "
 	echo "F3         :goldendict words[need install goldendict]"
@@ -373,10 +374,12 @@ map <c-\>V :call ShowFuncName() <CR>
 function! Map_to_func_head_python_style()
 	map <c-\>, [[w<F5>
 	map <c-\>. [[w
+	map <c-\>/ [[w<F10>
 endfunction
 
 function! Map_to_func_head_c_style()
 	map <c-\>, :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F5>
+	map <c-\>/ :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F10>
 	map <c-\>. :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
 endfunction
 
