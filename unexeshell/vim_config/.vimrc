@@ -34,6 +34,7 @@ autocmd BufNewFile,BufRead *.mk call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.cu call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.hpp call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.opencl call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.cl call GoogleCodestyle()
 autocmd BufNewFile,BufRead *.vim call GoogleCodestyle()
 "===================end add for codestyle switch==================
 set hlsearch incsearch ignorecase
@@ -370,8 +371,8 @@ map <c-\>v :call ShowFuncName() <CR>
 map <c-\>V :call ShowFuncName() <CR>
 
 function! Map_to_func_head_python_style()
-	map , [[w<F5>
-	map . [[w
+	map <c-\>, [[w<F5>
+	map <c-\>. [[w
 endfunction
 
 function! Map_to_func_head_c_style()
@@ -385,6 +386,8 @@ autocmd BufNewFile,BufRead *.cc call Map_to_func_head_c_style()
 autocmd BufNewFile,BufRead *.c++ call Map_to_func_head_c_style()
 autocmd BufNewFile,BufRead *.java call Map_to_func_head_c_style()
 autocmd BufNewFile,BufRead *.aidl call Map_to_func_head_c_style()
+autocmd BufNewFile,BufRead *.cl call Map_to_func_head_c_style()
+autocmd BufNewFile,BufRead *.opencl call Map_to_func_head_c_style()
 autocmd BufNewFile,BufRead *.mk call Map_to_func_head_c_style()
 autocmd BufNewFile,BufRead *.py call Map_to_func_head_python_style()
 autocmd BufNewFile,BufRead *.vim call Map_to_func_head_python_style()
@@ -433,6 +436,6 @@ let g:EchoFuncKeyPrev='<C-\>o'
 "========end for echofunc.vim===================================
 "========add for auto update cscope ctags log ==================
 let g:Auto_update_cscope_ctags_debug_log = 1
-let g:auto_run_function_when_cscope_connect = 0
+let g:auto_run_function_when_cscope_connect = 1
 let g:check_update_when_first_load_vim = 1
 "========end for auto update cscope ctags log ==================
