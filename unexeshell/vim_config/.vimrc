@@ -334,16 +334,23 @@ function! ShowcommadT()
 		echo 'ITE: ' . g:csdbpath
 		let l:project_dir = g:csdbpath
 	endif
+
+	let l:line_number = line('.')
 if has('pythonx')
 pyx << EOF
 import vim
 tmp_str = vim.eval("l:comand_args")
+line = vim.eval("l:line_number")
+#add this for easy gdb
+#u can get file_with_line_number by * register
+#Fcitx get * register by: ctrl + ;
+file_with_line_number = tmp_str + ":" + line
 project_dir = vim.eval("l:project_dir")
 if project_dir == 'null':
 	command_str = "call setreg('z', '%s')" %  (tmp_str[:tmp_str.rindex("/")])
 else:
 	command_str = "call setreg('z', '%s')" %  (project_dir)
-command_str_f = "call setreg('*', '%s')" %  (tmp_str)
+command_str_f = "call setreg('*', '%s')" %  (file_with_line_number)
 vim.command(command_str)
 vim.command(command_str_f)
 EOF
