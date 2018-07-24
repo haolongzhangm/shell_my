@@ -307,7 +307,7 @@ let g:CommandTInputDebounce=100
 let g:CommandTMatchWindowAtTop=0
 let g:CommandTMatchWindowReverse=0
 "let g:CommandTCancelMap='<Esc>'
-let g:CommandTWildIgnore="*.o,*.obj"
+let g:CommandTWildIgnore=&wildignore . ",*.o,*.obj" . ",bazel-bin,bazel-mace,bazel-out"
 function! ShowcommadT()
 	let l:comand_args = './'
 	let l:command_args_buffer_name = bufname('%')
