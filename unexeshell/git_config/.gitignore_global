@@ -5,3 +5,7 @@ cscope.out.in
 cscope.out.po
 *.swp
 .auto_cscope_ctags
+GPATH
+GRTAGS
+GTAGS
+tags.files
