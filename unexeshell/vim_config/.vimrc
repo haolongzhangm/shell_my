@@ -269,11 +269,23 @@ function! Myusage()
 	echo "<C-\\>v/V     :show function name"
 	echo "<C-\\>r     :YcmCompleter GoToDefinition                        "
 	echo "<C-\\>d     :bdelete current buffer              "
+	echo "<C-\\>e     :enable or disable echofunc.vim      "
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
 endfunction
+let g:enable_or_disable_echofunc=0
+function! Enable_or_disable_echofunc()
+	if 0 == g:enable_or_disable_echofunc
+		let g:enable_or_disable_echofunc=1
+		echo "enable echofunc"
+	else
+		let g:enable_or_disable_echofunc=0
+		echo "disable echofunc"
+	endif
+endfunction
 nnoremap <C-d> :call Myusage()<CR>
+nnoremap <C-\>e :call Enable_or_disable_echofunc()<CR>
 "=========end for add Myusage==================================
 
 "=========add for config ctrlp.vim=============================

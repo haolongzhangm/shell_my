@@ -316,6 +316,9 @@ function! s:GetFuncName(text)
 endfunction
 
 function! EchoFunc()
+    if 0 == g:enable_or_disable_echofunc
+        return ''
+    endif
     let name=s:GetFuncName(getline('.')[:(col('.')-3)])
     if name==''
         return ''
