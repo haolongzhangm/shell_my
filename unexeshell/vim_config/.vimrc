@@ -139,6 +139,7 @@ nmap <F5> :cs find c <C-R>=expand("<cword>")<CR><CR>
 nmap <F6> :cs find s <C-R>=expand("<cword>")<CR><CR>
 nmap <F7> :cs find d <C-R>=expand("<cword>")<CR><CR>
 nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
+nmap <C-\>a :cs find a <C-R>=expand("<cword>")<CR><CR>
 "nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR> "use vim defaule
 "ctrl+] or ctrl+p to find define tag
 nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
