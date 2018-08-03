@@ -6,6 +6,7 @@
 #include <linux/sockios.h>
 #include <string.h> //use buildin strcpy
 #define MAC_LEN 6
+#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +14,15 @@ int main(int argc, char *argv[])
 	short macaddr[MAC_LEN] = {};
 	struct ifreq ifr;
 	char *name = "eth0";
+	printf("+++%s: %d\n", __func__, __LINE__);
+	into_lib();
 
+	int loop = 0;
+
+	do {
+		usleep(1000*10);
+		printf("+++%s: %d %d\n", __func__, __LINE__, loop++);
+	}while(1);
 	strcpy( ifr.ifr_name, name);
 	net_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (ioctl(net_fd, SIOCGIFHWADDR, &ifr)){
