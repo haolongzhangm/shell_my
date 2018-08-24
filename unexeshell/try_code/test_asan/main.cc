@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
   //int* a = new int[10];
   for(int i = 0; i < 2; i++) {
     t *m = new t();
-    //delete m;
+    delete m;
   }
 
   //int a[6];
