@@ -40,7 +40,7 @@ def check_args():
 
 #check the py exec pwd,only check the boot.img and emmc_appsboot.mbn etc
 def check_needed_file():
-    needed_file_set = ['NON-HLOS.bin', 'boot.img', 'emmc_appsboot.mbn', \
+    needed_file_set = ['NON-HLOS.bin', 'boot.img', \
                         'patch0.xml', 'rawprogram_unsparse_without_QCN.xml', \
                         'rawprogram_unsparse.xml']
     file_list =os.listdir('./')
