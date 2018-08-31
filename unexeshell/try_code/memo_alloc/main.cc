@@ -35,7 +35,6 @@ int main(int argc, char** argv) {
       return 0;
 		}
 
-		p_2 = malloc(size_2);
 		if (two_block && !p_2) {
 			printf("malloc failed! too big\n");
       return 0;
