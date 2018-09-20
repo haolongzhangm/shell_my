@@ -130,6 +130,7 @@ int main(int argc, char** argv) {
     stack_buffer_overflow();
   }else if (6 == run) {
     //Do not apply to Android ASAN
+    //Do not apply to Android valgrind
     alloc_mismatched();
   } else if (7 == run) {
     use_uninit();
