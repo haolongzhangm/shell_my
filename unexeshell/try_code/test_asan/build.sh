@@ -1,8 +1,15 @@
-echo "test pc side============================================"
-clang++ -fsanitize=address -O0 -fno-omit-frame-pointer -g main.cc
-./a.out
+echo "build asan test file for pc side============================================"
+/usr/bin/clang++ -fsanitize=address -O0 -fno-omit-frame-pointer -g main.cc -o host_test_asan
 
-echo "test android side======================================"
-aarch64-linux-android-clang++ -fsanitize=address -O0 -fno-omit-frame-pointer -g -pie -fPIE main.cc
-adb push a.out /system/bin/
-adb shell a.out
+echo "build valgrind test file for pc side========================================"
+/usr/bin/clang++ -O0 -g main.cc -o host_test_valgrind
+
+echo "build asan test file for Android side======================================="
+aarch64-linux-android-clang++ -fsanitize=address -O0 -fno-omit-frame-pointer -g -pie -fPIE main.cc -o android_test_asan
+echo "push file..."
+adb push android_test_asan /system/bin/
+
+echo "build asan test file for Android side======================================="
+aarch64-linux-android-clang++ -O0 -fno-omit-frame-pointer -g -pie -fPIE main.cc -o android_test_valgrind
+echo "push file..."
+adb push android_test_valgrind /system/bin/
