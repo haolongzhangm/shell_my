@@ -12,6 +12,8 @@ set smartindent
 au BufNewFile,BufRead *.cu set filetype=cpp
 au BufNewFile,BufRead *.opencl set filetype=cpp
 au BufNewFile,BufRead *.cl set filetype=cpp
+"ssh vim terminal always show file name
+set laststatus=2
 "===================add for codestyle switch=====================
 function! LinuxCodestyle()
 	set tabstop=8
@@ -102,8 +104,9 @@ filetype plugin indent on    " required
 "	autocmd BufNewFile,BufRead *.c++ let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
 "endif
 let g:ycm_confirm_extra_conf = 0
+let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
 
-"let g:ycm_key_invoke_completion = '<C-/>'
+let g:ycm_key_invoke_completion = '<C-_>'
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_complete_in_comments=1
 let g:ycm_collect_identifiers_from_comments_and_strings=1
