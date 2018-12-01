@@ -275,6 +275,7 @@ function! Myusage()
 	echo "<C-\\>r     :YcmCompleter GoToDefinition                        "
 	echo "<C-\\>d     :bdelete current buffer              "
 	echo "<C-\\>e     :enable or disable echofunc.vim      "
+	echo "<C-\\>g     :gdb breakpoint command              "
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
@@ -466,3 +467,10 @@ let g:Auto_update_cscope_ctags_debug_log = 1
 let g:auto_run_function_when_cscope_connect = 1
 let g:check_update_when_first_load_vim = 1
 "========end for auto update cscope ctags log ==================
+"========add for vim gdb config=================================
+packadd termdebug
+nmap <C-\>g :Break<CR>
+"example for config --host=x86_64-linux-gnu --target=aarch64-elf-linux gdb
+"let termdebugger = "/media/zhl/second/code/gdb-8.2/gdb/gdb"
+"Termdebug vmlinux
+"========end for vim gdb config=================================
