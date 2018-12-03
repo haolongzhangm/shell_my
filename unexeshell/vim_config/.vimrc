@@ -12,8 +12,11 @@ set smartindent
 au BufNewFile,BufRead *.cu set filetype=cpp
 au BufNewFile,BufRead *.opencl set filetype=cpp
 au BufNewFile,BufRead *.cl set filetype=cpp
-"ssh vim terminal always show file name
+"terminal always show file name and function name
 set laststatus=2
+set statusline=%f
+"need call TlistAddFiles % or <F4> to update taglist
+set statusline +=\ %{Tlist_Get_Tagname_By_Line()}
 "===================add for codestyle switch=====================
 function! LinuxCodestyle()
 	set tabstop=8

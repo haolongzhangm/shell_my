@@ -2834,6 +2834,9 @@ endfunction
 " Add the specified list of files to the taglist
 function! s:Tlist_Add_Files(...)
     let flist = ''
+    if a:0 == 0
+      let flist = bufname('%') . "\n"
+    endif
     let i = 1
 
     " Get all the files matching the file patterns supplied as argument
@@ -2848,7 +2851,6 @@ function! s:Tlist_Add_Files(...)
     endif
 
     let fcnt = s:Tlist_Process_Filelist(flist)
-    echon "\rAdded " . fcnt . " files to the taglist"
 endfunction
 
 " Tlist_Extract_Tagtype
