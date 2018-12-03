@@ -276,6 +276,8 @@ function! Myusage()
 	echo "<C-\\>d     :bdelete current buffer              "
 	echo "<C-\\>e     :enable or disable echofunc.vim      "
 	echo "<C-\\>g     :gdb breakpoint command              "
+	echo "           :android env pre: adb forward tcp:1234 tcp:1234"
+	echo "           :android env pre: let termdebugger=\"/usr/bin/gdb_arm_linux_8_2\""
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
