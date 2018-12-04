@@ -281,6 +281,8 @@ function! Myusage()
 	echo "<C-\\>g     :gdb breakpoint command              "
 	echo "           :android env pre: adb forward tcp:1234 tcp:1234"
 	echo "           :android env pre: let termdebugger=\"/usr/bin/gdb_arm_linux_8_2\""
+	echo "           :android env pre: (gdb)set solib-absolute-prefix ..."
+	echo "           :android env pre: (gdb)set solib-search-path ..."
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
