@@ -103,3 +103,6 @@ use  fallocate to quick create a file
  then
  aarch64-linux-android-gcc 
  ===================================================================================
+ quick share android screenrecord
+ adb shell screenrecord --output-format=h264 - | ffplay -autorotate -
+ ===================================================================================
