@@ -159,6 +159,7 @@ fi
 
 }
 alias codedir='cd $(find ~/mycode/ /media/zhl/second/code ~/Desktop/tmp_file/caffe_file/ -maxdepth 1 -type d| pick)'
+alias dirsquick='cd $(dirs -l -v| pick | cut -c 3-)'
 function h {
 	`history | pick | cut -c 8-`
 }
