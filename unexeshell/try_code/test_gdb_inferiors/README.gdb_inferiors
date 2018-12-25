@@ -1,0 +1,16 @@
+gdb默认调试父进程。调试器选项用法如下：
+
+set follow-fork-mode mode     其中mode的可选值是parent和child，分别表示调试父进程和子进程。
+
+info inferiors                查询正在调试的进程
+
+inferior processnum           切换进程 
+
+设置follow-fork-mode(默认值：parent)和detach-on-fork（默认值：on）来配置调试模式
+我们还可以使用catch fork指令，如果fork异常，会停止程序。
+
+follow-fork-mode  detach-on-fork   说明
+parent                     on               只调试主进程（GDB默认）
+child                      on               只调试子进程
+parent                     off               同时调试两个进程，gdb跟主进程，子进程block在fork位置
+child                      off               同时调试两个进程，gdb跟子进程，主进程block在fork位置
