@@ -1,0 +1,8 @@
+b main
+r
+b d
+b pb1
+b pd2
+b &d
+b &pb1
+b &pd2
