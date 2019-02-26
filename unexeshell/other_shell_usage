@@ -106,3 +106,5 @@ use  fallocate to quick create a file
  quick share android screenrecord
  adb shell screenrecord --output-format=h264 - | ffplay -autorotate -
  ===================================================================================
+ git 中文路径乱码: git config --global core.quotepath false
+ ===================================================================================
