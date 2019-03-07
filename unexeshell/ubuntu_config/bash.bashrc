@@ -163,3 +163,11 @@ alias dirsquick='cd $(dirs -l -v| pick | cut -c 3-)'
 function h {
 	`history | pick | cut -c 8-`
 }
+function desk {
+	builtin cd ~/Desktop
+}
+
+function desk_tmp_file {
+	desk
+	builtin cd tmp_file
+}
