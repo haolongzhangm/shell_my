@@ -1,12 +1,9 @@
-[user]
-	email = haolong.zhang@ck-telecom.com
-	name = haolong.zhang
 [core]
+	quotepath = false
 	editor = vim
 	excludesfile = ~/.gitignore_global
-[http]
-[https]
-[http]
-[https]
+[user]
+	name = zhanghaolong
+	email = zhanghaolong@megvii.com
 [color]
 	ui = auto
