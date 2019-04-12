@@ -12,29 +12,13 @@ PS1='\[\e[0;33m\]\u\[\e[0m\]@\[\e[0;32m\]\h\[\e[0m\]:\[\e[0;34m\]\w\[\e[0m\]\$ '
 ################################################################################################################
 export PATH=~/shell_my:$PATH
 export PATH=~/android_tool/platform-tools:$PATH
-export PATH=/media/zhl/second/old_home_dir/ARM_Compiler_5/bin:$PATH
-export ARMBIN=/media/zhl/second/old_home_dir/ARM_Compiler_5/bin64
-export ARMLIB=/media/zhl/second/old_home_dir/ARM_Compiler_5/lib
-export ARMINC=/media/zhl/second/old_home_dir/include
-#add for qcom modem build tool env
-export HEXAGON_ROOT=/home/zhl/Qualcomm/HEXAGON_Tools
-export HEXAGON_RTOS_RELEASE=6.4.01
-export ARMTOOLS=QDSP6GCC
 alias gitlog='git log --pretty=format:'\''%h : %an : %ad : %s'\'' --topo-order --graph --date=short'
 alias v=vim
 alias V=vim
 alias gvim='LANG=EN gvim'
 alias mysource=source
 alias cdf='cd $(find . -type d| pick)'
-#source ~/.git-completion.bash
-#add for t32
-export T32SYS=/opt/t32
-export T32TMP=/tmp
-export T32ID=T32
-export ADOBE_PATH=/usr/bin/evince
-export PATH=$PATH:/opt/t32/bin/pc_linux64
-export T32PDFVIEWER=/opt/t32/bin/pc_linux64/t32_startpdfviewer.sh
-export NDK_ROOT=/media/zhl/second/code/android-ndk-r14b
+source ~/.git-completion.bash
 #enable and config ccache
 #use command config: ./prebuilts/misc/linux-x86/ccache/ccache -M 50G
 #also command config: ccache -M 50G
@@ -88,7 +72,7 @@ else
 fi
 
 }
-alias codedir='cd $(find ~/mycode/ ~/Desktop/tmp_file/caffe_file/ -maxdepth 1 -type d| pick)'
+alias codedir='cd $(find ~/mycode/ -maxdepth 1 -type d| pick)'
 alias dirsquick='cd $(dirs -l -v| pick | cut -c 3-)'
 function h {
 	`history | pick | cut -c 8-`
@@ -109,3 +93,4 @@ alias la='ls -A'
 alias l='ls -CF'
 export PATH=/usr/local/opt/findutils/libexec/gnubin:$PATH
 export PATH=/Users/zhl/mycode/ndk/android-ndk-r19c_standalone_arm64/bin:$PATH
+export PATH=/Users/zhl/mycode/ndk/android-ndk-r19c_standalone_arm/bin:$PATH
