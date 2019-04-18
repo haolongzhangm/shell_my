@@ -1,0 +1,1 @@
+sftp -o "ServerAliveInterval 60"  ecstatic-visvesvaraya.zhanghaolong.brc@bj-a.brainpp.cn
