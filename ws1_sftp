@@ -1,1 +1,0 @@
-sftp -o "ServerAliveInterval 60" ws1.zhanghaolong.brw@wh-a.brainpp.cn
