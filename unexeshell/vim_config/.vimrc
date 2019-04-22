@@ -263,7 +263,8 @@ function! Myusage()
 	echo "<C-f>      :buffers list                        "
 	echo "<c-p>      :tjump func                        "
 	echo "<C-d>      :show Myusage()                      "
-	echo "<C-h>      :show CommandT                       "
+	echo "<C-h>      :show CommandT(at tag dirs if possible)"
+	echo "<C-\\>h    :show CommandT(force current buffer dir)"
 	echo "<C-\\>p     :SrcExpl_prevDefKey                  "
 	echo "<C-\\>u     :SrcExpl_nextDefKey                  "
 	echo "<C-\\>s     :SrcExplToggle  open/close           "
@@ -304,27 +305,6 @@ nnoremap <C-d> :call Myusage()<CR>
 nnoremap <C-\>e :call Enable_or_disable_echofunc()<CR>
 "=========end for add Myusage==================================
 
-"=========add for config ctrlp.vim=============================
-"""just for backup , infact we use command-t now
-""let g:ctrlp_map = '<c-i>'
-""let g:ctrlp_cmd = 'CtrlP'
-""let g:ctrlp_custom_ignore = {
-""    \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
-""    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz|pyc)$',
-""    \ }
-""let g:ctrlp_working_path_mode='a'
-""let g:ctrlp_match_window_bottom=1
-""let g:ctrlp_max_height=2000
-""let g:ctrlp_match_window_reversed=0
-""let g:ctrlp_mruf_max=50000
-""let g:ctrlp_follow_symlinks=1
-""let g:ctrlp_max_depth = 40
-"=================end for ctrip=================================
-
-"==================add for cctree===============================
-""cctree have some issue, leave for later
-"==================end for cctree===============================
-
 "=================add for command-t=============================
 let g:CommandTMaxFiles=110000
 let g:CommandTMaxDepth=40
@@ -336,7 +316,7 @@ let g:CommandTMatchWindowAtTop=0
 let g:CommandTMatchWindowReverse=0
 "let g:CommandTCancelMap='<Esc>'
 let g:CommandTWildIgnore=&wildignore . ",*.o,*.obj" . ",bazel-bin,bazel-mace,bazel-out"
-function! ShowcommadT()
+function! ShowcommadT(use_may_tag_dir)
 	let l:comand_args = './'
 	let l:command_args_buffer_name = bufname('%')
 	let l:command_args_pwd = getcwd()
@@ -358,7 +338,7 @@ function! ShowcommadT()
 	"call commandt#FileFinder(l:command_args_pwd)
 	echo 'CUR: ' . l:command_args_pwd
 	let l:project_dir = 'null'
-	if cscope_connection() > 0
+	if cscope_connection() > 0 && a:use_may_tag_dir
 		echo 'ITE: ' . g:csdbpath
 		let l:project_dir = g:csdbpath
 	endif
@@ -388,7 +368,8 @@ else
 endif
 endfunction
 
-nnoremap <C-h> :call ShowcommadT()<CR>:CommandT <C-r>z
+nnoremap <C-h> :call ShowcommadT(1)<CR>:CommandT <C-r>z
+nnoremap <C-\>h :call ShowcommadT(0)<CR>:CommandT <C-r>z
 map <c-\>f :CommandTBuffer<CR>
 map <c-\>F :CommandTBuffer<CR>
 "==================end for command-t=============================
