@@ -113,3 +113,6 @@ use  fallocate to quick create a file
  complier explorer
  https://godbolt.org/
  ===================================================================================
+ disable qcom EDL devices config by ModemManager
+ sudo systemctl stop ModemManager
+ ===================================================================================
