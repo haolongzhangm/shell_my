@@ -5,6 +5,7 @@ import glob
 import sys
 import socket
 import threadpool
+import threading
 
 #add more device here
 #please add all device with port:5555
@@ -21,6 +22,10 @@ config_devices = {
         }
 
 action = ['connect', 'disconnect']
+old_connect_status = []
+scan_result = []
+lock = threading.Lock()
+count = 0
 #remap adb command to adb -P $UID for group user
 #detail check /etc/bash.bashrc: alias adb="adb -P `expr $UID \* 10`"
 #pytho os.system can not get the alias from /etc/bash.bashrc
@@ -76,13 +81,51 @@ def help():
     print("adb_devices_list.py lan_scan")
     exit()
 
+def try_get_cpu_info(key):
+    cpu_info = 'null'
+    old_connect = False
+    if key in old_connect_status:
+        old_connect = True
+    if not old_connect:
+        if os.popen('%s connect %s' % (adb, key)).read().find('fail') >= 0:
+            #remove offline device before return
+            os.system('%s disconnect %s' % (adb, key))
+            return cpu_info
+
+    #try get cpu_info now
+    os.system('%s -s %s root' % (adb, key))
+    cpu_info = os.popen('%s -s %s shell cat /proc/cpuinfo | grep ware' % (adb, key)).read()
+    if not old_connect:
+        os.system('%s disconnect %s' % (adb, key))
+    return cpu_info.replace('\n', '')
+
 def lan_scan_result_f(key):
+    global count
+    lock.acquire()
+    count = count + 1
+    lock.release()
+
+    print('----%d%%-----' %  (count / 256.0 / 256.0 * 100), end='\r')
     global scan_find_device
     if 'available' == check_devices_status(key):
-        print('| %-20s status: available|' % key)
-        scan_find_device = True
+        cpu_info = try_get_cpu_info(key)
+        if 'null' != cpu_info:
+            ret = '| %-20s status: available cpu_info: %s|' % (key, cpu_info)
+            lock.acquire()
+            scan_result.append(ret)
+            lock.release()
+            scan_find_device = True
+
+def update_old_connect_status():
+    log = os.popen('%s devices' % adb).read().split('\n')
+    for i in log:
+        if i.find('device') >= 0:
+            old_connect_status.append(i.split()[0])
+    #for i in old_connect_status:
+    #    print(i)
 
 def lan_scan():
+    update_old_connect_status()
     data = []
     for a in range(256):
         for b in range(256):
@@ -92,16 +135,21 @@ def lan_scan():
     requests = threadpool.makeRequests(lan_scan_result_f, data)
     [pool.putRequest(req) for req in requests]
     pool.wait()
-    if not scan_find_device:
-        print('ERR: can not find any device!')
 
 def run():
     if len(sys.argv) == 2 and sys.argv[1] == 'lan_scan':
         print('Warning: will scan LAN %d port,may take some time!' % LAN_PORT)
         print('scan with %d threads' % SCAN_THREADPOOL_SIZE)
         print('scan range: %s0.0 - %s255.255, will take about one minute' % (LAN_IP_PRE, LAN_IP_PRE))
-        print("Scan result:")
         lan_scan()
+        print('----100%-----')
+        print("Scan result:")
+        if not scan_find_device:
+            print('ERR: can not find any device!')
+        else:
+            print()
+            for i in scan_result:
+                print(i)
         return
 
     if len(sys.argv) != 3:

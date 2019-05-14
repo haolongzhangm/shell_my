@@ -116,3 +116,6 @@ use  fallocate to quick create a file
  disable qcom EDL devices config by ModemManager
  sudo systemctl stop ModemManager
  ===================================================================================
+ disable dynamic lib loop check api define by -fuse-ld=gold
+ eg: aarch64-linux-android-g++ -pie -fPIE -L. -lOpenCL -fuse-ld=gold OpenCLInfo.cpp
+ ===================================================================================
