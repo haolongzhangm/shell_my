@@ -1,9 +1,0 @@
-diff --git a/kernel/drivers/net/wireless/Makefile b/kernel/drivers/net/wireless/Makefile
-index 67156ef..ef017da 100644
---- a/kernel/drivers/net/wireless/Makefile
-+++ b/kernel/drivers/net/wireless/Makefile
-@@ -57,3 +57,4 @@ obj-$(CONFIG_MWIFIEX)	+= mwifiex/
- 
- obj-$(CONFIG_BRCMFMAC)	+= brcm80211/
- obj-$(CONFIG_BRCMSMAC)	+= brcm80211/
-+obj-y	+= DPA_1123/
