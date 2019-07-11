@@ -166,7 +166,8 @@ set showmatch
 "add for vim { < ( match
 "inoremap ) <c-r>=ClosePair(')')<CR>
 inoremap { {}<ESC>i
-inoremap ( ()<ESC>i
+"EchoFunc will use ( to tiger, so we map (( to ()
+inoremap (( ()<ESC>i
 inoremap [ []<ESC>i
 inoremap " ""<ESC>i
 inoremap ' ''<ESC>i
@@ -233,6 +234,11 @@ nnoremap <C-e> :registers<CR>
 "or   use [num] + ctrl + i to jump forward
 nnoremap <C-j> :jumps<CR>
 
+"map <C-\><F3> to vertical terminal
+"map <C-\><F4> to terminal
+nnoremap <C-\><F3> :vertical terminal<CR>
+nnoremap <C-\><F4> :terminal<CR>
+
 "quick delete current buffer
 nmap <C-\>d :bdelete<CR>
 "=========end for command and customer shortcut key============
@@ -292,6 +298,8 @@ function! Myusage()
 	echo "           :android env pre: (gdb)set solib-absolute-prefix ..."
 	echo "           :android env pre: (gdb)set solib-search-path ..."
 	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
+	echo "<C-\\><F3>     :vertical terminal             "
+	echo "<C-\\><F4>     :terminal             "
 let g:EchoFuncKeyNext='<C-\>g'
 let g:EchoFuncKeyPrev='<C-\>o'
 endfunction
