@@ -1,0 +1,1 @@
+/home/cd_engine_group/group_common_dirs/NDK/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang++  -fsanitize=thread -O0 -fno-omit-frame-pointer -g -pie -fPIE  -lclang_rt.tsan  main.cc  -o android_test_tsan
