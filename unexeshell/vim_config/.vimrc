@@ -46,7 +46,7 @@ set hlsearch incsearch ignorecase
 if has("gui_running")
 colorscheme industry
 endif
-nmap <F3> :!goldendict <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>r :!goldendict <C-R>=expand("<cword>")<CR><CR>
 "==================end for vim misc==============================
 
 "==========for TlistToggle and Nerdtree==========================
@@ -55,7 +55,6 @@ let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Auto_Open = 1
 map <F9> :NERDTreeMirror<CR>
 map <F9> :NERDTreeToggle<CR>
-"nn <silent><F3> :exec("NERDTree ".expand('%:h'))<CR>
 let NERDTreeWinPos='right'
 set nocompatible              " be iMproved, required
 filetype off                  " required
@@ -136,9 +135,9 @@ function! YouCompleteMe_Start_Or_Stop()
 		let s:already_enable_youcomplete = 1
 	endif
 endfunction
-nnoremap <F12> :YouCompleteMeStartOrStop<CR>
-nmap <C-\>r :YcmCompleter GoToDeclaration<CR>
-nmap <C-\>y :YcmCompleter GoToDefinition<CR>
+nnoremap <C-\>y :YouCompleteMeStartOrStop<CR>
+nmap <F12> :YcmCompleter GoToDeclaration<CR>
+nmap <F3> :YcmCompleter GoToDefinition<CR>
 "======================end for YouCompleteMe config============
 
 "===============for cscope and ctags===========================
@@ -252,21 +251,21 @@ function! Myusage()
 	echo "registers  : <C-e> :  \"+ [register] + p        "
 	echo "jumps      : <C-j> : [num] + ctrl + o <<back    "
 	echo "                   : [num] + ctrl + i <<forward "
-	echo ",/;          : repeat do f/F(find command)<vim default>"
+	echo ",/;        : repeat do f/F(find command)<vim default>"
 	echo ".          : repeat do the last command of Normal model<vim default>"
 	echo "<C-\\>,	 : jump to cursor localtion Fuc call Fuc"
 	echo "<C-\\>.	 : jump to cursor locateion Fuc name  "
 	echo "<C-\\>/	 : jump to cursor locateion Fuc refers  "
 	echo "f/F        : find w in line <vim default>"
 	echo "F2         :cscope:Find this file                "
-	echo "F3         :goldendict words[need install goldendict]"
-	echo "F9         :NERDTree PWD file"
+	echo "F3         :YcmCompleter GoToDefinition                        "
 	echo "F4         :TlistToggle                         "
 	echo "F5         :cscope:Find functions calling this function"
 	echo "F6         :cscope:Find this C symbol           "
 	echo "F7         :cscope:Find functions called by this function"
+	echo "F9         :NERDTree PWD file"
 	echo "F10        :cscope:Find this text string        "
-	echo "F12        :YouCompleteMeStartOrStop            "
+	echo "F12        :YcmCompleter GoToDeclaration                       "
 	echo "<C-a>      :let Tlist_WinWidth=43               "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/Vgallfile "
@@ -284,12 +283,13 @@ function! Myusage()
 	echo "<C-\\>g     :EchoFunc:show next func"
 	echo "<C-\\>o     :EchoFunc:show prev func"
 	echo "<C-\\>t     :Manualupdatedatabaseonetime                        "
-	echo "<C-\\>f/F     :CommandTBuffer"
-	echo "<C-\\>v/V     :show function name"
-	echo "<C-\\>r     :YcmCompleter GoToDefinition                        "
+	echo "<C-\\>f/F   :CommandTBuffer"
+	echo "<C-\\>v/V   :show function name"
 	echo "<C-\\>d     :bdelete current buffer              "
 	echo "<C-\\>e     :enable or disable echofunc.vim      "
 	echo "<C-\\>g     :gdb breakpoint command              "
+	echo "<C-\\>r     :goldendict words[need install goldendict]"
+	echo "<C-\\>y     :YouCompleteMe_Start_Or_Stop"
 	echo "           :android env pre: adb forward tcp:1234 tcp:1234"
 	echo "           :android env pre: let termdebugger=\"gdb_arm_linux_8_2\""
 	echo "           :android env pre: let termdebugger=\"gdb_aarch64_linux_8_2\""
@@ -297,7 +297,6 @@ function! Myusage()
 	echo "           :android env pre: let termdebugger=\"gdb_aarch64_macos_8_2\""
 	echo "           :android env pre: (gdb)set solib-absolute-prefix ..."
 	echo "           :android env pre: (gdb)set solib-search-path ..."
-	echo "command: YouCompleteMeStartOrStop :manual stop or start YCM"
 	echo "<C-\\><F3>     :vertical terminal             "
 	echo "<C-\\><F4>     :terminal             "
 let g:EchoFuncKeyNext='<C-\>g'
