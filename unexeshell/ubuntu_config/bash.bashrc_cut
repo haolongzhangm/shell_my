@@ -28,7 +28,7 @@ alias V=vim
 alias gvim='LANG=EN gvim'
 alias mysource=source
 alias cdf='cd $(find . -type d| pick)'
-alias tmux_attach='tmux attach'
+alias tmux_attach='tmux attach -d'
 #source ~/.git-completion.bash
 #add for t32
 export T32SYS=/opt/t32
