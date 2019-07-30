@@ -301,9 +301,10 @@ function! Myusage()
 	echo "           :android env pre: (gdb)set solib-search-path ..."
 	echo "<C-\\><F3>     :vertical terminal             "
 	echo "<C-\\><F4>     :terminal             "
-let g:EchoFuncKeyNext='<C-\>g'
-let g:EchoFuncKeyPrev='<C-\>o'
+	echo "<C-\\>j    : EchoFuncKeyNext            "
+	echo "<C-\\>k    : EchoFuncKeyPrev           "
 endfunction
+
 let g:enable_or_disable_echofunc=0
 function! Enable_or_disable_echofunc()
 	if 0 == g:enable_or_disable_echofunc
@@ -314,6 +315,7 @@ function! Enable_or_disable_echofunc()
 		echo "disable echofunc"
 	endif
 endfunction
+
 nnoremap <C-d> :call Myusage()<CR>
 nnoremap <C-\>e :call Enable_or_disable_echofunc()<CR>
 "=========end for add Myusage==================================
@@ -464,8 +466,11 @@ let g:SrcExpl_pluginList = [
 "========end for srcexpl.vim====================================
 
 "========add for echofunc.vim===================================
-let g:EchoFuncKeyNext='<C-\>g'
-let g:EchoFuncKeyPrev='<C-\>o'
+let g:EchoFuncKeyNext='<C-\>j'
+let g:EchoFuncKeyPrev='<C-\>k'
+"show balloon_eval meg
+set balloonevalterm
+set ballooneval
 "========end for echofunc.vim===================================
 "========add for auto update cscope ctags log ==================
 let g:Auto_update_cscope_ctags_debug_log = 1
