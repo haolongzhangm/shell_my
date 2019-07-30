@@ -47,6 +47,8 @@ if has("gui_running")
 colorscheme industry
 endif
 nmap <C-\>r :!goldendict <C-R>=expand("<cword>")<CR><CR>
+"fix mouse isse when use ssh server mode, eg resize window by mouse
+set ttymouse=xterm2
 "==================end for vim misc==============================
 
 "==========for TlistToggle and Nerdtree==========================
