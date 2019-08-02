@@ -395,6 +395,7 @@ function! s:RestoreSettings()
     echo
 endfunction
 
+let s:winid = 0
 function! BalloonDeclaration()
     let line=getline(v:beval_lnum)
     let pos=v:beval_col - 1
@@ -418,15 +419,21 @@ function! BalloonDeclaration()
         return ''
     endif
     call s:GetFunctions(name, 0)
-    let result = ""
+    let result = []
     let cnt=0
     for item in s:res
         if cnt < g:EchoFuncMaxBalloonDeclarations
-            let result = result . item . "\n"
+            call add(result, item)
         endif
         let cnt=cnt+1
     endfor
-    return strpart(result, 0, len(result) - 1)
+    if s:winid && popup_getpos(s:winid) != {}
+        call popup_close(s:winid)
+    endif
+    if cnt > 0
+        let s:winid = popup_beval(result, #{mousemoved: 'word'})
+    endif
+    return ''
 endfunction
 
 function! BalloonDeclarationStart()
