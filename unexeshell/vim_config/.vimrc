@@ -348,6 +348,11 @@ function! ShowcommadT(use_may_tag_dir)
 		"echo "relative path"
 		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
 	endif
+	let l:git_run_c = 'cd ' . comand_args[:strridx(l:comand_args, '/')] . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n'"
+	let l:branchname = system(l:git_run_c)
+	if strlen(l:branchname) > 0
+		echo '[Branch Info: ' . l:branchname . ']'
+	endif
 	echo 'BUF: ' . l:comand_args
 	"use plug commandt buildin-func commandt#FileFinder
 	"call commandt#FileFinder(l:command_args_pwd)
@@ -523,5 +528,7 @@ function! UpdateGitBranchOrTagToStatus()
 	let l:branchname = GitBranchOrTag()
 	return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
 endfunction
-set statusline+=%{UpdateGitBranchOrTagToStatus()}
+"tmp remove update statusline with gitbranch info
+"caused by mouse move issue when use system
+"set statusline+=%{UpdateGitBranchOrTagToStatus()}
 "===============end UpdateGitBranchOrTagToStatus================
