@@ -484,3 +484,44 @@ nmap <C-\>g :Break<CR>
 "let termdebugger = "/media/zhl/second/code/gdb-8.2/gdb/gdb"
 "Termdebug vmlinux
 "========end for vim gdb config=================================
+
+"===============add UpdateGitBranchOrTagToStatus================
+function! GitBranchOrTag()
+	let l:comand_args = './'
+	let l:command_args_buffer_name = bufname('%')
+	let l:command_args_pwd = getcwd()
+	" bufname return val 47 means '/', 0 means 'NULL'
+	if char2nr(l:command_args_buffer_name) == 47
+		"echo "Absolute path"
+		let l:comand_args = l:command_args_buffer_name
+	elseif char2nr(l:command_args_buffer_name) == 0
+		"echo "No buffers"
+		let l:comand_args = l:command_args_pwd
+		call setreg('z', l:comand_args)
+		return
+	else
+		"echo "relative path"
+		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
+	endif
+
+if has('pythonx')
+pyx << EOF
+import vim
+tmp_str = vim.eval("l:comand_args")
+vim.command("let g:cur_path_t = '%s'" % tmp_str[:tmp_str.rindex("/")])
+
+EOF
+else
+	echo 'Pls build vim with python'
+	call setreg('z', l:comand_args)
+endif
+" do command: git branch 2>/dev/null | grep '\* ' | tr -d '\n'
+	let b:git_run_c = 'cd ' . g:cur_path_t . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n' "
+	return system(b:git_run_c)
+endfunction
+function! UpdateGitBranchOrTagToStatus()
+	let l:branchname = GitBranchOrTag()
+	return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
+endfunction
+set statusline+=%{UpdateGitBranchOrTagToStatus()}
+"===============end UpdateGitBranchOrTagToStatus================
