@@ -348,7 +348,8 @@ function! ShowcommadT(use_may_tag_dir)
 		"echo "relative path"
 		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
 	endif
-	let l:git_run_c = 'cd ' . comand_args[:strridx(l:comand_args, '/')] . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n'"
+	let l:file_path = comand_args[:strridx(l:comand_args, '/')]
+	let l:git_run_c = 'cd ' . l:file_path . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n'"
 	let l:branchname = system(l:git_run_c)
 	if strlen(l:branchname) > 0
 		echo '[Branch Info: ' . l:branchname . ']'
@@ -359,33 +360,18 @@ function! ShowcommadT(use_may_tag_dir)
 	echo 'CUR: ' . l:command_args_pwd
 	let l:project_dir = 'null'
 	if cscope_connection() > 0 && a:use_may_tag_dir
-		echo 'ITE: ' . g:csdbpath
+		echo 'Tag Dirs: ' . g:csdbpath
 		let l:project_dir = g:csdbpath
 	endif
 
 	let l:line_number = line('.')
-if has('pythonx')
-pyx << EOF
-import vim
-tmp_str = vim.eval("l:comand_args")
-line = vim.eval("l:line_number")
-#add this for easy gdb
-#u can get file_with_line_number by * register
-#Fcitx get * register by: ctrl + ;
-file_with_line_number = tmp_str + ":" + line
-project_dir = vim.eval("l:project_dir")
-if project_dir == 'null':
-	command_str = "call setreg('z', '%s')" %  (tmp_str[:tmp_str.rindex("/")])
-else:
-	command_str = "call setreg('z', '%s')" %  (project_dir)
-command_str_f = "call setreg('*', '%s')" %  (file_with_line_number)
-vim.command(command_str)
-vim.command(command_str_f)
-EOF
-else
-	echo 'Pls build vim with python'
-	call setreg('z', l:comand_args)
-endif
+
+	if l:project_dir == 'null'
+		call setreg('z', l:file_path)
+	else
+		call setreg('z', l:project_dir)
+	endif
+	call setreg('*', l:comand_args . l:line_number)
 endfunction
 
 nnoremap <C-h> :call ShowcommadT(1)<CR>:CommandT <C-r>z
@@ -508,20 +494,10 @@ function! GitBranchOrTag()
 		"echo "relative path"
 		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
 	endif
+	let l:file_path = comand_args[:strridx(l:comand_args, '/')]
 
-if has('pythonx')
-pyx << EOF
-import vim
-tmp_str = vim.eval("l:comand_args")
-vim.command("let g:cur_path_t = '%s'" % tmp_str[:tmp_str.rindex("/")])
-
-EOF
-else
-	echo 'Pls build vim with python'
-	call setreg('z', l:comand_args)
-endif
 " do command: git branch 2>/dev/null | grep '\* ' | tr -d '\n'
-	let b:git_run_c = 'cd ' . g:cur_path_t . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n' "
+	let b:git_run_c = 'cd ' . l:file_path . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n' "
 	return system(b:git_run_c)
 endfunction
 function! UpdateGitBranchOrTagToStatus()
