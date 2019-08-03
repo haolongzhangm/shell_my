@@ -74,20 +74,12 @@ nnoremap <C-a> :let Tlist_WinWidth=43
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'VundleVim/Vundle.Vim'
-"Plugin 'tpope/vim-fugitive'
-"Plugin 'L9'
 Plugin 'wincent/command-t'
-"Plugin 'file:///home/gmarik/path/to/plugin'
-"Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 Bundle 'Valloric/ListToggle'
-"Bundle 'scrooloose/syntastic'
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'scrooloose/nerdtree'
-"Bundle 'hari-rangarajan/CCTree'
 Bundle 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Bundle 'haolongzhangm/auto_update_cscope_ctags_database'
-"Bundle 'kien/ctrlp.vim'
-"Bundle 'Lokaltog/vim-powerline'
 call vundle#end()            " required
 filetype plugin indent on    " required
 " Brief help
@@ -98,6 +90,7 @@ filetype plugin indent on    " required
 "=======================end bundle=============================
 
 "===================for YouCompleteMe==========================
+"YCM can auto load conf file
 "if filereadable('./.ycm_extra_conf.py')
 "	let g:ycm_global_ycm_extra_conf = '.ycm_extra_conf.py'
 "else
@@ -179,30 +172,6 @@ inoremap ' ''<ESC>i
 ""inoremap ' ''<ESC>i
 "=============end for match=====================================
 
-"=========add for auto load ctags file==========================
-"just add for backup, infact we use cscope now, auto load cscope
-"database by ~/.vim/plugin/autoload_cscope.vim
-function! AddCtagsDatabase()
-    let max = 30
-    let dir = './'
-    let i = 0
-    let break = 0
-    while isdirectory(dir) && i < max
-        if filereadable(dir . 'tags')
-            execute 'set tags ='. dir . 'tags;'
-            let break = 1
-        endif
-        if break == 1
-            execute 'lcd ' . dir
-            break
-        endif
-        let dir = dir . '../'
-        let i = i + 1
-    endwhile
-endfunction
-"call AddCtagsDatabase()
-"=========end add for auto load ctags file======================
-
 "=========add for command and customer shortcut key=============
 command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
 command -nargs=1 Vgallfile :vimgrep /<args>/ **/*.* | copen
@@ -212,6 +181,7 @@ command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
 "noremap y "+y
 "noremap Y "+Y
+
 "map C-f to show buffers
 nnoremap <C-f> :buffers<CR>:b<Space>
 
@@ -349,11 +319,6 @@ function! ShowcommadT(use_may_tag_dir)
 		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
 	endif
 	let l:file_path = comand_args[:strridx(l:comand_args, '/')]
-	let l:git_run_c = 'cd ' . l:file_path . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n'"
-	let l:branchname = system(l:git_run_c)
-	if strlen(l:branchname) > 0
-		echo '[Branch Info: ' . l:branchname . ']'
-	endif
 	echo 'BUF: ' . l:comand_args
 	"use plug commandt buildin-func commandt#FileFinder
 	"call commandt#FileFinder(l:command_args_pwd)
@@ -477,34 +442,53 @@ nmap <C-\>g :Break<CR>
 "========end for vim gdb config=================================
 
 "===============add UpdateGitBranchOrTagToStatus================
+let b:GitBranchOrTagInfoNeedReFresh = 1
+let b:GitBranchOrTagOld = 'null'
+autocmd BufNewFile,BufRead * let b:GitBranchOrTagInfoNeedReFresh= 1
 function! GitBranchOrTag()
-	let l:comand_args = './'
-	let l:command_args_buffer_name = bufname('%')
-	let l:command_args_pwd = getcwd()
-	" bufname return val 47 means '/', 0 means 'NULL'
-	if char2nr(l:command_args_buffer_name) == 47
-		"echo "Absolute path"
-		let l:comand_args = l:command_args_buffer_name
-	elseif char2nr(l:command_args_buffer_name) == 0
-		"echo "No buffers"
-		let l:comand_args = l:command_args_pwd
-		call setreg('z', l:comand_args)
+	" already update in auto_update_cscope_ctags_database
+	" autocmd CmdwinEnter * let g:in_cmdline_mode_t = 1
+	" autocmd CmdwinLeave * let g:in_cmdline_mode_t = 0
+	if 1 == g:in_cmdline_mode_t
 		return
+	endif
+	if 0 == b:GitBranchOrTagInfoNeedReFresh
+		return b:GitBranchOrTagOld
+	endif
+
+	let b:comand_args = './'
+	let b:command_args_buffer_name = bufname('%')
+	let b:command_args_pwd = getcwd()
+	let b:file_path = './'
+	" bufname return val 47 means '/', 0 means 'NULL'
+	if char2nr(b:command_args_buffer_name) == 47
+		"echo "Absolute path"
+		let b:comand_args = b:command_args_buffer_name
+		let b:file_path = b:comand_args[:strridx(b:comand_args, '/')]
+	elseif char2nr(b:command_args_buffer_name) == 0
+		"echo "No buffers"
+		let b:comand_args = b:command_args_pwd
+		let b:file_path = b:comand_args
 	else
 		"echo "relative path"
-		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
+		let b:comand_args = b:command_args_pwd . '/' . b:command_args_buffer_name
+		let b:file_path = b:comand_args[:strridx(b:comand_args, '/')]
 	endif
-	let l:file_path = comand_args[:strridx(l:comand_args, '/')]
 
-" do command: git branch 2>/dev/null | grep '\* ' | tr -d '\n'
-	let b:git_run_c = 'cd ' . l:file_path . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n' "
-	return system(b:git_run_c)
+	" do command: git branch 2>/dev/null | grep '\* ' | tr -d '\n'
+	let b:git_run_c = 'cd ' . b:file_path . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n' "
+	let b:ret_system = system(b:git_run_c)
+	let b:ret_branch = ''
+	if strlen(b:ret_system) > 0
+		let b:ret_branch = 'Branch:' . b:ret_system
+	endif
+	let b:GitBranchOrTagInfoNeedReFresh = 0
+	let b:GitBranchOrTagOld = b:ret_branch
+	return b:ret_branch
 endfunction
 function! UpdateGitBranchOrTagToStatus()
 	let l:branchname = GitBranchOrTag()
 	return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
 endfunction
-"tmp remove update statusline with gitbranch info
-"caused by mouse move issue when use system
-"set statusline+=%{UpdateGitBranchOrTagToStatus()}
+set statusline+=%{UpdateGitBranchOrTagToStatus()}
 "===============end UpdateGitBranchOrTagToStatus================
