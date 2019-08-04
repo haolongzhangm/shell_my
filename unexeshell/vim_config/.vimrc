@@ -441,7 +441,7 @@ nmap <C-\>g :Break<CR>
 "Termdebug vmlinux
 "========end for vim gdb config=================================
 
-"===============add UpdateGitBranchOrTagToStatus================
+"===============add GitBranchOrTag==============================
 let b:GitBranchOrTagInfoNeedReFresh = 1
 let b:GitBranchOrTagOld = 'null'
 autocmd BufNewFile,BufRead * let b:GitBranchOrTagInfoNeedReFresh= 1
@@ -480,15 +480,11 @@ function! GitBranchOrTag()
 	let b:ret_system = system(b:git_run_c)
 	let b:ret_branch = ''
 	if strlen(b:ret_system) > 0
-		let b:ret_branch = 'Branch:' . b:ret_system
+		let b:ret_branch = '[' . b:ret_system[2:-1] . ']'
 	endif
 	let b:GitBranchOrTagInfoNeedReFresh = 0
 	let b:GitBranchOrTagOld = b:ret_branch
 	return b:ret_branch
 endfunction
-function! UpdateGitBranchOrTagToStatus()
-	let l:branchname = GitBranchOrTag()
-	return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
-endfunction
-set statusline+=%{UpdateGitBranchOrTagToStatus()}
-"===============end UpdateGitBranchOrTagToStatus================
+set statusline+=%{GitBranchOrTag()}
+"===============end GitBranchOrTag==============================
