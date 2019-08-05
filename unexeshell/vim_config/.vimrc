@@ -446,15 +446,17 @@ let b:GitBranchOrTagInfoNeedReFresh = 1
 let b:GitBranchOrTagOld = 'null'
 autocmd BufNewFile,BufRead * let b:GitBranchOrTagInfoNeedReFresh= 1
 function! GitBranchOrTag()
-	" already update in auto_update_cscope_ctags_database
-	" autocmd CmdwinEnter * let g:in_cmdline_mode_t = 1
-	" autocmd CmdwinLeave * let g:in_cmdline_mode_t = 0
-	if 1 == g:in_cmdline_mode_t
-		return
-	endif
-	if 0 == b:GitBranchOrTagInfoNeedReFresh
-		return b:GitBranchOrTagOld
-	endif
+	" try exception:
+	" err happened when no buffer after do delete buffer
+	" into cmdwin node
+	try
+		if 0 == b:GitBranchOrTagInfoNeedReFresh
+			return b:GitBranchOrTagOld
+		endif
+	catch /.*/
+		"echo 'into unknown buffers status'
+		return ''
+	endtry
 
 	let b:comand_args = './'
 	let b:command_args_buffer_name = bufname('%')
