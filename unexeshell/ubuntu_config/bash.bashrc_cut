@@ -1,22 +1,14 @@
 ################################################################################################################
 #always merge from here
-#add for java hoome
-##now close export java env at here, redefine java env by command: . sun_java_env
-#export JAVA_HOME=/home/zhl/java_home/jdk1.6.0_26
-#export PATH=$JAVA_HOME/bin:$PATH
-#export CLASSPATH=$CLASSPATH:$JAVA_HOME/lib
-#add for my shell env no use
-#export PATH=/home/zhl/notepad/Notepad++:$PATH
-export PATH=/home/zhl/shell_my:$PATH
-export PATH=/media/zhl/second/old_home_dir/ARM_Compiler_5/bin:$PATH
-export ARMBIN=/media/zhl/second/old_home_dir/ARM_Compiler_5/bin64
-export ARMLIB=/media/zhl/second/old_home_dir/ARM_Compiler_5/lib
-export ARMINC=/media/zhl/second/old_home_dir/include
-#add for hicam build shell compelte
-complete -W "n_pr n_kernel n_bootimage n_recovery n_lk n_all r_pr r_kernel r_bootimage r_recovery r_lk r_all" hicam
-complete -W "8939_1_l 8976_1_qcom hicam 8976_2_qcom" mysource
+export PATH=$PATH:~/shell_my
+export PATH=$PATH:~/safe_un
+#for ARM_Compiler_5
+#export PATH=$PATH:/media/zhl/second/old_home_dir/ARM_Compiler_5/bin
+#export ARMBIN=/media/zhl/second/old_home_dir/ARM_Compiler_5/bin64
+#export ARMLIB=/media/zhl/second/old_home_dir/ARM_Compiler_5/lib
+#export ARMINC=/media/zhl/second/old_home_dir/include
 #add for qcom modem build tool env
-export HEXAGON_ROOT=/home/zhl/Qualcomm/HEXAGON_Tools
+export HEXAGON_ROOT=~/Qualcomm/HEXAGON_Tools
 export HEXAGON_RTOS_RELEASE=6.4.01
 export ARMTOOLS=QDSP6GCC
 #add for other shell command compelte
@@ -37,7 +29,8 @@ export T32ID=T32
 export ADOBE_PATH=/usr/bin/evince
 export PATH=$PATH:/opt/t32/bin/pc_linux64
 export T32PDFVIEWER=/opt/t32/bin/pc_linux64/t32_startpdfviewer.sh
-export NDK_ROOT=/media/zhl/second/code/android-ndk-r14b
+#export NDK_ROOT wiil cause AOSP build failed. so disable it
+#export NDK_ROOT=/media/zhl/second/code/android-ndk-r14b
 #enable and config ccache
 #use command config: ./prebuilts/misc/linux-x86/ccache/ccache -M 50G
 #also command config: ccache -M 50G
