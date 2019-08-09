@@ -263,10 +263,10 @@ function! Myusage()
 	echo "<C-\\>r     :goldendict words[need install goldendict]"
 	echo "<C-\\>y     :YouCompleteMe_Start_Or_Stop"
 	echo "           :android env pre: adb forward tcp:1234 tcp:1234"
-	echo "           :android env pre: let termdebugger=\"gdb_arm_linux_8_2\""
-	echo "           :android env pre: let termdebugger=\"gdb_aarch64_linux_8_2\""
-	echo "           :android env pre: let termdebugger=\"gdb_arm_macos_8_2\""
-	echo "           :android env pre: let termdebugger=\"gdb_aarch64_macos_8_2\""
+	echo "           :android env pre: let termdebugger=\"gdb_arm_linux_8_3\""
+	echo "           :android env pre: let termdebugger=\"gdb_aarch64_linux_8_3\""
+	echo "           :android env pre: let termdebugger=\"gdb_arm_macos_8_3\""
+	echo "           :android env pre: let termdebugger=\"gdb_aarch64_macos_8_3\""
 	echo "           :android env pre: (gdb)set solib-absolute-prefix ..."
 	echo "           :android env pre: (gdb)set solib-search-path ..."
 	echo "<C-\\><F3>     :vertical terminal             "
@@ -429,7 +429,7 @@ set balloonevalterm
 set ballooneval
 "========end for echofunc.vim===================================
 "========add for auto update cscope ctags log ==================
-let g:Auto_update_cscope_ctags_debug_log = 1
+let g:Auto_update_cscope_ctags_debug_log = 0
 let g:auto_run_function_when_cscope_connect = 1
 let g:check_update_when_first_load_vim = 1
 "========end for auto update cscope ctags log ==================
