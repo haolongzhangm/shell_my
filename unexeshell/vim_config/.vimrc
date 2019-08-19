@@ -336,7 +336,7 @@ function! ShowcommadT(use_may_tag_dir)
 	else
 		call setreg('z', l:project_dir)
 	endif
-	call setreg('*', l:comand_args . l:line_number)
+	call setreg('*', l:comand_args . ':' . l:line_number)
 endfunction
 
 nnoremap <C-h> :call ShowcommadT(1)<CR>:CommandT <C-r>z

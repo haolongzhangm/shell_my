@@ -1,2 +1,3 @@
 echo "will grep $1"
-history | grep $1 --colour=auto
+#history | grep $1 --colour=auto
+grep $1 ~/.bash_history --colour=auto
