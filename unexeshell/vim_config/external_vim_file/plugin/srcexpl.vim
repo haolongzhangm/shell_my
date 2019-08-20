@@ -1048,6 +1048,7 @@ function! <SID>SrcExpl_ListMultiDefs(list, len)
     else
         let l:path = ''
     endif
+    let l:path = ''
 
     " Reopen the Source Explorer idle window
     call <SID>SrcExpl_WinEdit(l:wcmd)

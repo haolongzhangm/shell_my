@@ -489,7 +489,7 @@ if !exists("g:EchoFuncLangsUsed")
 endif
 
 if !exists("g:EchoFuncMaxBalloonDeclarations")
-    let g:EchoFuncMaxBalloonDeclarations=20
+    let g:EchoFuncMaxBalloonDeclarations=200
 endif
 
 if !exists("g:EchoFuncKeyNext")
