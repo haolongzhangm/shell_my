@@ -363,12 +363,12 @@ map <c-\>V :call ShowFuncName() <CR>
 function! Map_to_func_head_python_style()
 	map <c-\>, [[w<F5>
 	map <c-\>. [[w
-	map <c-\>/ [[w<F10>
+	map <c-\>/ [[w<F6>
 endfunction
 
 function! Map_to_func_head_c_style()
 	map <c-\>, :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F5>
-	map <c-\>/ :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F10>
+	map <c-\>/ :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b<F6>
 	map <c-\>. :call getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW')) <CR> %%b
 endfunction
 
