@@ -10,8 +10,8 @@ set completeopt=longest,menu
 set autoindent
 set smartindent
 au BufNewFile,BufRead *.cu set filetype=cpp
-au BufNewFile,BufRead *.opencl set filetype=cpp
-au BufNewFile,BufRead *.cl set filetype=cpp
+au BufNewFile,BufRead *.opencl set filetype=c
+au BufNewFile,BufRead *.cl set filetype=c
 au BufNewFile,BufRead *.inc set filetype=c
 au BufNewFile,BufRead *.ph set filetype=c
 "terminal always show file name and function name
