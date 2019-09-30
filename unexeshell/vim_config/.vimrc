@@ -272,9 +272,10 @@ function! Myusage()
 	echo "           :android env pre: (gdb)set solib-absolute-prefix ..."
 	echo "           :android env pre: (gdb)set solib-search-path ..."
 	echo "<C-\\><F3>     :vertical terminal             "
-	echo "<C-\\><F4>     :terminal             "
-	echo "<C-\\>j    : EchoFuncKeyNext            "
-	echo "<C-\\>k    : EchoFuncKeyPrev           "
+	echo "<C-\\><F4>     :terminal         "
+	echo "<C-\\>j    : EchoFuncKeyNext     "
+	echo "<C-\\>k    : EchoFuncKeyPrev     "
+	echo "force reset vim   :source ~/.vimrc and :!reset"
 endfunction
 
 let g:enable_or_disable_echofunc=0
