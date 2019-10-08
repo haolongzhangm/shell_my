@@ -61,7 +61,7 @@ map <F9> :NERDTreeMirror<CR>
 map <F9> :NERDTreeToggle<CR>
 let NERDTreeWinPos='right'
 set nocompatible              " be iMproved, required
-filetype off                  " required
+"filetype off                  " required
 let NERDChristmasTree=1
 let NERDTreeAutoCenter=1
 let NERDTreeShowFiles=1
