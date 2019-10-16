@@ -198,8 +198,8 @@ function! GetFilePath(echo_info)
 		echo 'CUR: ' . b:command_args_pwd
 	endif
 	" easy for gdb with line
-	let b:line_number = line('.')
-	call setreg('*', b:comand_args . ':' . b:line_number)
+	" let b:line_number = line('.')
+	" call setreg('*', b:comand_args . ':' . b:line_number)
 	return b:file_path
 endfunction
 
