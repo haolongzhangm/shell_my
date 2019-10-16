@@ -174,42 +174,44 @@ inoremap ' ''<ESC>i
 ""inoremap " ""<ESC>i
 ""inoremap ' ''<ESC>i
 "=============end for match=====================================
+function! GetFilePath(echo_info)
+	let b:comand_args = './'
+	let b:command_args_buffer_name = bufname('%')
+	let b:command_args_pwd = getcwd()
+	let b:file_path = './'
+	" bufname return val 47 means '/', 0 means 'NULL'
+	if char2nr(b:command_args_buffer_name) == 47
+		"echo "Absolute path"
+		let b:comand_args = b:command_args_buffer_name
+		let b:file_path = b:comand_args[:strridx(b:comand_args, '/')]
+	elseif char2nr(b:command_args_buffer_name) == 0
+		"echo "No buffers"
+		let b:comand_args = b:command_args_pwd
+		let b:file_path = b:comand_args
+	else
+		"echo "relative path"
+		let b:comand_args = b:command_args_pwd . '/' . b:command_args_buffer_name
+		let b:file_path = b:comand_args[:strridx(b:comand_args, '/')]
+	endif
+	if a:echo_info
+		echo 'BUF: ' . b:comand_args
+		echo 'CUR: ' . b:command_args_pwd
+	endif
+	" easy for gdb with line
+	let b:line_number = line('.')
+	call setreg('*', b:comand_args . ':' . b:line_number)
+	return b:file_path
+endfunction
 
 "=========add for command and customer shortcut key=============
 function! VimGrepWithPath()
-	let l:comand_args = './'
-	let l:command_args_buffer_name = bufname('%')
-	let l:command_args_pwd = getcwd()
-	" bufname return val 47 means '/', 0 means 'NULL'
-	if char2nr(l:command_args_buffer_name) == 47
-		"echo "Absolute path"
-		let l:comand_args = l:command_args_buffer_name
-	elseif char2nr(l:command_args_buffer_name) == 0
-		"echo "No buffers"
-		let l:comand_args = l:command_args_pwd
-		call setreg('z', l:comand_args)
-		return
-	else
-		"echo "relative path"
-		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
-	endif
-	let l:file_path = comand_args[:strridx(l:comand_args, '/')]
-	echo 'BUF: ' . l:comand_args
-	"use plug commandt buildin-func commandt#FileFinder
-	"call commandt#FileFinder(l:command_args_pwd)
-	echo 'CUR: ' . l:command_args_pwd
-	let l:project_dir = 'null'
+	let b:file_path = GetFilePath(1)
 
-	if l:project_dir == 'null'
-		call setreg('z', l:file_path . '**/*.*|copen')
-	else
-		call setreg('z', l:project_dir . '**/*.*|copen')
-	endif
-	call setreg('*', expand("<cword>"))
+	call setreg('z', expand("<cword>") . ' ' . b:file_path . '**/*.*|copen')
 endfunction
 command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
 noremap <C-K> :Vgthisfile <C-R>=expand("<cword>")<CR><CR>
-noremap <C-l> :call VimGrepWithPath()<CR>:vimgrep <C-r>* <C-r>z
+noremap <C-l> :call VimGrepWithPath()<CR>:vimgrep <C-r>z
 command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
 "noremap y "+y
@@ -336,41 +338,19 @@ let g:CommandTMatchWindowReverse=0
 "let g:CommandTCancelMap='<Esc>'
 let g:CommandTWildIgnore=&wildignore . ",*.o,*.obj" . ",bazel-bin,bazel-mace,bazel-out"
 function! ShowcommadT(use_may_tag_dir)
-	let l:comand_args = './'
-	let l:command_args_buffer_name = bufname('%')
-	let l:command_args_pwd = getcwd()
-	" bufname return val 47 means '/', 0 means 'NULL'
-	if char2nr(l:command_args_buffer_name) == 47
-		"echo "Absolute path"
-		let l:comand_args = l:command_args_buffer_name
-	elseif char2nr(l:command_args_buffer_name) == 0
-		"echo "No buffers"
-		let l:comand_args = l:command_args_pwd
-		call setreg('z', l:comand_args)
-		return
-	else
-		"echo "relative path"
-		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
-	endif
-	let l:file_path = comand_args[:strridx(l:comand_args, '/')]
-	echo 'BUF: ' . l:comand_args
-	"use plug commandt buildin-func commandt#FileFinder
-	"call commandt#FileFinder(l:command_args_pwd)
-	echo 'CUR: ' . l:command_args_pwd
+	let b:file_path = GetFilePath(1)
 	let l:project_dir = 'null'
 	if cscope_connection() > 0 && a:use_may_tag_dir
 		echo 'Tag Dirs: ' . g:csdbpath
 		let l:project_dir = g:csdbpath
 	endif
 
-	let l:line_number = line('.')
 
 	if l:project_dir == 'null'
-		call setreg('z', l:file_path)
+		call setreg('z', b:file_path)
 	else
 		call setreg('z', l:project_dir)
 	endif
-	call setreg('*', l:comand_args . ':' . l:line_number)
 endfunction
 
 nnoremap <C-h> :call ShowcommadT(1)<CR>:CommandT <C-r>z
@@ -492,25 +472,7 @@ function! GitBranchOrTag()
 		return ''
 	endtry
 
-	let b:comand_args = './'
-	let b:command_args_buffer_name = bufname('%')
-	let b:command_args_pwd = getcwd()
-	let b:file_path = './'
-	" bufname return val 47 means '/', 0 means 'NULL'
-	if char2nr(b:command_args_buffer_name) == 47
-		"echo "Absolute path"
-		let b:comand_args = b:command_args_buffer_name
-		let b:file_path = b:comand_args[:strridx(b:comand_args, '/')]
-	elseif char2nr(b:command_args_buffer_name) == 0
-		"echo "No buffers"
-		let b:comand_args = b:command_args_pwd
-		let b:file_path = b:comand_args
-	else
-		"echo "relative path"
-		let b:comand_args = b:command_args_pwd . '/' . b:command_args_buffer_name
-		let b:file_path = b:comand_args[:strridx(b:comand_args, '/')]
-	endif
-
+	let b:file_path = GetFilePath(0)
 	" do command: git branch 2>/dev/null | grep '\* ' | tr -d '\n'
 	let b:git_run_c = 'cd ' . b:file_path . ";git branch 2>/dev/null | grep \'\\* \' | tr -d '\n' "
 	let b:ret_system = system(b:git_run_c)
