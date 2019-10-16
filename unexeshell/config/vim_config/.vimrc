@@ -59,6 +59,7 @@ let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Auto_Open = 1
 map <F9> :NERDTreeMirror<CR>
 map <F9> :NERDTreeToggle<CR>
+nn <silent><C-\><F9> :exec("NERDTree ".expand('%:h'))<CR>
 let NERDTreeWinPos='right'
 set nocompatible              " be iMproved, required
 "filetype off                  " required
@@ -175,10 +176,40 @@ inoremap ' ''<ESC>i
 "=============end for match=====================================
 
 "=========add for command and customer shortcut key=============
+function! VimGrepWithPath()
+	let l:comand_args = './'
+	let l:command_args_buffer_name = bufname('%')
+	let l:command_args_pwd = getcwd()
+	" bufname return val 47 means '/', 0 means 'NULL'
+	if char2nr(l:command_args_buffer_name) == 47
+		"echo "Absolute path"
+		let l:comand_args = l:command_args_buffer_name
+	elseif char2nr(l:command_args_buffer_name) == 0
+		"echo "No buffers"
+		let l:comand_args = l:command_args_pwd
+		call setreg('z', l:comand_args)
+		return
+	else
+		"echo "relative path"
+		let l:comand_args = l:command_args_pwd . '/' . l:command_args_buffer_name
+	endif
+	let l:file_path = comand_args[:strridx(l:comand_args, '/')]
+	echo 'BUF: ' . l:comand_args
+	"use plug commandt buildin-func commandt#FileFinder
+	"call commandt#FileFinder(l:command_args_pwd)
+	echo 'CUR: ' . l:command_args_pwd
+	let l:project_dir = 'null'
+
+	if l:project_dir == 'null'
+		call setreg('z', l:file_path . '**/*.*|copen')
+	else
+		call setreg('z', l:project_dir . '**/*.*|copen')
+	endif
+	call setreg('*', expand("<cword>"))
+endfunction
 command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
-command -nargs=1 Vgallfile :vimgrep /<args>/ **/*.* | copen
 noremap <C-K> :Vgthisfile <C-R>=expand("<cword>")<CR><CR>
-noremap <C-l> :Vgallfile <C-R>=expand("<cword>")<CR><CR>
+noremap <C-l> :call VimGrepWithPath()<CR>:vimgrep <C-r>* <C-r>z
 command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
 "noremap y "+y
@@ -237,12 +268,12 @@ function! Myusage()
 	echo "F5         :cscope:Find functions calling this function"
 	echo "F6         :cscope:Find this C symbol           "
 	echo "F7         :cscope:Find functions called by this function"
-	echo "F9         :NERDTree PWD file"
+	echo "[<C-\\>]F9 :NERDTree [PWD file]"
 	echo "F10        :cscope:Find this text string        "
 	echo "F12        :YcmCompleter GoToDeclaration                       "
 	echo "<C-a>      :let Tlist_WinWidth=43               "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
-	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/Vgallfile "
+	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/config PWD vimgrep "
 	echo "<C-f>      :buffers list                        "
 	echo "<c-p>      :tjump func                        "
 	echo "<C-d>      :show Myusage()                      "
