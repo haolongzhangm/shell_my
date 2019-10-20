@@ -51,6 +51,7 @@ endif
 nmap <C-\>r :!goldendict <C-R>=expand("<cword>")<CR><CR>
 "fix mouse isse when use ssh server mode, eg resize window by mouse
 set ttymouse=xterm2
+nnoremap <F8> :exec 'match StatusLineTerm /' . expand('<cword>') . '/'<CR>
 "==================end for vim misc==============================
 
 "==========for TlistToggle and Nerdtree==========================
