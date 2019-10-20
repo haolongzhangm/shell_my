@@ -397,6 +397,9 @@ endfunction
 
 let s:winid = 0
 function! BalloonDeclaration()
+    if 0 == g:enable_or_disable_echofunc
+        return ''
+    endif
     let line=getline(v:beval_lnum)
     let pos=v:beval_col - 1
     let endpos=match(line, '\W', pos)
