@@ -19,31 +19,6 @@ set laststatus=2
 set statusline=%f:%P:%v
 "need call TlistAddFiles % or <F4> to update taglist
 set statusline +=\ %{Tlist_Get_Tagname_By_Line()}
-"===================add for codestyle switch=====================
-function! LinuxCodestyle()
-	set tabstop=8
-	set shiftwidth=8
-	set noexpandtab
-endfunction
-
-function! GoogleCodestyle()
-	set tabstop=2
-	set shiftwidth=2
-	set expandtab
-endfunction
-autocmd BufNewFile,BufRead *.c call LinuxCodestyle()
-autocmd BufNewFile,BufRead *.cpp call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.cc call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.c++ call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.java call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.aidl call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.mk call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.cu call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.hpp call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.opencl call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.cl call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.vim call GoogleCodestyle()
-"===================end add for codestyle switch==================
 set hlsearch incsearch ignorecase
 if has("gui_running")
 colorscheme industry
@@ -84,6 +59,8 @@ Bundle 'ycm-core/YouCompleteMe'
 Bundle 'scrooloose/nerdtree'
 Bundle 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Bundle 'haolongzhangm/auto_update_cscope_ctags_database'
+Plugin 'kana/vim-operator-user'
+Plugin 'rhysd/vim-clang-format'
 call vundle#end()            " required
 filetype plugin indent on    " required
 " Brief help
@@ -249,6 +226,38 @@ nnoremap <C-\><F4> :terminal<CR>
 "quick delete current buffer
 nmap <C-\>d :bdelete<CR>
 "=========end for command and customer shortcut key============
+"===================add for codestyle switch=====================
+function! LinuxCodestyle()
+	set tabstop=8
+	set shiftwidth=8
+	set noexpandtab
+endfunction
+
+function! GoogleCodestyle()
+	set tabstop=2
+	set shiftwidth=2
+	set expandtab
+endfunction
+autocmd BufNewFile,BufRead *.c call LinuxCodestyle()
+autocmd BufNewFile,BufRead *.cpp call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.cc call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.c++ call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.java call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.aidl call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.mk call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.cu call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.hpp call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.opencl call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.cl call GoogleCodestyle()
+autocmd BufNewFile,BufRead *.vim call GoogleCodestyle()
+"clang format
+let g:clang_format#command = 'clang-format'
+"auto detect .clang-format file
+let g:clang_format#detect_style_file = 1
+"do not plug ClangFormat to =, caused by linux-kernel code,
+"so just use command: [start,end]ClangFormat
+"autocmd FileType c,cpp,objc,opencl,cuda map <buffer> = <Plug>(operator-clang-format)
+"===================end add for codestyle switch==================
 
 "=========ADD for add Myusage==================================
 function! Myusage()
