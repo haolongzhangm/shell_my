@@ -257,6 +257,12 @@ let g:clang_format#detect_style_file = 1
 "do not plug ClangFormat to =, caused by linux-kernel code,
 "so just use command: [start,end]ClangFormat
 "autocmd FileType c,cpp,objc,opencl,cuda map <buffer> = <Plug>(operator-clang-format)
+function! FormatClangManua()
+	let b:line = line('.')
+
+	call setreg('z', b:line . ', +?' . 'ClangFormat')
+endfunction
+nnoremap <C-\>c :call FormatClangManua()<CR>:<C-r>z
 "===================end add for codestyle switch==================
 
 "=========ADD for add Myusage==================================
@@ -294,7 +300,7 @@ function! Myusage()
 	echo "<C-\\>p     :SrcExpl_prevDefKey                  "
 	echo "<C-\\>u     :SrcExpl_nextDefKey                  "
 	echo "<C-\\>s     :SrcExplToggle  open/close           "
-	echo "<C-\\>c     :SrcExpl_winHeight config            "
+	echo "<C-\\>c     :call ClangFormat manually            "
 	echo "<C-\\>i     :cscope:Find files #including this file"
 	echo "<C-\\>a     :cscope:Find where this symbol is assigned a value"
 	echo "<C-\\>g     :EchoFunc:show next func"
@@ -437,7 +443,6 @@ let g:SrcExpl_prevDefKey = '<C-\>p'
 let g:SrcExpl_nextDefKey = '<C-\>u'
 nmap <C-\>s :SrcExplToggle<CR>
 "nmap <C-\>c :SrcExplClose<CR>
-nnoremap <C-\>c :let g:SrcExpl_winHeight = 25
 let g:SrcExpl_winHeight = 20
 let g:SrcExpl_pluginList = [
         \ "__Tag_List__",
