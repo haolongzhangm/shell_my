@@ -83,6 +83,9 @@ filetype plugin indent on    " required
 "endif
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
+" force disable clangd, caused by ycm build issue
+" later may use clangd
+let g:ycm_use_clangd = 0
 
 let g:ycm_key_invoke_completion = '<C-_>'
 let g:ycm_seed_identifiers_with_syntax=1
