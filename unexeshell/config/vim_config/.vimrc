@@ -71,20 +71,12 @@ filetype plugin indent on    " required
 "=======================end bundle=============================
 
 "===================for YouCompleteMe==========================
-"YCM can auto load conf file
-"if filereadable('./.ycm_extra_conf.py')
-"	let g:ycm_global_ycm_extra_conf = '.ycm_extra_conf.py'
-"else
-"	let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
-"	autocmd BufNewFile,BufRead *.c let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.c99_ycm_extra_conf.py'
-"	autocmd BufNewFile,BufRead *.cpp let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
-"	autocmd BufNewFile,BufRead *.cc let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
-"	autocmd BufNewFile,BufRead *.c++ let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
-"endif
 let g:ycm_confirm_extra_conf = 0
-let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
-" force disable clangd, caused by ycm build issue
-" later may use clangd
+""let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
+"as some reason, we may use clangd(eg linux kernel base bear make) or libclang(eg old project
+"based on .ycm_extra_conf.py), so we build ycm with command:
+"python3 install.py --clangd-completer --clang-completer
+"then create a interface to switch ycm back-end, default use libclang
 let g:ycm_use_clangd = 0
 
 let g:ycm_key_invoke_completion = '<C-_>'
@@ -98,10 +90,15 @@ let g:ycm_warning_symbol = 'Wr'
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
 "add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
-command! -nargs=0 -bar YouCompleteMeStartOrStop
-    \  call YouCompleteMe_Start_Or_Stop()
+"or interface to swith ycm back-end, 1: clangd, 0: libclang
 let s:already_enable_youcomplete = 1
-function! YouCompleteMe_Start_Or_Stop()
+function! YouCompleteMe_Start_Or_Stop(use_clangd)
+	if 1 == a:use_clangd
+		let g:ycm_use_clangd = 1
+	else
+		let g:ycm_use_clangd = 0
+	endif
+
 	if 1 == s:already_enable_youcomplete
 		echo "Now manual disable YouCompleteMe"
 		autocmd! ycmcompletemecursormove
@@ -109,12 +106,16 @@ function! YouCompleteMe_Start_Or_Stop()
 		set completeopt=longest,menu
 		let s:already_enable_youcomplete = 0
 	else
-		echo "Now manual enable YouCompleteMe"
+		if 1 == a:use_clangd
+			echo "Now manual enable YouCompleteMe with clangd"
+		else
+			echo "Now manual enable YouCompleteMe with libclang"
+		endif
 		call youcompleteme#Enable()
 		let s:already_enable_youcomplete = 1
 	endif
 endfunction
-nnoremap <C-\>y :YouCompleteMeStartOrStop<CR>
+nnoremap <C-\>y :call YouCompleteMe_Start_Or_Stop(0)
 nmap <F12> :YcmCompleter GoToDeclaration<CR>
 nmap <F3> :YcmCompleter GoToDefinition<CR>
 "======================end for YouCompleteMe config============
@@ -315,7 +316,7 @@ function! Myusage()
 	echo "<C-\\>e     :enable or disable echofunc.vim      "
 	echo "<C-\\>g     :gdb breakpoint command              "
 	echo "<C-\\>r     :goldendict words[need install goldendict]"
-	echo "<C-\\>y     :YouCompleteMe_Start_Or_Stop"
+	echo "<C-\\>y     :YouCompleteMe_Start_Or_Stop(flag) 1:clangd, 0:libclang"
 	echo "           :android env pre: adb forward tcp:1234 tcp:1234"
 	echo "           :android env pre: let termdebugger=\"gdb_arm_linux_8_3\""
 	echo "           :android env pre: let termdebugger=\"gdb_aarch64_linux_8_3\""
