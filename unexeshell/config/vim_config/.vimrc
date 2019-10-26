@@ -2,7 +2,14 @@
 "===================misc for vim=================================
 set nu
 set relativenumber
-au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
+function! ResCur()
+	if line("'\"") <= line("$")
+		normal! g`"
+		return 1
+	endif
+endfunction
+autocmd BufWinEnter * call ResCur()
+
 syntax on
 set nocp
 set completeopt=preview,menu
