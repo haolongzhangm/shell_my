@@ -95,6 +95,7 @@ let g:ycm_collect_identifiers_from_tags_files = 0
 "let g:ycm_add_preview_to_completeopt = 1
 let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
+let g:ycm_auto_trigger = 1
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
 "add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
