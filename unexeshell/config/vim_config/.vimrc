@@ -83,8 +83,9 @@ let g:ycm_confirm_extra_conf = 0
 "as some reason, we may use clangd(eg linux kernel base bear make) or libclang(eg old project
 "based on .ycm_extra_conf.py), so we build ycm with command:
 "python3 install.py --clangd-completer --clang-completer
-"then create a interface to switch ycm back-end, default use libclang
-let g:ycm_use_clangd = 0
+"then create a interface to switch ycm back-end, default use clangd
+".ycm_extra_conf.py need imp Settings interface
+let g:ycm_use_clangd = 1
 
 let g:ycm_key_invoke_completion = '<C-_>'
 let g:ycm_seed_identifiers_with_syntax=1
@@ -122,7 +123,7 @@ function! YouCompleteMe_Start_Or_Stop(use_clangd)
 		let s:already_enable_youcomplete = 1
 	endif
 endfunction
-nnoremap <C-\>y :call YouCompleteMe_Start_Or_Stop(0)
+nnoremap <C-\>y :call YouCompleteMe_Start_Or_Stop(1)
 nmap <F12> :YcmCompleter GoToDeclaration<CR>
 nmap <F3> :YcmCompleter GoToDefinition<CR>
 "======================end for YouCompleteMe config============
