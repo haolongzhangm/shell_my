@@ -119,3 +119,7 @@ use  fallocate to quick create a file
  disable dynamic lib loop check api define by -fuse-ld=gold
  eg: aarch64-linux-android-clang++ -pie -fPIE -IOpenCL -LOpenCL/aarch64_lib -lOpenCL -fuse-ld=gold src/OpenCLInfo.cpp -o out/OpenCLInfo_aarch64
  ===================================================================================
+ gen ycm database: compile_commands.json
+ way a: cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON [other config]
+ way b: bear make -jxx
+ ===================================================================================
