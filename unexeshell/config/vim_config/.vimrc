@@ -269,7 +269,10 @@ let g:clang_format#command = 'clang-format'
 let g:clang_format#detect_style_file = 1
 "do not plug ClangFormat to =, caused by linux-kernel code,
 "so just use command: [start,end]ClangFormat
-"autocmd FileType c,cpp,objc,opencl,cuda map <buffer> = <Plug>(operator-clang-format)
+" other user bind == to call ClangFormat
+if $USER != "zhl"
+	autocmd FileType c,cpp,objc,opencl,cuda map <buffer> = <Plug>(operator-clang-format)
+endif
 function! FormatClangManua()
 	let b:line = line('.')
 
