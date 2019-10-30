@@ -276,9 +276,9 @@ endif
 function! FormatClangManua()
 	let b:line = line('.')
 
-	call setreg('z', b:line . ', +?' . 'ClangFormat')
+	call setreg('z', b:line . ', +' . 'ClangFormat')
 endfunction
-nnoremap <C-\>c :call FormatClangManua()<CR>:<C-r>z
+nnoremap <C-\>c :call FormatClangManua()<CR>:<C-r>z <left><left><left><left><left><left><left><left><left><left><left><left>
 "===================end add for codestyle switch==================
 
 "=========ADD for add Myusage==================================
