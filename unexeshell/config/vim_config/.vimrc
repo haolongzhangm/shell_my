@@ -203,6 +203,8 @@ endfunction
 command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
 noremap <C-K> *N:Vgthisfile <C-R>=expand("<cword>")<CR><CR>
 noremap <C-l> *N:call VimGrepWithPath()<CR>:vimgrep <C-r>z
+			\ <left><left><left><left><left><left><left><left><left><left><left><left><left>
+noremap <C-m> :cclose<CR>
 command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
 "noremap y "+y
@@ -278,7 +280,8 @@ function! FormatClangManua()
 
 	call setreg('z', b:line . ', +' . 'ClangFormat')
 endfunction
-nnoremap <C-\>c :call FormatClangManua()<CR>:<C-r>z <left><left><left><left><left><left><left><left><left><left><left><left>
+nnoremap <C-\>c :call FormatClangManua()<CR>:<C-r>z
+			\ <left><left><left><left><left><left><left><left><left><left><left><left>
 "===================end add for codestyle switch==================
 
 "=========ADD for add Myusage==================================
@@ -307,7 +310,7 @@ function! Myusage()
 	echo "F12        :YcmCompleter GoToDeclaration                       "
 	echo "<C-a>      :let Tlist_WinWidth=43               "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
-	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/config PWD vimgrep "
+	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/config PWD vimgrep <C-m> close"
 	echo "<C-f>      :buffers list                        "
 	echo "<c-p>      :tjump func                        "
 	echo "<C-d>      :show Myusage()                      "
