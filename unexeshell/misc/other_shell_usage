@@ -123,3 +123,5 @@ use  fallocate to quick create a file
  way a: cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON [other config]
  way b: bear make -jxx
  ===================================================================================
+ use rsync -v -r -e ssh  to speed copy repeated file
+ ===================================================================================
