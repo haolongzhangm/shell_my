@@ -216,7 +216,7 @@ nnoremap <C-f> :buffers<CR>:b<Space>
 map <c-\>t :Manualupdatedatabaseonetime<CR>
 
 "quick for marks show ,then use ' + [num] to jump
-nnoremap <C-b> :marks<CR>g
+nnoremap <C-n> :marks<CR>:'
 
 "quick show changs list,
 "then use [num] + g + ; to jump back
@@ -284,7 +284,7 @@ nnoremap <C-\>c :call FormatClangManua()<CR>:<C-r>z <left><left><left><left><lef
 "=========ADD for add Myusage==================================
 function! Myusage()
 	echo "Myusage:"
-	echo "Bookmarks  : <C-b> : ' + [num]                  "
+	echo "Bookmarks  : <C-n> : ' + [num]                  "
 	echo "changslist : <C-c> : [num] + g + ;  <<back      "
 	echo "                   : [num] + g + ,  <<forward   "
 	echo "registers  : <C-e> :  \"+ [register] + p        "
