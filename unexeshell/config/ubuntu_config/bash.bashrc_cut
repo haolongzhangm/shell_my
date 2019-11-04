@@ -2,6 +2,8 @@
 #always merge from here
 export PATH=$PATH:~/shell_my
 export PATH=$PATH:~/safe_un
+export PATH=~/un_sudo_install_path/bin$PATH
+#export LD_LIBRARY_PATH=~/un_sudo_link_path:$LD_LIBRARY_PATH
 #for ARM_Compiler_5
 #export PATH=$PATH:/media/zhl/second/old_home_dir/ARM_Compiler_5/bin
 #export ARMBIN=/media/zhl/second/old_home_dir/ARM_Compiler_5/bin64
