@@ -42,7 +42,7 @@ let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Auto_Open = 1
 map <F9> :NERDTreeMirror<CR>
 map <F9> :NERDTreeToggle<CR>
-nn <silent><C-\><F9> :exec("NERDTree ".expand('%:h'))<CR>
+nn <silent><C-\><F9> :NERDTreeFind<CR>
 let NERDTreeWinPos='right'
 set nocompatible              " be iMproved, required
 "filetype off                  " required
@@ -79,6 +79,7 @@ filetype plugin indent on    " required
 
 "===================for YouCompleteMe==========================
 let g:ycm_confirm_extra_conf = 0
+let g:ycm_global_ycm_extra_conf = ''
 ""let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
 "as some reason, we may use clangd(eg linux kernel base bear make) or libclang(eg old project
 "based on .ycm_extra_conf.py), so we build ycm with command:
@@ -87,12 +88,11 @@ let g:ycm_confirm_extra_conf = 0
 ".ycm_extra_conf.py need imp Settings interface
 let g:ycm_use_clangd = 1
 
-let g:ycm_key_invoke_completion = '<C-_>'
+let g:ycm_key_invoke_completion = '<C-Space>'
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_complete_in_comments=1
 let g:ycm_collect_identifiers_from_comments_and_strings=1
 let g:ycm_collect_identifiers_from_tags_files = 0
-"let g:ycm_add_preview_to_completeopt = 1
 let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
 let g:ycm_auto_trigger = 1
@@ -305,7 +305,7 @@ function! Myusage()
 	echo "F5         :cscope:Find functions calling this function"
 	echo "F6         :cscope:Find this C symbol           "
 	echo "F7         :cscope:Find functions called by this function"
-	echo "[<C-\\>]F9 :NERDTree [PWD file]"
+	echo "[<C-\\>]F9 :NERDTree [CUR file]"
 	echo "F10        :cscope:Find this text string        "
 	echo "F12        :YcmCompleter GoToDeclaration                       "
 	echo "<C-a>      :let Tlist_WinWidth=43               "
