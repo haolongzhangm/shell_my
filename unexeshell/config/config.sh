@@ -1,4 +1,13 @@
-root_dir="/home/$USER/shell_my/unexeshell/config"
+dir_pre="/home"
+if [ `uname` == "Darwin" ]
+then
+	dir_pre="/Users"
+	echo "Darwin env"
+else
+	echo "other env"
+fi
+
+root_dir="$dir_pre/$USER/shell_my/unexeshell/config"
 RED='\033[0;31m'
 NC='\033[0m'
 
