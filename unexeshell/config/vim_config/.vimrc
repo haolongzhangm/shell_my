@@ -42,7 +42,7 @@ let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Auto_Open = 1
 map <F9> :NERDTreeMirror<CR>
 map <F9> :NERDTreeToggle<CR>
-nn <silent><C-\><F9> :NERDTreeFind<CR>
+nn <silent><C-F9> :NERDTreeClose<CR>:NERDTreeFind<CR>
 let NERDTreeWinPos='right'
 set nocompatible              " be iMproved, required
 "filetype off                  " required
@@ -305,7 +305,7 @@ function! Myusage()
 	echo "F5         :cscope:Find functions calling this function"
 	echo "F6         :cscope:Find this C symbol           "
 	echo "F7         :cscope:Find functions called by this function"
-	echo "[<C-\\>]F9 :NERDTree [CUR file]"
+	echo "[<C-F9]F9 :NERDTree [CUR file]"
 	echo "F10        :cscope:Find this text string        "
 	echo "F12        :YcmCompleter GoToDeclaration                       "
 	echo "<C-a>      :let Tlist_WinWidth=43               "
