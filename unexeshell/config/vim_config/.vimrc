@@ -42,7 +42,7 @@ let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Auto_Open = 1
 map <F9> :NERDTreeMirror<CR>
 map <F9> :NERDTreeToggle<CR>
-nn <silent><C-\><F9> :NERDTreeClose<CR>:NERDTreeFind<CR>
+nn <silent><C-a> :NERDTreeClose<CR>:NERDTreeFind<CR>
 let NERDTreeWinPos='right'
 set nocompatible              " be iMproved, required
 "filetype off                  " required
@@ -52,7 +52,6 @@ let NERDTreeShowFiles=1
 let NERDTreeShowHidden=1
 let NERDTreeHightCursorline=1
 let NERDTreeShowLineNumbers=1
-nnoremap <C-a> :let Tlist_WinWidth=43
 "==========end for TlistToggle and Nerdtree=====================
 
 "==========for bundle===========================================
@@ -305,10 +304,9 @@ function! Myusage()
 	echo "F5         :cscope:Find functions calling this function"
 	echo "F6         :cscope:Find this C symbol           "
 	echo "F7         :cscope:Find functions called by this function"
-	echo "[<C-\\>]F9] :NERDTree [CUR file]"
+	echo "F9 [<C-a>] :NERDTree [CUR file]"
 	echo "F10        :cscope:Find this text string        "
 	echo "F12        :YcmCompleter GoToDeclaration                       "
-	echo "<C-a>      :let Tlist_WinWidth=43               "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/config PWD vimgrep <C-\\>k close"
 	echo "<C-f>      :buffers list                        "
