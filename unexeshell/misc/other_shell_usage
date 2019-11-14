@@ -125,3 +125,5 @@ use  fallocate to quick create a file
  ===================================================================================
  use rsync -v -r -e ssh  to speed copy repeated file
  ===================================================================================
+ make param eg: make CFLAGS='-Wno-error=unused-value -Wno-error=logical-not-parentheses'
+ ===================================================================================
