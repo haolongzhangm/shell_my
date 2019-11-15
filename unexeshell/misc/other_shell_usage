@@ -127,3 +127,7 @@ use  fallocate to quick create a file
  ===================================================================================
  make param eg: make CFLAGS='-Wno-error=unused-value -Wno-error=logical-not-parentheses'
  ===================================================================================
+ cutstomer install dir:
+ ./configure --prefix=xxxxx ...
+ cmake -DCMAKE_INSTALL_PREFIX=xxx ...
+ ===================================================================================
