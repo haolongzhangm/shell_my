@@ -10,3 +10,4 @@ GRTAGS
 GTAGS
 tags.files
 compile_commands.json
+.clangd/
