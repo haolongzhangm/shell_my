@@ -1,0 +1,9 @@
+use to quick find a android server RW+create permission dirs
+
+find server start bin by *.rc
+
+replace bin to org start bin
+
+stop server_name && start server_name
+
+logcat -s DDDDD
