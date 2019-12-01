@@ -30,7 +30,7 @@ set hlsearch incsearch ignorecase
 if has("gui_running")
 colorscheme industry
 endif
-nmap <C-\>r :!goldendict <C-R>=expand("<cword>")<CR><CR>
+"nmap <C-\>r :!goldendict <C-R>=expand("<cword>")<CR><CR>
 "fix mouse isse when use ssh server mode, eg resize window by mouse
 set ttymouse=xterm2
 nnoremap <silent><F8> :exec 'match StatusLineTerm /' . expand('<cword>') . '/'<CR>
@@ -126,12 +126,13 @@ endfunction
 nnoremap <C-\>y :call YouCompleteMe_Start_Or_Stop(1)
 nmap <F12> :YcmCompleter GoToDeclaration<CR>
 nmap <F3> :YcmCompleter GoToDefinition<CR>
+nmap <F7> :YcmCompleter GoToReferences<CR>
 "======================end for YouCompleteMe config============
 
 "===============for cscope and ctags===========================
 nmap <F5> :cs find c <C-R>=expand("<cword>")<CR><CR>
 nmap <F6> :cs find s <C-R>=expand("<cword>")<CR><CR>
-nmap <F7> :cs find d <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\>r :cs find d <C-R>=expand("<cword>")<CR><CR>
 nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
 nmap <C-\>a :cs find a <C-R>=expand("<cword>")<CR><CR>
 "nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR> "use vim defaule
@@ -299,14 +300,15 @@ function! Myusage()
 	echo "<C-\\>/	 : jump to cursor locateion Fuc refers  "
 	echo "f/F        : find w in line <vim default>"
 	echo "F2         :cscope:Find this file                "
-	echo "F3         :YcmCompleter GoToDefinition                        "
+	echo "F3         :YcmCompleter GoToDefinition          "
+	echo "F7         :YcmCompleter GoToReferences          "
+	echo "F12        :YcmCompleter GoToDeclaration         "
 	echo "F4         :TlistToggle                         "
 	echo "F5         :cscope:Find functions calling this function"
 	echo "F6         :cscope:Find this C symbol           "
-	echo "F7         :cscope:Find functions called by this function"
+	echo "<C-\\>r    :cscope:Find functions called by this function"
 	echo "F9 [<C-a>] :NERDTree [CUR file]"
 	echo "F10        :cscope:Find this text string        "
-	echo "F12        :YcmCompleter GoToDeclaration                       "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/config PWD vimgrep <C-\\>k close"
 	echo "<C-f>      :buffers list                        "
@@ -328,7 +330,6 @@ function! Myusage()
 	echo "<C-\\>d     :bdelete current buffer              "
 	echo "<C-\\>e     :enable or disable echofunc.vim      "
 	echo "<C-\\>g     :gdb breakpoint command              "
-	echo "<C-\\>r     :goldendict words[need install goldendict]"
 	echo "<C-\\>y     :YouCompleteMe_Start_Or_Stop(flag) 1:clangd, 0:libclang"
 	echo "           :android env pre: adb forward tcp:1234 tcp:1234"
 	echo "           :android env pre: let termdebugger=\"gdb_arm_linux_8_3\""
