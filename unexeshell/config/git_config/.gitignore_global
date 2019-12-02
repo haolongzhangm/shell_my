@@ -11,3 +11,4 @@ GTAGS
 tags.files
 compile_commands.json
 .clangd/
+*.DS_Store
