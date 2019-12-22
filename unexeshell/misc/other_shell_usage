@@ -122,6 +122,11 @@ use  fallocate to quick create a file
  gen ycm database: compile_commands.json
  way a: cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON [other config]
  way b: bear make -jxx
+ aosp create compile_commands.json
+ export SOONG_GEN_COMPDB=1
+ export SOONG_GEN_COMPDB_DEBUG=1
+ export SOONG_LINK_COMPDB_TO=$ANDROID_HOST_OUT
+ make -j32
  ===================================================================================
  use rsync -v -r -e ssh  to speed copy repeated file
  ===================================================================================
