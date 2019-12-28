@@ -17,6 +17,10 @@ export ARMTOOLS=QDSP6GCC
 complete -W "withqcn withoutqcn" qcom_flash.py
 complete -W "withqcn withoutqcn" qcom_flash_32.py
 alias gitlog='git log --pretty=format:'\''%h : %an : %ad : %s'\'' --topo-order --graph --date=short'
+alias ggl='git log'
+alias ggb='git branch'
+alias gpp='git pull'
+alias gpt='git tag'
 alias v=vim
 alias V=vim
 alias gvim='LANG=EN gvim'
@@ -86,7 +90,7 @@ else
 fi
 
 }
-alias codedir='cd $(find ~/code/ ~/code/face -maxdepth 1 -type d| pick)'
+alias codedir='cd $(find ~/code/  ~/zhl_second/code/ -maxdepth 1 -type d| pick)'
 alias dirsquick='cd $(dirs -l -v| pick | cut -c 3-)'
 function h {
 	`history | pick | cut -c 8-`
