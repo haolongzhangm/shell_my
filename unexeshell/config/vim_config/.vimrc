@@ -2,6 +2,7 @@
 "===================misc for vim=================================
 set nu
 set relativenumber
+set nocompatible
 function! ResCur()
 	if line("'\"") <= line("$")
 		normal! g`"
@@ -44,7 +45,6 @@ map <F9> :NERDTreeMirror<CR>
 map <F9> :NERDTreeToggle<CR>
 nn <silent><C-a> :NERDTreeClose<CR>:NERDTreeFind<CR>
 let NERDTreeWinPos='right'
-set nocompatible              " be iMproved, required
 "filetype off                  " required
 let NERDChristmasTree=1
 let NERDTreeAutoCenter=1
@@ -67,6 +67,7 @@ Bundle 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Bundle 'haolongzhangm/auto_update_cscope_ctags_database'
 Plugin 'kana/vim-operator-user'
 Plugin 'rhysd/vim-clang-format'
+Plugin 'rking/ag.vim'
 call vundle#end()            " required
 filetype plugin indent on    " required
 " Brief help
@@ -204,6 +205,25 @@ command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
 noremap <C-K> *N:Vgthisfile <C-R>=expand("<cword>")<CR><CR>
 noremap <C-l> *N:call VimGrepWithPath()<CR>:vimgrep <C-r>z
 			\ <left><left><left><left><left><left><left><left><left><left><left><left><left>
+function! AgGrepWithPath()
+	let b:comand_args = './'
+	let b:command_args_buffer_name = bufname('%')
+	let b:command_args_pwd = getcwd()
+	" bufname return val 47 means '/', 0 means 'NULL'
+	if char2nr(b:command_args_buffer_name) == 47
+		"echo "Absolute path"
+		let b:comand_args = b:command_args_buffer_name
+	elseif char2nr(b:command_args_buffer_name) == 0
+		"echo "No buffers"
+		let b:comand_args = b:command_args_pwd
+	else
+		"echo "relative path"
+		let b:comand_args = b:command_args_pwd . '/' . b:command_args_buffer_name
+	endif
+
+	call setreg('z', expand("<cword>") . ' ' . b:comand_args)
+endfunction
+noremap <C-\>l *N:call AgGrepWithPath()<CR>:Ag <C-r>z
 noremap <C-\>k :cclose<CR>
 command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
@@ -311,6 +331,7 @@ function! Myusage()
 	echo "F10        :cscope:Find this text string        "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/config PWD vimgrep <C-\\>k close"
+	echo "<C-\\>l:Ag func ..: Ag grep [fast grep]"
 	echo "<C-f>      :buffers list                        "
 	echo "<c-p>      :tjump func                        "
 	echo "<C-d>      :show Myusage()                      "
