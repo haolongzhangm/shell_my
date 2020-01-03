@@ -52,10 +52,9 @@ cp $root_dir/vim_config/external_vim_file/* -rf ~/.vim/
 echo "7: config usb udev"
 sudo cp $root_dir/ubuntu_config/usb_udev_config/*.rules /etc/udev/rules.d/
 
-echo "8: config simsun fonts..."
-sudo cp $root_dir/ubuntu_config/fonts/simsun.ttc /usr/share/fonts/
-sudo mkfontscale
-sudo mkfontdir
-sudo fc-cache -fsv
+echo "8: install more fonts..."
+cd $root_dir/ubuntu_config/fonts/
+./install_fonts.sh
+cd -
 
 echo -e "${RED}9: need config ubuntu config Manually${NC}"
