@@ -223,7 +223,7 @@ function! AgGrepWithPath()
 
 	call setreg('z', expand("<cword>") . ' ' . b:comand_args)
 endfunction
-noremap <C-\>l *N:call AgGrepWithPath()<CR>:Ag <C-r>z
+noremap <C-\>l *N:call AgGrepWithPath()<CR>:Ag -w <C-r>z
 noremap <C-\>k :cclose<CR>
 command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
@@ -292,7 +292,7 @@ let g:clang_format#detect_style_file = 1
 "do not plug ClangFormat to =, caused by linux-kernel code,
 "so just use command: [start,end]ClangFormat
 " other user bind == to call ClangFormat
-if $USER != "zhl"
+if $USER != "zhl" && $USER != "zhanghaolong"
 	autocmd FileType c,cpp,objc,opencl,cuda map <buffer> = <Plug>(operator-clang-format)
 endif
 function! FormatClangManua()
