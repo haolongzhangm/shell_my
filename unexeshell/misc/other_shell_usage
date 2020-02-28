@@ -136,6 +136,8 @@ use  fallocate to quick create a file
  ./configure --prefix=xxxxx ...
  cmake -DCMAKE_INSTALL_PREFIX=xxx ...
  ===================================================================================
+ git submodule update --init --recursive
  git submodule  foreach --recursive "cmd"
- git submodule update --init --recursive"
+ sometimes: submodule in submodue
+ git submodule  foreach --recursive "git submodule update --init --recursive"
  ===================================================================================

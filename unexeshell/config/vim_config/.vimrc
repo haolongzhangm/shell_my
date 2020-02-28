@@ -365,6 +365,7 @@ function! Myusage()
 	echo "<C-\\>k    : EchoFuncKeyPrev     "
 	echo "force reset vim   :source ~/.vimrc and :!reset"
 	echo "gen ycm config   :YcmGenerateConfig(kernel: make defconfig) or bear make"
+	echo "vim snapshoot   : :mksession file.vim then vim -S file.vim"
 endfunction
 
 let g:enable_or_disable_echofunc=0
