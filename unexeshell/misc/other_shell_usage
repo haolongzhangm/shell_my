@@ -141,3 +141,6 @@ use  fallocate to quick create a file
  sometimes: submodule in submodue
  git submodule  foreach --recursive "git submodule update --init --recursive"
  ===================================================================================
+ start vim and temporarily ignore your .vimrc
+ vim -u NONE
+ ===================================================================================
