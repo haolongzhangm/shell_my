@@ -540,5 +540,18 @@ function! GitBranchOrTag()
 	let b:GitBranchOrTagOld = b:ret_branch
 	return b:ret_branch
 endfunction
+function! ChangeStatuslineColor()
+  if (mode() =~# '\v(n|no)')
+    exe 'hi! StatusLine ctermfg=004'
+  elseif (mode() =~# '\v(v|V)')
+    exe 'hi! StatusLine ctermfg=005'
+  elseif (mode() ==# 'i')
+    exe 'hi! StatusLine ctermfg=008'
+  else
+    exe 'hi! StatusLine ctermfg=006'
+  endif
+  return ''
+endfunction
 set statusline+=%{GitBranchOrTag()}
+set statusline+=%{ChangeStatuslineColor()}
 "===============end GitBranchOrTag==============================
