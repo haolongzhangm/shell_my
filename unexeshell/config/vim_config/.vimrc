@@ -542,9 +542,9 @@ function! GitBranchOrTag()
 endfunction
 function! ChangeStatuslineColor()
   if (mode() =~# '\v(n|no)')
-    exe 'hi! StatusLine ctermfg=008'
-  elseif (mode() =~# '\v(v|V)')
     exe 'hi! StatusLine ctermfg=005'
+  elseif (mode() =~# '\v(v|V)')
+    exe 'hi! StatusLine ctermfg=008'
   elseif (mode() ==# 'i')
     exe 'hi! StatusLine ctermfg=004'
   else
