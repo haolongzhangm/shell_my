@@ -196,16 +196,8 @@ function! GetFilePath(echo_info)
 endfunction
 
 "=========add for command and customer shortcut key=============
-function! VimGrepWithPath()
-	let b:file_path = GetFilePath(1)
-
-	call setreg('z', expand("<cword>") . ' ' . b:file_path . '**/*.*|copen')
-endfunction
 command -nargs=1 Vgthisfile :vimgrep /<args>/ % | copen
-noremap <C-K> *N:Vgthisfile <C-R>=expand("<cword>")<CR><CR>
-noremap <C-l> *N:call VimGrepWithPath()<CR>:vimgrep <C-r>z
-			\ <left><left><left><left><left><left><left><left><left><left><left><left><left>
-function! AgGrepWithPath()
+function! AgGrepWithPath(use_may_tag_dir)
 	let b:comand_args = './'
 	let b:command_args_buffer_name = bufname('%')
 	let b:command_args_pwd = getcwd()
@@ -220,11 +212,33 @@ function! AgGrepWithPath()
 		"echo "relative path"
 		let b:comand_args = b:command_args_pwd . '/' . b:command_args_buffer_name
 	endif
+	let b:file_path = GetFilePath(1)
+	let l:project_dir = 'null'
+	if cscope_connection() > 0 && a:use_may_tag_dir
+		echo 'Tag Dirs: ' . g:csdbpath
+		let l:project_dir = g:csdbpath
+	endif
 
-	call setreg('z', expand("<cword>") . ' ' . b:comand_args)
+
+	if l:project_dir == 'null'
+		call setreg('z', b:file_path)
+	else
+		call setreg('z', l:project_dir)
+	endif
+
+	if a:use_may_tag_dir
+		if l:project_dir == 'null'
+			call setreg('z', expand("<cword>") . ' ' . b:file_path)
+		else
+			call setreg('z', expand("<cword>") . ' ' . l:project_dir)
+		endif
+	else
+		call setreg('z', expand("<cword>") . ' ' . b:comand_args)
+	endif
 endfunction
-noremap <C-\>l *N:call AgGrepWithPath()<CR>:Ag -w <C-r>z
-noremap <C-\>k :cclose<CR>
+noremap <C-\>l *N:call AgGrepWithPath(1)<CR>:Ag -w <C-r>z
+noremap <C-l> *N:call AgGrepWithPath(0)<CR>:Ag -w <C-r>z
+noremap <C-k> :cclose<CR>
 command -nargs=0 Clearblank :%s/\s\+$//
 "use system  clipboard
 "noremap y "+y
@@ -330,8 +344,9 @@ function! Myusage()
 	echo "F9 [<C-a>] :NERDTree [CUR file]"
 	echo "F10        :cscope:Find this text string        "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
-	echo "<C-K>/<C-l>:vimgrep func : Vgthisfile/config PWD vimgrep <C-\\>k close"
-	echo "<C-\\>l:Ag func ..: Ag grep [fast grep]"
+	echo "<C-K>      :close copen"
+	echo "<C-\\>l    :Ag func tag dir: Ag grep [fast grep]"
+	echo "<C-l>      :Ag func cur file: Ag grep [fast grep]"
 	echo "<C-f>      :buffers list                        "
 	echo "<c-p>      :tjump func                        "
 	echo "<C-d>      :show Myusage()                      "
