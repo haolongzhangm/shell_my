@@ -22,6 +22,7 @@ alias ggb='git branch'
 alias ggp='git pull'
 alias ggt='git tag'
 alias ggd='git diff'
+alias ggs='git status'
 alias v=vim
 alias V=vim
 alias gvim='LANG=EN gvim'
