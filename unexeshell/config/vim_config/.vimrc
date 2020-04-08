@@ -35,6 +35,7 @@ endif
 "fix mouse isse when use ssh server mode, eg resize window by mouse
 set ttymouse=xterm2
 nnoremap <silent><F8> :exec 'match StatusLineTerm /' . expand('<cword>') . '/'<CR>
+nmap <C-\>m :TranslateW -t <C-R>=expand("<cword>")<CR> -e youdao -tl zh -sl en
 "==================end for vim misc==============================
 
 "==========for TlistToggle and Nerdtree==========================
@@ -68,6 +69,7 @@ Bundle 'haolongzhangm/auto_update_cscope_ctags_database'
 Plugin 'kana/vim-operator-user'
 Plugin 'rhysd/vim-clang-format'
 Plugin 'rking/ag.vim'
+Plugin 'voldikss/vim-translator'
 call vundle#end()            " required
 filetype plugin indent on    " required
 " Brief help
@@ -96,6 +98,7 @@ let g:ycm_collect_identifiers_from_tags_files = 0
 let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
 let g:ycm_auto_trigger = 1
+let g:ycm_disable_for_files_larger_than_kb = 2500
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
 "add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
@@ -378,6 +381,7 @@ function! Myusage()
 	echo "<C-\\><F4>     :terminal         "
 	echo "<C-\\>j    : EchoFuncKeyNext     "
 	echo "<C-\\>k    : EchoFuncKeyPrev     "
+	echo "<C-\\>m    : call TranslateW      "
 	echo "force reset vim   :source ~/.vimrc and :!reset"
 	echo "gen ycm config   :YcmGenerateConfig(kernel: make defconfig) or bear make"
 	echo "vim snapshoot   : :mksession file.vim then vim -S file.vim"
