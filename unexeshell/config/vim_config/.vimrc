@@ -368,15 +368,16 @@ function! Myusage()
 	echo "<C-\\>v/V   :show function name"
 	echo "<C-\\>d     :bdelete current buffer              "
 	echo "<C-\\>e     :enable or disable echofunc.vim      "
-	echo "<C-\\>g     :gdb breakpoint command              "
 	echo "<C-\\>y     :YouCompleteMe_Start_Or_Stop(flag) 1:clangd, 0:libclang"
 	echo "           :android env pre: adb forward tcp:1234 tcp:1234"
-	echo "           :android env pre: let termdebugger=\"gdb_arm_linux_8_3\""
-	echo "           :android env pre: let termdebugger=\"gdb_aarch64_linux_8_3\""
-	echo "           :android env pre: let termdebugger=\"gdb_arm_macos_8_3\""
-	echo "           :android env pre: let termdebugger=\"gdb_aarch64_macos_8_3\""
 	echo "           :android env pre: (gdb)set solib-absolute-prefix ..."
 	echo "           :android env pre: (gdb)set solib-search-path ..."
+	echo "<C-\\>g     :gdb breakpoint command              "
+	echo "Gdblinuxarm  :config linux-arm host cross gdb env"
+	echo "Gdblinuxarm64:config linux-arm64 host cross gdb env"
+	echo "Gdbmacosarm  :config macos-arm host cross gdb env"
+	echo "Gdbmacosarm64:config macos-arm64 host cross gdb env"
+	echo "Gdblocalhost :config local gdb env"
 	echo "<C-\\><F3>     :vertical terminal             "
 	echo "<C-\\><F4>     :terminal         "
 	echo "<C-\\>j    : EchoFuncKeyNext     "
@@ -525,9 +526,11 @@ let g:check_update_when_first_load_vim = 1
 "========add for vim gdb config=================================
 packadd termdebug
 nmap <C-\>g :Break<CR>
-"example for config --host=x86_64-linux-gnu --target=aarch64-elf-linux gdb
-"let termdebugger = "/media/zhl/second/code/gdb-8.2/gdb/gdb"
-"Termdebug vmlinux
+command -nargs=0 Gdblinuxarm :let termdebugger="gdb_arm_linux_8_3"
+command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb_aarch64_linux_8_3"
+command -nargs=0 Gdbmacosarm :let termdebugger="gdb_arm_macos_8_3"
+command -nargs=0 Gdbmacosarm64 :let termdebugger="gdb_aarch64_macos_8_3"
+command -nargs=0 Gdblocalhost :let termdebugger="gdb"
 "========end for vim gdb config=================================
 
 "===============add GitBranchOrTag==============================
