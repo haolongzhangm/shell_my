@@ -42,8 +42,14 @@ nmap <C-\>m :TranslateW -t <C-R>=expand("<cword>")<CR> -e youdao -tl zh -sl en
 nnoremap <silent> <F4> :TlistToggle<CR>
 let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Auto_Open = 1
-map <F9> :NERDTreeMirror<CR>
-map <F9> :NERDTreeToggle<CR>
+function! NERDTREE_OPEN_OR_CLOSE_WITH_FLUSH()
+	if exists("g:NERDTree") && g:NERDTree.IsOpen()
+		NERDTreeClose
+	else
+		NERDTree
+	endif
+endfunction
+map <silent><F9> :call NERDTREE_OPEN_OR_CLOSE_WITH_FLUSH()<CR>
 nn <silent><C-a> :NERDTreeClose<CR>:NERDTreeFind<CR>
 let NERDTreeWinPos='right'
 "filetype off                  " required

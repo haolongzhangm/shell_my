@@ -144,3 +144,7 @@ use  fallocate to quick create a file
  start vim and temporarily ignore your .vimrc
  vim -u NONE
  ===================================================================================
+ more fast merge git commit than squash:
+ git reset --soft HEAD~number
+ git commit
+ ===================================================================================
