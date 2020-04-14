@@ -39,8 +39,10 @@ nmap <C-\>m :TranslateW -t <C-R>=expand("<cword>")<CR> -e youdao -tl zh -sl en
 "==================end for vim misc==============================
 
 "==========for TlistToggle and Nerdtree==========================
-nnoremap <silent> <F4> :TlistToggle<CR>
+nnoremap <silent> <F9> :TlistToggle<CR>
 let Tlist_Exit_OnlyWindow = 1
+let Tlist_Show_One_File = 1
+let Tlist_Use_Right_Window = 1
 "let Tlist_Auto_Open = 1
 function! NERDTREE_OPEN_OR_CLOSE_WITH_FLUSH()
 	if exists("g:NERDTree") && g:NERDTree.IsOpen()
@@ -49,9 +51,9 @@ function! NERDTREE_OPEN_OR_CLOSE_WITH_FLUSH()
 		NERDTree
 	endif
 endfunction
-map <silent><F9> :call NERDTREE_OPEN_OR_CLOSE_WITH_FLUSH()<CR>
-nn <silent><C-a> :NERDTreeClose<CR>:NERDTreeFind<CR>
-let NERDTreeWinPos='right'
+map <silent><C-a> :call NERDTREE_OPEN_OR_CLOSE_WITH_FLUSH()<CR>
+nn <silent><F4> :NERDTreeClose<CR>:NERDTreeFind<CR>:echo "use C-a to close NERDTree"<CR>
+let NERDTreeWinPos='left'
 "filetype off                  " required
 let NERDChristmasTree=1
 let NERDTreeAutoCenter=1
@@ -346,11 +348,11 @@ function! Myusage()
 	echo "F3         :YcmCompleter GoToDefinition          "
 	echo "F7         :YcmCompleter GoToReferences          "
 	echo "F12        :YcmCompleter GoToDeclaration         "
-	echo "F4         :TlistToggle                         "
+	echo "F9         :TlistToggle                         "
 	echo "F5         :cscope:Find functions calling this function"
 	echo "F6         :cscope:Find this C symbol           "
 	echo "<C-\\>r    :cscope:Find functions called by this function"
-	echo "F9 [<C-a>] :NERDTree [CUR file]"
+	echo "F4 [<C-a>] :NERDTree [CUR file]"
 	echo "F10        :cscope:Find this text string        "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>      :close copen"
@@ -532,8 +534,8 @@ let g:check_update_when_first_load_vim = 1
 "========add for vim gdb config=================================
 packadd termdebug
 nmap <C-\>g :Break<CR>
-command -nargs=0 Gdblinuxarm :let termdebugger="gdb_arm_linux_8_3"
-command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb_aarch64_linux_8_3"
+command -nargs=0 Gdblinuxarm :let termdebugger="gdb_arm_linux_9_1"
+command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb_aarch64_linux_9_1"
 command -nargs=0 Gdbmacosarm :let termdebugger="gdb_arm_macos_8_3"
 command -nargs=0 Gdbmacosarm64 :let termdebugger="gdb_aarch64_macos_8_3"
 command -nargs=0 Gdblocalhost :let termdebugger="gdb"
