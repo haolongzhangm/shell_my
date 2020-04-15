@@ -25,7 +25,7 @@ au BufNewFile,BufRead *.ph set filetype=c
 "terminal always show file name and function name
 set laststatus=2
 set statusline=%f:%P:%v
-"need call TlistAddFiles % or <F4> to update taglist
+"need call TlistAddFiles % or <F9> to update taglist
 set statusline +=\ %{Tlist_Get_Tagname_By_Line()}
 set hlsearch incsearch ignorecase
 if has("gui_running")
@@ -51,10 +51,9 @@ function! NERDTREE_OPEN_OR_CLOSE_WITH_FLUSH()
 		NERDTree
 	endif
 endfunction
-map <silent><C-a> :call NERDTREE_OPEN_OR_CLOSE_WITH_FLUSH()<CR>
-nn <silent><F4> :NERDTreeClose<CR>:NERDTreeFind<CR>:echo "use C-a to close NERDTree"<CR>
+map <silent><F4> :call NERDTREE_OPEN_OR_CLOSE_WITH_FLUSH()<CR>
+nn <silent><C-a> :NERDTreeClose<CR>:NERDTreeFind<CR>:echo "use <F4> to close NERDTree"<CR>
 let NERDTreeWinPos='left'
-"filetype off                  " required
 let NERDChristmasTree=1
 let NERDTreeAutoCenter=1
 let NERDTreeShowFiles=1
@@ -287,29 +286,49 @@ nnoremap <C-\><F4> :terminal<CR>
 nmap <C-\>d :bdelete<CR>
 "=========end for command and customer shortcut key============
 "===================add for codestyle switch=====================
+let g:codestyle = 'Codestyle:NULL'
 function! LinuxCodestyle()
+	let g:codestyle = 'LinuxCodestyle'
 	set tabstop=8
 	set shiftwidth=8
 	set noexpandtab
 endfunction
 
+function! KaiCodestyle()
+	let g:codestyle = 'KaiCodestyle'
+	set tabstop=4
+	set shiftwidth=4
+	set expandtab
+endfunction
+
 function! GoogleCodestyle()
+	let g:codestyle = 'GoogleCodestyle'
 	set tabstop=2
 	set shiftwidth=2
 	set expandtab
 endfunction
-autocmd BufNewFile,BufRead *.c call LinuxCodestyle()
-autocmd BufNewFile,BufRead *.cpp call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.cc call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.c++ call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.java call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.aidl call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.mk call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.cu call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.hpp call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.opencl call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.cl call GoogleCodestyle()
-autocmd BufNewFile,BufRead *.vim call GoogleCodestyle()
+
+function! Codestyle()
+	return '[' . g:codestyle . ':' . &filetype .']'
+endfunction
+
+function! IntoCodestyle()
+	let b:file_path = GetFilePath(0)
+	if match(b:file_path, "megvii") > 0
+		call KaiCodestyle()
+	elseif match(b:file_path, "aosp") > 0
+		call GoogleCodestyle()
+	elseif match(b:file_path, "linux") > 0
+		call LinuxCodestyle()
+	elseif &filetype ==# 'c' || &filetype ==# 'vim'
+		call LinuxCodestyle()
+	elseif &filetype ==# 'cpp' || &filetype ==# 'java' || &filetype ==# 'make'
+		call GoogleCodestyle()
+	else
+		call LinuxCodestyle()
+	endif
+endfunction
+autocmd BufNewFile,BufRead * call IntoCodestyle()
 "clang format
 let g:clang_format#command = 'clang-format'
 "auto detect .clang-format file
@@ -584,4 +603,5 @@ function! ChangeStatuslineColor()
 endfunction
 set statusline+=%{GitBranchOrTag()}
 set statusline+=%{ChangeStatuslineColor()}
+set statusline+=%{Codestyle()}
 "===============end GitBranchOrTag==============================
