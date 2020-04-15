@@ -29,7 +29,7 @@ set statusline=%f:%P:%v
 set statusline +=\ %{Tlist_Get_Tagname_By_Line()}
 set hlsearch incsearch ignorecase
 if has("gui_running")
-colorscheme industry
+	colorscheme industry
 endif
 "nmap <C-\>r :!goldendict <C-R>=expand("<cword>")<CR><CR>
 "fix mouse isse when use ssh server mode, eg resize window by mouse
@@ -533,9 +533,9 @@ nmap <C-\>s :SrcExplToggle<CR>
 "nmap <C-\>c :SrcExplClose<CR>
 let g:SrcExpl_winHeight = 20
 let g:SrcExpl_pluginList = [
-        \ "__Tag_List__",
-		\ "_NERD_tree_"
-    \ ]
+			\ "__Tag_List__",
+			\ "_NERD_tree_"
+			\ ]
 "========end for srcexpl.vim====================================
 
 "========add for echofunc.vim===================================
@@ -590,16 +590,16 @@ function! GitBranchOrTag()
 	return b:ret_branch
 endfunction
 function! ChangeStatuslineColor()
-  if (mode() =~# '\v(n|no)')
-    exe 'hi! StatusLine ctermfg=005'
-  elseif (mode() =~# '\v(v|V)')
-    exe 'hi! StatusLine ctermfg=008'
-  elseif (mode() ==# 'i')
-    exe 'hi! StatusLine ctermfg=004'
-  else
-    exe 'hi! StatusLine ctermfg=00f'
-  endif
-  return ''
+	if (mode() =~# '\v(n|no)')
+		exe 'hi! StatusLine ctermfg=005'
+	elseif (mode() =~# '\v(v|V)')
+		exe 'hi! StatusLine ctermfg=008'
+	elseif (mode() ==# 'i')
+		exe 'hi! StatusLine ctermfg=004'
+	else
+		exe 'hi! StatusLine ctermfg=00f'
+	endif
+	return ''
 endfunction
 set statusline+=%{GitBranchOrTag()}
 set statusline+=%{ChangeStatuslineColor()}
