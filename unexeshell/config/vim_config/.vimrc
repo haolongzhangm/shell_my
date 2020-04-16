@@ -314,7 +314,7 @@ endfunction
 
 function! IntoCodestyle()
 	let b:file_path = GetFilePath(0)
-	if match(b:file_path, "megvii") > 0
+	if match(b:file_path, "megvii") > 0 || match(b:file_path, "brain") > 0
 		call KaiCodestyle()
 	elseif match(b:file_path, "aosp") > 0
 		call GoogleCodestyle()

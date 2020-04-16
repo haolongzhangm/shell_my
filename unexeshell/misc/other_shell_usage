@@ -21,6 +21,7 @@
  replace files:
  sed -i 's/aaa/bbbb/g' `grep -r aaa -rl .`
  sed -i 's/AAA/BBBB/g' `grep -r AAA -rl .`
+ sed -i 's/\bword\b/to_word/g' `grep -rlw word  .
  ===================================================================================
  vim save readonly file: w !sudo tee %
  ===================================================================================
