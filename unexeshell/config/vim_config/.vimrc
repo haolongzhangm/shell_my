@@ -138,6 +138,9 @@ nnoremap <C-\>y :call YouCompleteMe_Start_Or_Stop(1)
 nmap <F12> :YcmCompleter GoToDeclaration<CR>
 nmap <F3> :YcmCompleter GoToDefinition<CR>
 nmap <F7> :YcmCompleter GoToReferences<CR>
+" disable ycm hover auto popup
+let g:ycm_auto_hover = "0"
+nmap <F10> <plug>(YCMHover)
 "======================end for YouCompleteMe config============
 
 "===============for cscope and ctags===========================
@@ -148,7 +151,7 @@ nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
 nmap <C-\>a :cs find a <C-R>=expand("<cword>")<CR><CR>
 "nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR> "use vim defaule
 "ctrl+] or ctrl+p to find define tag
-nmap <F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
+nmap <C-\><F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
 nmap <C-u> :tnext<CR><CR>:call ShowFuncName() <CR>
 nmap <C-y> :tprevious<CR><CR>:call ShowFuncName() <CR>
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
@@ -366,13 +369,14 @@ function! Myusage()
 	echo "F2         :cscope:Find this file                "
 	echo "F3         :YcmCompleter GoToDefinition          "
 	echo "F7         :YcmCompleter GoToReferences          "
+	echo "F10        :YcmCompleter YCMHover          "
 	echo "F12        :YcmCompleter GoToDeclaration         "
 	echo "F9         :TlistToggle                         "
 	echo "F5         :cscope:Find functions calling this function"
 	echo "F6         :cscope:Find this C symbol           "
 	echo "<C-\\>r    :cscope:Find functions called by this function"
 	echo "F4 [<C-a>] :NERDTree [CUR file]"
-	echo "F10        :cscope:Find this text string        "
+	echo "<C-\\>F10        :cscope:Find this text string        "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>      :close copen"
 	echo "<C-\\>l    :Ag func tag dir: Ag grep [fast grep]"
