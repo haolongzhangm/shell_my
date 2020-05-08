@@ -297,6 +297,13 @@ function! LinuxCodestyle()
 	set noexpandtab
 endfunction
 
+function! PythonCodestyle()
+	let g:codestyle = 'PythonCodestyle'
+	set tabstop=4
+	set shiftwidth=4
+	set noexpandtab
+endfunction
+
 function! KaiCodestyle()
 	let g:codestyle = 'KaiCodestyle'
 	set tabstop=4
@@ -327,6 +334,8 @@ function! IntoCodestyle()
 		call LinuxCodestyle()
 	elseif &filetype ==# 'cpp' || &filetype ==# 'java' || &filetype ==# 'make'
 		call GoogleCodestyle()
+	elseif &filetype ==# 'python'
+		call PythonCodestyle()
 	else
 		call LinuxCodestyle()
 	endif
