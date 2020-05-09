@@ -304,6 +304,13 @@ function! PythonCodestyle()
 	set noexpandtab
 endfunction
 
+function! ShellCodestyle()
+	let g:codestyle = 'ShellCodestyle'
+	set tabstop=4
+	set shiftwidth=4
+	set expandtab
+endfunction
+
 function! KaiCodestyle()
 	let g:codestyle = 'KaiCodestyle'
 	set tabstop=4
@@ -311,10 +318,11 @@ function! KaiCodestyle()
 	set expandtab
 endfunction
 
+" fuck why google has two cpp style code is AOSP?
 function! GoogleCodestyle()
 	let g:codestyle = 'GoogleCodestyle'
-	set tabstop=2
-	set shiftwidth=2
+	set tabstop=4
+	set shiftwidth=4
 	set expandtab
 endfunction
 
@@ -324,18 +332,22 @@ endfunction
 
 function! IntoCodestyle()
 	let b:file_path = GetFilePath(0)
-	if match(b:file_path, "megvii") > 0 || match(b:file_path, "brain") > 0
+	if &filetype ==# 'python'
+		call PythonCodestyle()
+	elseif &filetype ==# 'vim'
+		call LinuxCodestyle()
+	elseif &filetype ==# 'sh'
+		call ShellCodestyle()
+	elseif match(b:file_path, "megvii") > 0 || match(b:file_path, "brain") > 0
 		call KaiCodestyle()
 	elseif match(b:file_path, "aosp") > 0
 		call GoogleCodestyle()
 	elseif match(b:file_path, "linux") > 0
 		call LinuxCodestyle()
-	elseif &filetype ==# 'c' || &filetype ==# 'vim'
+	elseif &filetype ==# 'c'
 		call LinuxCodestyle()
 	elseif &filetype ==# 'cpp' || &filetype ==# 'java' || &filetype ==# 'make'
 		call GoogleCodestyle()
-	elseif &filetype ==# 'python'
-		call PythonCodestyle()
 	else
 		call LinuxCodestyle()
 	endif
@@ -356,6 +368,7 @@ function! FormatClangManua()
 
 	call setreg('z', b:line . ', +' . 'ClangFormat')
 endfunction
+
 nnoremap <C-\>c :call FormatClangManua()<CR>:<C-r>z
 			\ <left><left><left><left><left><left><left><left><left><left><left><left>
 "===================end add for codestyle switch==================
