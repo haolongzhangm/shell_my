@@ -15,9 +15,6 @@ LAN_PORT = 5555
 SCAN_THREADPOOL_SIZE = 128 * 4
 scan_find_device = False
 config_devices = {
-        '10.235.68.92:5555':'sdm660_dangzhiyong',
-        '10.235.69.178:5555':'qcom710_liyuzhong',
-        '10.235.69.73:5555':'car_8665_android32',
         'all':'try connect/disconnect all device'
         }
 

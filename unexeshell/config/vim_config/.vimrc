@@ -77,6 +77,7 @@ Plugin 'kana/vim-operator-user'
 Plugin 'rhysd/vim-clang-format'
 Plugin 'rking/ag.vim'
 Plugin 'voldikss/vim-translator'
+Plugin 'pboettch/vim-cmake-syntax'
 call vundle#end()            " required
 filetype plugin indent on    " required
 " Brief help
