@@ -149,3 +149,11 @@ use  fallocate to quick create a file
  git reset --soft HEAD~number
  git commit
  ===================================================================================
+ code compat for windows env:
+ Visual Studio + llvm + clang-cl + Ninja
+ at bash env, need push vcvarsall.bat to env then call it export windows link env
+ cmd.exe /c " vcvarsall.bat x64 && cmake -G "Ninja" \
+ -DCMAKE_C_COMPILER=clang-cl.exe \
+ -DCMAKE_CXX_COMPILER=clang-cl.exe \
+ -DCMAKE_MAKE_PROGRAM=ninja.exe ..."
+ ===================================================================================

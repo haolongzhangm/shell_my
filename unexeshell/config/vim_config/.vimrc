@@ -301,7 +301,7 @@ function! PythonCodestyle()
 	let g:codestyle = 'PythonCodestyle'
 	set tabstop=4
 	set shiftwidth=4
-	set noexpandtab
+	set expandtab
 endfunction
 
 function! ShellCodestyle()
