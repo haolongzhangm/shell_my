@@ -148,6 +148,9 @@ use  fallocate to quick create a file
  more fast merge git commit than squash:
  git reset --soft HEAD~number
  git commit
+ or:
+ git rebase -i HEAD~number
+ git commit ... pick squash squash ...
  ===================================================================================
  code compat for windows env:
  Visual Studio + llvm + clang-cl + Ninja

@@ -110,3 +110,9 @@ function desk_tmp_file {
 	desk
 	builtin cd tmp_file
 }
+# add pyenv command to PATH env install from:
+# https://github.com/pyenv/pyenv and
+# https://github.com/pyenv/pyenv-installer
+# use for customer python version, example command:
+# env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install xxxx
+export PATH="/home/zhl/.pyenv/bin:$PATH"
