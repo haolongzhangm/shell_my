@@ -107,6 +107,7 @@ let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
 let g:ycm_auto_trigger = 1
 let g:ycm_disable_for_files_larger_than_kb = 2500
+let g:ycm_clangd_binary_path = 'clangd-11'
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
 "add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
@@ -139,6 +140,7 @@ nnoremap <C-\>y :call YouCompleteMe_Start_Or_Stop(1)
 nmap <F12> :YcmCompleter GoToDeclaration<CR>
 nmap <F3> :YcmCompleter GoToDefinition<CR>
 nmap <F7> :YcmCompleter GoToReferences<CR>
+""let g:ycm_clangd_args = ['-log=verbose']
 " disable ycm hover auto popup
 let g:ycm_auto_hover = "0"
 nmap <F10> <plug>(YCMHover)
@@ -458,7 +460,8 @@ nnoremap <C-\>e :call Enable_or_disable_echofunc()<CR>
 "=========end for add Myusage==================================
 
 "=================add for command-t=============================
-let g:CommandTMaxFiles=110000
+"let g:CommandTFileScanne="find"
+let g:CommandTMaxFiles=440000
 let g:CommandTMaxDepth=40
 let g:CommandTSuppressMaxFilesWarning=0
 let g:CommandTMaxHeight=200
