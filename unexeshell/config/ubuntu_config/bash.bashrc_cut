@@ -110,6 +110,10 @@ function desk_tmp_file {
 	desk
 	builtin cd tmp_file
 }
+
+function lsr {
+	ranger
+}
 # add pyenv command to PATH env install from:
 # https://github.com/pyenv/pyenv and
 # https://github.com/pyenv/pyenv-installer
