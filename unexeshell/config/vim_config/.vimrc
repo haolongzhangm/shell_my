@@ -36,6 +36,7 @@ endif
 set ttymouse=xterm2
 nnoremap <silent><F8> :exec 'match StatusLineTerm /' . expand('<cword>') . '/'<CR>
 nmap <C-\>m :TranslateW -t <C-R>=expand("<cword>")<CR> -e youdao -tl zh -sl en
+"setlocal spell spelllang=en_us
 "==================end for vim misc==============================
 
 "==========for TlistToggle and Nerdtree==========================
