@@ -109,6 +109,8 @@ let g:ycm_warning_symbol = 'Wr'
 let g:ycm_auto_trigger = 1
 let g:ycm_disable_for_files_larger_than_kb = 2500
 let g:ycm_clangd_binary_path = 'clangd-11'
+""use to debug clangd issue
+""let g:ycm_clangd_args = ['-log=verbose', '-pretty']
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
 "add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
