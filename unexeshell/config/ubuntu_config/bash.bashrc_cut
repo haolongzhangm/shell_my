@@ -120,3 +120,8 @@ function lsr {
 # use for customer python version, example command:
 # env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install xxxx
 export PATH="/home/zhl/.pyenv/bin:$PATH"
+
+export PATH=/home/zhl/bin:$PATH
+export DOCKER_HOST=unix:///run/user/$UID/docker.sock
+
+#systemctl --user (start|stop|restart) docker.service
