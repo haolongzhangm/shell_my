@@ -586,8 +586,8 @@ let g:check_update_when_first_load_vim = 1
 "========add for vim gdb config=================================
 packadd termdebug
 nmap <C-\>g :Break<CR>
-command -nargs=0 Gdblinuxarm :let termdebugger="gdb_arm_linux_9_1"
-command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb_aarch64_linux_9_1"
+command -nargs=0 Gdblinuxarm :let termdebugger="gdb_arm_linux_10_1"
+command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb_aarch64_linux_10_1"
 command -nargs=0 Gdbmacosarm :let termdebugger="gdb_arm_macos_8_3"
 command -nargs=0 Gdbmacosarm64 :let termdebugger="gdb_aarch64_macos_8_3"
 command -nargs=0 Gdblocalhost :let termdebugger="gdb"
