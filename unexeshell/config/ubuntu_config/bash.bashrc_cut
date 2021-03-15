@@ -114,7 +114,7 @@ function desk_tmp_file {
 }
 
 function lsr {
-	ranger
+	VISUAL=vim EDITOR=vim ranger
 }
 # add pyenv command to PATH env install from:
 # https://github.com/pyenv/pyenv and
