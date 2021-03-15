@@ -25,6 +25,8 @@ alias ggt='git tag'
 alias ggd='git diff'
 alias ggs='git status'
 alias ggls='git log --stat'
+alias ggclean='echo git clean -xdf --exclude=.cache --exclude=.ycm; git clean -xdf --exclude=.cache --exclude=.ycm'
+alias ggclean_dry-run='echo git clean -xdfn --exclude=.cache --exclude=.ycm; git clean -xdfn --exclude=.cache --exclude=.ycm'
 alias v=vim
 alias V=vim
 alias gvim='LANG=EN gvim'
