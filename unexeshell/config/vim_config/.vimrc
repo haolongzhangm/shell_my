@@ -79,6 +79,7 @@ Plugin 'rhysd/vim-clang-format'
 Plugin 'rking/ag.vim'
 Plugin 'voldikss/vim-translator'
 Plugin 'pboettch/vim-cmake-syntax'
+Plugin 'francoiscabrol/ranger.vim'
 call vundle#end()            " required
 filetype plugin indent on    " required
 " Brief help
@@ -404,6 +405,7 @@ function! Myusage()
 	echo "F6         :cscope:Find this C symbol           "
 	echo "<C-\\>r    :cscope:Find functions called by this function"
 	echo "F4 [<C-a>] :NERDTree [CUR file]"
+	echo "\F4        :Ranger [CUR file]"
 	echo "<C-\\>F10        :cscope:Find this text string        "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>      :close copen"
@@ -638,3 +640,8 @@ set statusline+=%{GitBranchOrTag()}
 set statusline+=%{ChangeStatuslineColor()}
 set statusline+=%{Codestyle()}
 "===============end GitBranchOrTag==============================
+"
+"===============start ranger==============================
+let g:ranger_map_keys = 0
+map <silent>\<F4> :Ranger<CR>
+"===============end ranger================================
