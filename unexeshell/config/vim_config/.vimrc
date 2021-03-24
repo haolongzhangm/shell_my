@@ -37,6 +37,13 @@ set ttymouse=xterm2
 nnoremap <silent><F8> :exec 'match StatusLineTerm /' . expand('<cword>') . '/'<CR>
 nmap <C-\>m :TranslateW -t <C-R>=expand("<cword>")<CR> -e youdao -tl zh -sl en
 "setlocal spell spelllang=en_us
+
+"customer \<F3> to general man, \<F2> to c++ std::api man
+"caused by vim self shift+k man can not modify cursor words
+"also caused by termdebug will override shift+k key bind
+"about c++ api man may need install: libstdc++-x-doc (x: 9)
+nmap \<F3> :!man <C-R>=expand("<cword>")<CR>
+nmap \<F2> :!man std::<C-R>=expand("<cword>")<CR>
 "==================end for vim misc==============================
 
 "==========for TlistToggle and Nerdtree==========================
@@ -405,7 +412,8 @@ function! Myusage()
 	echo "F6         :cscope:Find this C symbol           "
 	echo "<C-\\>r    :cscope:Find functions called by this function"
 	echo "F4 [<C-a>] :NERDTree [CUR file]"
-	echo "\F4        :Ranger [CUR file]"
+	echo "\\F4        :Ranger [CUR file]"
+	echo "\\F2/F3        :man api(need install: libstdc++-x-doc (x: 9)"
 	echo "<C-\\>F10        :cscope:Find this text string        "
 	echo "<C-u>/<C-y>:qucikfix tnext or tprevious         "
 	echo "<C-K>      :close copen"
