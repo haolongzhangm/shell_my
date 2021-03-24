@@ -212,9 +212,11 @@ function! GetFilePath(echo_info)
 		let b:comand_args = b:command_args_pwd . '/' . b:command_args_buffer_name
 		let b:file_path = b:comand_args[:strridx(b:comand_args, '/')]
 	endif
-	if a:echo_info
+	if a:echo_info == 1
 		echo 'BUF: ' . b:comand_args
 		echo 'CUR: ' . b:command_args_pwd
+	elseif a:echo_info == 2
+		return b:comand_args
 	endif
 	" easy for gdb with line
 	" let b:line_number = line('.')
@@ -442,6 +444,7 @@ function! Myusage()
 	echo "           :android env pre: (gdb)set solib-absolute-prefix ..."
 	echo "           :android env pre: (gdb)set solib-search-path ..."
 	echo "<C-\\>g     :gdb breakpoint command              "
+	echo "\\g     :show git blame info              "
 	echo "Gdblinuxarm  :config linux-arm host cross gdb env"
 	echo "Gdblinuxarm64:config linux-arm64 host cross gdb env"
 	echo "Gdbmacosarm  :config macos-arm host cross gdb env"
@@ -632,6 +635,23 @@ function! GitBranchOrTag()
 	let b:GitBranchOrTagOld = b:ret_branch
 	return b:ret_branch
 endfunction
+function! GitBlame()
+	let b:file_path = GetFilePath(0)
+	let b:cur_line= line('.')
+	" default max show 20 line code git blame
+	let b:end_line= line('.') + 40
+	" do command: git blame curfile
+	let b:git_run_c = 'cd ' . b:file_path . ";git blame " . GetFilePath(2) . " -L " . b:cur_line . "," . b:end_line
+	"echo b:git_run_c
+	let b:ret_system = system(b:git_run_c)
+	call popup_create(split(b:ret_system, "\n"), #{
+				\ close: 'click',
+				\ pos: 'center',
+				\ highlight: 'Search',
+				\ time: 8000, drag: 1,
+				\})
+endfunction
+nmap \g :call GitBlame()<CR>
 function! ChangeStatuslineColor()
 	if (mode() =~# '\v(n|no)')
 		exe 'hi! StatusLine ctermfg=005'
