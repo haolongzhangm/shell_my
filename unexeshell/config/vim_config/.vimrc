@@ -641,7 +641,7 @@ function! GitBlame()
 	" default max show 20 line code git blame
 	let b:end_line= line('.') + 40
 	" do command: git blame curfile
-	let b:git_run_c = 'cd ' . b:file_path . ";git blame " . GetFilePath(2) . " -L " . b:cur_line . "," . b:end_line
+	let b:git_run_c = 'cd ' . b:file_path . ";git blame -c " . GetFilePath(2) . " -L " . b:cur_line . "," . b:end_line
 	"echo b:git_run_c
 	let b:ret_system = system(b:git_run_c)
 	call popup_create(split(b:ret_system, "\n"), #{
