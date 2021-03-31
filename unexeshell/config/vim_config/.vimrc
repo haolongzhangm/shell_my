@@ -433,7 +433,8 @@ function! Myusage()
 	\ "CommandT     ": "<C-h> -- call CommandT at tag dirs if possible\n
 	\                 <C-\\>h -- call CommandT at current buffer dir\n
 	\                 <C-\\>f/F -- CommandTBuffer",
-	\ "SrcExpl      ": "<C-\\>p -- SrcExpl_prevDefKey\n
+	\ "SrcExpl      ": "suggest using YCM\n
+	\                 <C-\\>p -- SrcExpl_prevDefKey\n
 	\                 <C-\\>u -- SrcExpl_nextDefKey\n
 	\                 <C-\\>s -- SrcExplToggle  open/close",
 	\ "<C-\\>c       ": "call ClangFormat manually",
@@ -444,7 +445,8 @@ function! Myusage()
 	\ "<C-\\><F4>    ": "terminal",
 	\ "<C-\\>m       ": "call TranslateW",
 	\ "<F8>         ": "highlight words with search",
-	\ "EchoFunc     ": "<C-\\>j -- EchoFuncKeyNext\n
+	\ "EchoFunc     ": "suggest using YCM\n
+	\                 <C-\\>j -- EchoFuncKeyNext\n
 	\                 <C-\\>k -- EchoFuncKeyPrev\n
 	\                 <C-\\>e -- enable or disable echofunc",
 	\ "createtag    ": ":Createtag -- create tag\n
