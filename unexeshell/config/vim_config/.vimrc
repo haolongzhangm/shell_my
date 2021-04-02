@@ -419,7 +419,7 @@ function! Myusage()
 	\                 <C-\\>y YouCompleteMe_Start_Or_Stop(flag) 1:clangd, 0:libclang",
 	\ "window navi  ": "F9 -- TlistToggle\n
 	\                 F4 -- NERDTree [pwd]\n
-	\                 [<C-a>] -- NERDTree [CUR file]\n
+	\                 <C-a> -- NERDTree [CUR file]\n
 	\                 \\F4 Ranger [pwd]",
 	\ "man          ": "\\F2 \\F3 -- run !man xx need install libstdc++-x-doc (x: 9)",
 	\ "qucikfix     ": "<C-u> -- tnext | <C-y> -- tprevious",
@@ -441,8 +441,8 @@ function! Myusage()
 	\ "<C-\\>v/V     ": "show function name",
 	\ "<C-\\>d       ": "bdelete current buffer",
 	\ "\\g           ": "show git blame info",
-	\ "<C-\\><F3>    ": "vertical terminal",
-	\ "<C-\\><F4>    ": "terminal",
+	\ "terminal split": "<C-\\><F3> -- vertical terminal\n
+	\                  <C-\\><F4> -- terminal",
 	\ "<C-\\>m       ": "call TranslateW",
 	\ "<F8>         ": "highlight words with search",
 	\ "EchoFunc     ": "suggest using YCM\n
