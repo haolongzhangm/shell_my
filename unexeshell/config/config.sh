@@ -45,8 +45,13 @@ echo "6: config vim config..."
 echo "try remove exist file..."
 rm ~/.vimrc
 ln -s $root_dir/vim_config/.vimrc ~/.vimrc
+mkdir -p ~/.vim/spell
+rm ~/.vim/spell/en.utf-8.add
+rm ~/.vim/spell/en.utf-8.add.spl
+ln -s $root_dir/vim_config/en.utf-8.add.spl ~/.vim/spell/en.utf-8.add.spl
+ln -s $root_dir/vim_config/en.utf-8.add ~/.vim/spell/en.utf-8.add
 echo "cp external_vim_file"
-mkdir ~/.vim/
+mkdir -p ~/.vim/
 cp $root_dir/vim_config/external_vim_file/* -rf ~/.vim/ 
 
 echo "7: config usb udev"

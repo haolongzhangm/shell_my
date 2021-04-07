@@ -31,11 +31,20 @@ set hlsearch incsearch ignorecase
 if has("gui_running")
 	colorscheme industry
 endif
-"fix mouse isse when use ssh server mode, eg resize window by mouse
+"fix mouse issue when use ssh server mode, eg resize window by mouse
 set ttymouse=xterm2
 nnoremap <silent><F8> :exec 'match StatusLineTerm /' . expand('<cword>') . '/'<CR>
 nmap <C-\>m :TranslateW -t <C-R>=expand("<cword>")<CR> -e youdao -tl zh -sl en
-"setlocal spell spelllang=en_us
+set spell spelllang=en_us
+setlocal spell spelllang=en_us
+highlight clear SpellBad
+highlight clear SpellCap
+highlight clear SpellRare
+highlight clear SpellLocal
+hi SpellBad cterm=bold,underline
+hi SpellCap cterm=bold,underline
+hi SpellRare cterm=bold,underline
+hi SpellLocal cterm=bold,underline
 
 "customer \<F3> to general man, \<F2> to c++ std::api man
 "caused by vim self shift+k man can not modify cursor words
@@ -462,6 +471,8 @@ function! Myusage()
 	\                         (gdb)set solib-search-path ...",
 	\ "vim          ": ":source ~/.vimrc and :!reset -- reset vimrc\n
 	\                 :mksession file.vim then vim -S file.vim -- vim snapshoot",
+	\ "vim spell    ": "z= -- give spell correction suggest\n
+	\                 zg -- put this to spell dict eg: ~/.vim/spell/en.utf-8.add",
 	\ }
 	for key in keys(help_msg)
 		echo key . '--> ' . help_msg[key]
