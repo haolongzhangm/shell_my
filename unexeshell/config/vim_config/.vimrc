@@ -130,7 +130,7 @@ let g:ycm_clangd_binary_path = 'clangd-11'
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
 "add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
-"or interface to swith ycm back-end, 1: clangd, 0: libclang
+"or interface to switch ycm back-end, 1: clangd, 0: libclang
 let s:already_enable_youcomplete = 1
 function! YouCompleteMe_Start_Or_Stop(use_clangd)
 	if 1 == a:use_clangd
@@ -172,7 +172,7 @@ nmap <F6> :cs find s <C-R>=expand("<cword>")<CR><CR>
 nmap <C-\>r :cs find d <C-R>=expand("<cword>")<CR><CR>
 nmap <F2> :cs find f <C-R>=expand("<cfile>")<CR><CR>
 nmap <C-\>a :cs find a <C-R>=expand("<cword>")<CR><CR>
-"nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR> "use vim defaule
+"nmap <F12> :cs find g <C-R>=expand("<cword>")<CR><CR> "use vim default
 "ctrl+] or ctrl+p to find define tag
 nmap <C-\><F10> :cs find t <C-R>=expand("<cword>")<CR><CR>
 nmap <C-u> :tnext<CR><CR>:call ShowFuncName() <CR>
@@ -292,7 +292,7 @@ map <c-\>t :Manualupdatedatabaseonetime<CR>
 "quick for marks show ,then use ' + [num] to jump
 nnoremap <C-n> :marks<CR>:'
 
-"quick show changs list,
+"quick show changes list,
 "then use [num] + g + ; to jump back
 "or use   [num] + g + , to jump forward
 nnoremap <C-c> :changes<CR>
@@ -398,20 +398,20 @@ nnoremap <C-\>c :call FormatClangManua()<CR>:<C-r>z
 			\ <left><left><left><left><left><left><left><left><left><left><left><left>
 "===================end add for codestyle switch==================
 
-"=========ADD for add Myusage==================================
+"=========ADD for add My usage==================================
 function! Myusage()
-	echo "Myusage:"
+	echo "usage:"
 	let l:help_msg = {
         \ "Bookmarks    ": "<C-n> : ' + [num]",
-	\ "changslist   ": "<C-c> : [num] + g + ;  <<back/[num] + g + ,  <<forward",
+	\ "changes list ": "<C-c> : [num] + g + ;  <<back/[num] + g + ,  <<forward",
 	\ "registers    ": "<C-e> :  \"+ [register] + p",
 	\ "marks        ": "<C-n>",
 	\ "jumps        ": "<C-j> : [num] + ctrl + o <<back/[num] + ctrl + i <<forward",
 	\ ",/;          ": "repeat do f/F(find command)<vim default>",
 	\ ".            ": "repeat do the last command of Normal model<vim default>",
-	\ "<C-\\>,       ": "jump to cursor localtion Fuc call Fuc",
-	\ "<C-\\>.       ": "jump to cursor locateion Fuc name",
-	\ "<C-\\>/       ": "jump to cursor locateion Fuc refers",
+	\ "<C-\\>,       ": "jump to cursor location Fuc call Fuc",
+	\ "<C-\\>.       ": "jump to cursor location Fuc name",
+	\ "<C-\\>/       ": "jump to cursor location Fuc refers",
 	\ "f/F          ": "find w in line <vim default>",
 	\ "cscope       ": "F2 -- Find this file\n
 	\                 F5 -- Find functions calling this function\n
@@ -438,7 +438,7 @@ function! Myusage()
 	\ "ctag jump    ": "<C-p> -- tjump func\n
 	\                 <C-u> -- tnext\n
 	\                 <C-y> -- tprevious",
-	\ "<C-d>        ": "show Myusage",
+	\ "<C-d>        ": "show usage",
 	\ "CommandT     ": "<C-h> -- call CommandT at tag dirs if possible\n
 	\                 <C-\\>h -- call CommandT at current buffer dir\n
 	\                 <C-\\>f/F -- CommandTBuffer",
