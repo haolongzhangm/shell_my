@@ -109,3 +109,14 @@ cmdwin
 dev
 curfile
 GitBranchOrTag
+warmup
+iter
+sd
+minmax
+testcases
+dtype
+extern
+ndim
+ExternDeviceTensor
+init
+ptr
