@@ -465,6 +465,8 @@ function! Myusage()
 	\                 :Gdbmacosarm -- config macos-arm host cross gdb env\n
 	\                 :Gdbmacosarm64 -- config macos-arm64 host cross gdb env\n
 	\                 :Gdblocalhost -- config local gdb env\n
+	\                 :Gdbasmshow -- show asm\n
+	\                 :Gdbasmdisable -- not show asm\n
 	\                 <C-\\>g -- gdb breakpoint command\n
 	\                 Android env example: adb forward tcp:1234 tcp:1234\n
 	\                         (gdb)set solib-absolute-prefix ...\n
@@ -623,6 +625,8 @@ command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb_aarch64_linux_10_1"
 command -nargs=0 Gdbmacosarm :let termdebugger="gdb_arm_macos_8_3"
 command -nargs=0 Gdbmacosarm64 :let termdebugger="gdb_aarch64_macos_8_3"
 command -nargs=0 Gdblocalhost :let termdebugger="gdb"
+command -nargs=0 Gdbasmshow : let g:termdebug_disasm_window = 15
+command -nargs=0 Gdbasmdisable : let g:termdebug_disasm_window = 0
 "========end for vim gdb config=================================
 
 "===============add GitBranchOrTag==============================
