@@ -89,6 +89,7 @@ Bundle 'ycm-core/YouCompleteMe'
 Bundle 'scrooloose/nerdtree'
 Bundle 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Bundle 'haolongzhangm/auto_update_cscope_ctags_database'
+Bundle 'fholgado/minibufexpl.vim'
 Plugin 'kana/vim-operator-user'
 Plugin 'rhysd/vim-clang-format'
 Plugin 'rking/ag.vim'
