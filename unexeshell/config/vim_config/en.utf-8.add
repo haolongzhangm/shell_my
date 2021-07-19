@@ -120,3 +120,4 @@ ndim
 ExternDeviceTensor
 init
 ptr
+zu
