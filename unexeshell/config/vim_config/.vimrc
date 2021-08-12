@@ -34,7 +34,7 @@ endif
 "fix mouse issue when use ssh server mode, eg resize window by mouse
 set ttymouse=xterm2
 nnoremap <silent><F8> :exec 'match StatusLineTerm /' . expand('<cword>') . '/'<CR>
-nmap <C-\>m :TranslateW -t <C-R>=expand("<cword>")<CR> -e youdao -tl zh -sl en
+nmap <C-\>m :TranslateW -t <C-R>=expand("<cword>")<CR> -e google -tl zh -sl en
 set spell spelllang=en_us
 setlocal spell spelllang=en_us
 highlight clear SpellBad
