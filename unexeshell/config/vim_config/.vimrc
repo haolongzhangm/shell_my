@@ -617,7 +617,7 @@ set ballooneval
 let g:Auto_update_cscope_ctags_debug_log = 0
 let g:auto_run_function_when_cscope_connect = 1
 let g:check_update_when_first_load_vim = 1
-let g:update_cscope_ctags_do_not_care_dir = 'build_dir bazel-bin'
+let g:update_cscope_ctags_do_not_care_dir = 'build_dir bazel-bin ci/workdir'
 "========end for auto update cscope ctags log ==================
 "========add for vim gdb config=================================
 packadd termdebug
