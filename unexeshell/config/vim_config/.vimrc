@@ -17,6 +17,8 @@ set completeopt=preview,menu
 set completeopt=longest,menu
 set autoindent
 set smartindent
+"show search count message when searching, e.g. "[1/5]"
+set shortmess-=S
 au BufNewFile,BufRead *.cu set filetype=cpp
 au BufNewFile,BufRead *.opencl set filetype=c
 au BufNewFile,BufRead *.cl set filetype=c
