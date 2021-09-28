@@ -113,7 +113,7 @@ let g:ycm_global_ycm_extra_conf = ''
 ""let g:ycm_global_ycm_extra_conf = '~/.vim/YouCompleteMe_config/.default_ycm_extra_conf.py'
 "as some reason, we may use clangd(eg linux kernel base bear make) or libclang(eg old project
 "based on .ycm_extra_conf.py), so we build ycm with command:
-"python3 install.py --clangd-completer --clang-completer
+"python3 install.py --clangd-completer --clang-completer --go-completer --rust-completer --java-completer
 "then create a interface to switch ycm back-end, default use clangd
 ".ycm_extra_conf.py need imp Settings interface
 let g:ycm_use_clangd = 1
