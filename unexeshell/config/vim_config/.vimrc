@@ -127,9 +127,10 @@ let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
 let g:ycm_auto_trigger = 1
 let g:ycm_disable_for_files_larger_than_kb = 2500
-let g:ycm_clangd_binary_path = 'clangd-11'
+let g:ycm_clangd_binary_path = 'clangd-12'
 ""use to debug clangd issue
 ""let g:ycm_clangd_args = ['-log=verbose', '-pretty']
+let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
 "add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
@@ -619,7 +620,7 @@ set ballooneval
 let g:Auto_update_cscope_ctags_debug_log = 0
 let g:auto_run_function_when_cscope_connect = 1
 let g:check_update_when_first_load_vim = 1
-let g:update_cscope_ctags_do_not_care_dir = 'build_dir bazel-bin ci/workdir'
+let g:update_cscope_ctags_do_not_care_dir = 'build_dir bazel-bin ci/workdir ci/build_bazel'
 "========end for auto update cscope ctags log ==================
 "========add for vim gdb config=================================
 packadd termdebug
