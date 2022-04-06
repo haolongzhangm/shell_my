@@ -423,82 +423,82 @@ nnoremap <C-\>c :call FormatClangManua()<CR>:<C-r>z
 function! Myusage()
 	echo "usage:"
 	let l:help_msg = {
-        \ "Bookmarks    ": "<C-n> : ' + [num]",
-	\ "changes list ": "<C-c> : [num] + g + ;  <<back/[num] + g + ,  <<forward",
-	\ "registers    ": "<C-e> :  \"+ [register] + p",
-	\ "marks        ": "<C-n>",
-	\ "jumps        ": "<C-j> : [num] + ctrl + o <<back/[num] + ctrl + i <<forward",
-	\ ",/;          ": "repeat do f/F(find command)<vim default>",
-	\ ".            ": "repeat do the last command of Normal model<vim default>",
-	\ "<C-\\>,       ": "jump to cursor location Fuc call Fuc",
-	\ "<C-\\>.       ": "jump to cursor location Fuc name",
-	\ "<C-\\>/       ": "jump to cursor location Fuc refers",
-	\ "f/F          ": "find w in line <vim default>",
-	\ "cscope       ": "F2 -- Find this file\n
-	\                 F5 -- Find functions calling this function\n
-	\                 F6 -- Find this C symbol\n
-	\                 <C-\\>r -- Find functions called by this function\n
-	\                 <C-\\>F10 -- Find this text string\n
-	\                 <C-\\>i -- Find files #including this file\n
-	\                 <C-\\>a -- Find where this symbol is assigned a value",
-	\ "YCM          ": "F3 -- GoToDefinition\n
-	\                 F7 -- GoToReferences\n
-	\                 \\F7 -- GoToSymbol\n
-	\                 F10 -- YCMHover\n
-	\                 F12 -- GoToDeclaration\n
-	\                 \\f FixIt\n
-	\                 <C-\\>y YouCompleteMe_Start_Or_Stop(flag) 1:clangd, 0:libclang",
-	\ "UltiSnips    ": "<C-s> -- trigger complete code snippets",
-	\ "window navi  ": "F9 -- TlistToggle\n
-	\                 F4 -- NERDTree [pwd]\n
-	\                 <C-a> -- NERDTree [CUR file]\n
-	\                 \\F4 Ranger [pwd]",
-	\ "man          ": "\\F2 \\F3 -- run !man xx need install libstdc++-x-doc (x: 9)",
-	\ "qucikfix     ": "<C-u> -- tnext | <C-y> -- tprevious",
-	\ "copen        ": "<C-K> -- close copen",
-	\ "Ag grep      ": "<C-\\>l -- Ag func tag dir | <C-l> -- Ag func cur file",
-	\ "<C-f>        ": "buffers list",
-	\ "ctag jump    ": "<C-p> -- tjump func\n
-	\                 <C-u> -- tnext\n
-	\                 <C-y> -- tprevious",
-	\ "<C-d>        ": "show usage",
-	\ "CommandT     ": "<C-h> -- call CommandT at tag dirs if possible\n
-	\                 <C-\\>h -- call CommandT at current buffer dir\n
-	\                 <C-\\>f/F -- CommandTBuffer",
-	\ "SrcExpl      ": "suggest using YCM\n
-	\                 <C-\\>p -- SrcExpl_prevDefKey\n
-	\                 <C-\\>u -- SrcExpl_nextDefKey\n
-	\                 <C-\\>s -- SrcExplToggle  open/close",
-	\ "<C-\\>c       ": "call ClangFormat manually",
-	\ "<C-\\>v/V     ": "show function name",
-	\ "<C-\\>d       ": "bdelete current buffer",
-	\ "\\g           ": "show git blame info",
-	\ "terminal split": "<C-\\><F3> -- vertical terminal\n
-	\                  <C-\\><F4> -- terminal",
-	\ "<C-\\>m       ": "call TranslateW",
-	\ "<F8>         ": "highlight words with search",
-	\ "EchoFunc     ": "suggest using YCM\n
-	\                 <C-\\>j -- EchoFuncKeyNext\n
-	\                 <C-\\>k -- EchoFuncKeyPrev\n
-	\                 <C-\\>e -- enable or disable echofunc",
-	\ "createtag    ": ":Createtag -- create tag\n
-	\                  <C-\\>t -- Manualupdatedatabaseonetime",
-	\ "termdebug    ": ":Gdblinuxarm -- config linux-arm host cross gdb env\n
-	\                 :Gdblinuxarm64 -- config linux-arm64 host cross gdb env\n
-	\                 :Gdbmacosarm -- config macos-arm host cross gdb env\n
-	\                 :Gdbmacosarm64 -- config macos-arm64 host cross gdb env\n
-	\                 :Gdblocalhost -- config local gdb env\n
-	\                 :Gdbasmshow -- show asm\n
-	\                 :Gdbasmdisable -- not show asm\n
-	\                 <C-\\>g -- gdb breakpoint command\n
-	\                 Android env example: adb forward tcp:1234 tcp:1234\n
-	\                         (gdb)set solib-absolute-prefix ...\n
-	\                         (gdb)set solib-search-path ...",
-	\ "vim          ": ":source ~/.vimrc and :!reset -- reset vimrc\n
-	\                 :mksession file.vim then vim -S file.vim -- vim snapshoot",
-	\ "vim spell    ": "z= -- give spell correction suggest\n
-	\                 zg -- put this to spell dict eg: ~/.vim/spell/en.utf-8.add",
-	\ }
+				\ "Bookmarks    ": "<C-n> : ' + [num]",
+				\ "changes list ": "<C-c> : [num] + g + ;  <<back/[num] + g + ,  <<forward",
+				\ "registers    ": "<C-e> :  \"+ [register] + p",
+				\ "marks        ": "<C-n>",
+				\ "jumps        ": "<C-j> : [num] + ctrl + o <<back/[num] + ctrl + i <<forward",
+				\ ",/;          ": "repeat do f/F(find command)<vim default>",
+				\ ".            ": "repeat do the last command of Normal model<vim default>",
+				\ "<C-\\>,       ": "jump to cursor location Fuc call Fuc",
+				\ "<C-\\>.       ": "jump to cursor location Fuc name",
+				\ "<C-\\>/       ": "jump to cursor location Fuc refers",
+				\ "f/F          ": "find w in line <vim default>",
+				\ "cscope       ": "F2 -- Find this file\n
+				\                 F5 -- Find functions calling this function\n
+				\                 F6 -- Find this C symbol\n
+				\                 <C-\\>r -- Find functions called by this function\n
+				\                 <C-\\>F10 -- Find this text string\n
+				\                 <C-\\>i -- Find files #including this file\n
+				\                 <C-\\>a -- Find where this symbol is assigned a value",
+				\ "YCM          ": "F3 -- GoToDefinition\n
+				\                 F7 -- GoToReferences\n
+				\                 \\F7 -- GoToSymbol\n
+				\                 F10 -- YCMHover\n
+				\                 F12 -- GoToDeclaration\n
+				\                 \\f FixIt\n
+				\                 <C-\\>y YouCompleteMe_Start_Or_Stop(flag) 1:clangd, 0:libclang",
+				\ "UltiSnips    ": "<C-s> -- trigger complete code snippets",
+				\ "window navi  ": "F9 -- TlistToggle\n
+				\                 F4 -- NERDTree [pwd]\n
+				\                 <C-a> -- NERDTree [CUR file]\n
+				\                 \\F4 Ranger [pwd]",
+				\ "man          ": "\\F2 \\F3 -- run !man xx need install libstdc++-x-doc (x: 9)",
+				\ "qucikfix     ": "<C-u> -- tnext | <C-y> -- tprevious",
+				\ "copen        ": "<C-K> -- close copen",
+				\ "Ag grep      ": "<C-\\>l -- Ag func tag dir | <C-l> -- Ag func cur file",
+				\ "<C-f>        ": "buffers list",
+				\ "ctag jump    ": "<C-p> -- tjump func\n
+				\                 <C-u> -- tnext\n
+				\                 <C-y> -- tprevious",
+				\ "<C-d>        ": "show usage",
+				\ "CommandT     ": "<C-h> -- call CommandT at tag dirs if possible\n
+				\                 <C-\\>h -- call CommandT at current buffer dir\n
+				\                 <C-\\>f/F -- CommandTBuffer",
+				\ "SrcExpl      ": "suggest using YCM\n
+				\                 <C-\\>p -- SrcExpl_prevDefKey\n
+				\                 <C-\\>u -- SrcExpl_nextDefKey\n
+				\                 <C-\\>s -- SrcExplToggle  open/close",
+				\ "<C-\\>c       ": "call ClangFormat manually",
+				\ "<C-\\>v/V     ": "show function name",
+				\ "<C-\\>d       ": "bdelete current buffer",
+				\ "\\g           ": "show git blame info",
+				\ "terminal split": "<C-\\><F3> -- vertical terminal\n
+				\                  <C-\\><F4> -- terminal",
+				\ "<C-\\>m       ": "call TranslateW",
+				\ "<F8>         ": "highlight words with search",
+				\ "EchoFunc     ": "suggest using YCM\n
+				\                 <C-\\>j -- EchoFuncKeyNext\n
+				\                 <C-\\>k -- EchoFuncKeyPrev\n
+				\                 <C-\\>e -- enable or disable echofunc",
+				\ "createtag    ": ":Createtag -- create tag\n
+				\                  <C-\\>t -- Manualupdatedatabaseonetime",
+				\ "termdebug    ": ":Gdblinuxarm -- config linux-arm host cross gdb env\n
+				\                 :Gdblinuxarm64 -- config linux-arm64 host cross gdb env\n
+				\                 :Gdbmacosarm -- config macos-arm host cross gdb env\n
+				\                 :Gdbmacosarm64 -- config macos-arm64 host cross gdb env\n
+				\                 :Gdblocalhost -- config local gdb env\n
+				\                 :Gdbasmshow -- show asm\n
+				\                 :Gdbasmdisable -- not show asm\n
+				\                 <C-\\>g -- gdb breakpoint command\n
+				\                 Android env example: adb forward tcp:1234 tcp:1234\n
+				\                         (gdb)set solib-absolute-prefix ...\n
+				\                         (gdb)set solib-search-path ...",
+				\ "vim          ": ":source ~/.vimrc and :!reset -- reset vimrc\n
+				\                 :mksession file.vim then vim -S file.vim -- vim snapshoot",
+				\ "vim spell    ": "z= -- give spell correction suggest\n
+				\                 zg -- put this to spell dict eg: ~/.vim/spell/en.utf-8.add",
+				\ }
 	for key in keys(help_msg)
 		echo key . '--> ' . help_msg[key]
 	endfor
