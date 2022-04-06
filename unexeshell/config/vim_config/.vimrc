@@ -98,6 +98,8 @@ Plugin 'rking/ag.vim'
 Plugin 'voldikss/vim-translator'
 Plugin 'pboettch/vim-cmake-syntax'
 Plugin 'francoiscabrol/ranger.vim'
+Plugin 'SirVer/ultisnips'
+Plugin 'honza/vim-snippets'
 call vundle#end()            " required
 filetype plugin indent on    " required
 " Brief help
@@ -127,7 +129,8 @@ let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
 let g:ycm_auto_trigger = 1
 let g:ycm_disable_for_files_larger_than_kb = 2500
-let g:ycm_clangd_binary_path = 'clangd-12'
+""let g:ycm_log_level = 'debug'
+""let g:ycm_clangd_binary_path = 'clangd-12'
 ""use to debug clangd issue
 ""let g:ycm_clangd_args = ['-log=verbose', '-pretty']
 let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
@@ -163,12 +166,26 @@ nnoremap <C-\>y :call YouCompleteMe_Start_Or_Stop(1)
 nmap <F12> :YcmCompleter GoToDeclaration<CR>
 nmap <F3> :YcmCompleter GoToDefinition<CR>
 nmap <F7> :YcmCompleter GoToReferences<CR>
+nmap \<F7> :YcmCompleter GoToSymbol <C-R>=expand("<cword>")<CR>
+
 nmap \f :YcmCompleter FixIt<CR>
 ""let g:ycm_clangd_args = ['-log=verbose']
 " disable ycm hover auto popup
 let g:ycm_auto_hover = "0"
 nmap <F10> <plug>(YCMHover)
+augroup MyYCMCustom
+	autocmd!
+	autocmd FileType c,cpp let b:ycm_hover = {
+				\ 'command': 'GetDoc',
+				\ 'syntax': &filetype
+				\ }
+augroup END
 "======================end for YouCompleteMe config============
+
+"======================for ultisnips ============
+let g:UltiSnipsExpandTrigger="<C-s>"
+""let g:UltiSnipsEditSplit="vertical"
+"======================end for ultisnips ========
 
 "===============for cscope and ctags===========================
 nmap <F5> :cs find c <C-R>=expand("<cword>")<CR><CR>
@@ -426,10 +443,12 @@ function! Myusage()
 	\                 <C-\\>a -- Find where this symbol is assigned a value",
 	\ "YCM          ": "F3 -- GoToDefinition\n
 	\                 F7 -- GoToReferences\n
+	\                 \\F7 -- GoToSymbol\n
 	\                 F10 -- YCMHover\n
 	\                 F12 -- GoToDeclaration\n
 	\                 \\f FixIt\n
 	\                 <C-\\>y YouCompleteMe_Start_Or_Stop(flag) 1:clangd, 0:libclang",
+	\ "UltiSnips    ": "<C-s> -- trigger complete code snippets",
 	\ "window navi  ": "F9 -- TlistToggle\n
 	\                 F4 -- NERDTree [pwd]\n
 	\                 <C-a> -- NERDTree [CUR file]\n
@@ -618,7 +637,7 @@ set ballooneval
 "========end for echofunc.vim===================================
 "========add for auto update cscope ctags log ==================
 let g:Auto_update_cscope_ctags_debug_log = 0
-let g:auto_run_function_when_cscope_connect = 1
+let g:auto_run_function_when_cscope_connect = 0
 let g:check_update_when_first_load_vim = 1
 let g:update_cscope_ctags_do_not_care_dir = 'build_dir bazel-bin ci/workdir ci/build_bazel'
 "========end for auto update cscope ctags log ==================
