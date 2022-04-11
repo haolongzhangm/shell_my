@@ -183,7 +183,7 @@ augroup END
 "======================end for YouCompleteMe config============
 
 "======================for ultisnips ============
-let g:UltiSnipsExpandTrigger="<C-s>"
+let g:UltiSnipsExpandTrigger="<C-w>"
 ""let g:UltiSnipsEditSplit="vertical"
 "======================end for ultisnips ========
 
@@ -448,7 +448,7 @@ function! Myusage()
 				\                 F12 -- GoToDeclaration\n
 				\                 \\f FixIt\n
 				\                 <C-\\>y YouCompleteMe_Start_Or_Stop(flag) 1:clangd, 0:libclang",
-				\ "UltiSnips    ": "<C-s> -- trigger complete code snippets",
+				\ "UltiSnips    ": "<C-w> -- trigger complete code snippets",
 				\ "window navi  ": "F9 -- TlistToggle\n
 				\                 F4 -- NERDTree [pwd]\n
 				\                 <C-a> -- NERDTree [CUR file]\n
