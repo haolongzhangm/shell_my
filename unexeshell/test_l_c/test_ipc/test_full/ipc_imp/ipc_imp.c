@@ -135,6 +135,7 @@ static __attribute__((constructor)) void create_server() {
 
       if (IPC_SERVER_EXIT == msg.type) {
         printf("exit now\n");
+        ipc_munmap(server_config.shm_ptr, server_config.shm_size);
         exit(0);
       }
     }
