@@ -101,6 +101,8 @@ static __attribute__((constructor)) void create_server() {
     char *server_name = "ipc_server";
     printf("start server with name: %s....\n", server_name);
     prctl(PR_SET_NAME, (unsigned long)server_name, 0, 0, 0);
+    //! auto die if father crash
+    prctl(PR_SET_PDEATHSIG, SIGKILL);
 
     while (1) {
       printf("server wait msg now.....\n");

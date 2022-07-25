@@ -36,4 +36,6 @@ int main() {
   } else {
     printf("test pass ret: %d\n", ret);
   }
+  //printf("now test crash\n");
+  //printf("crash: %d", a[10240]);
 }
