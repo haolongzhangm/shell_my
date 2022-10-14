@@ -53,7 +53,7 @@
 #elif TYPE_ENUM == 3
 
 #define MAX_VALUE INT_MAX
-#define MIN_VALUE INT_MIN
+#define MIN_VALUE (-INT_MAX)
 #define TYPE int
 #elif TYPE_ENUM == 4
 
