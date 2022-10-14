@@ -16,6 +16,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #ifdef __APPLE__
 #include <OpenCL/cl.h>
@@ -129,7 +130,7 @@ cl_command_queue CreateCommandQueue(cl_context context, cl_device_id *device)
 ///
 //  Create an OpenCL program from the kernel source file
 //
-cl_program CreateProgram(cl_context context, cl_device_id device, const char* fileName)
+cl_program CreateProgram(cl_context context, cl_device_id device, const char* fileName, const std::string& options)
 {
     cl_int errNum;
     cl_program program;
@@ -145,17 +146,19 @@ cl_program CreateProgram(cl_context context, cl_device_id device, const char* fi
     oss << kernelFile.rdbuf();
 
     std::string srcStdStr = oss.str();
+    size_t src_len = srcStdStr.length();
     const char *srcStr = srcStdStr.c_str();
+    printf("build with options: %s\n", options.c_str());
     program = clCreateProgramWithSource(context, 1,
                                         (const char**)&srcStr,
-                                        NULL, NULL);
+                                        &src_len, NULL);
     if (program == NULL)
     {
         std::cerr << "Failed to create CL program from source." << std::endl;
         return NULL;
     }
 
-    errNum = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+    errNum = clBuildProgram(program, 0, NULL, options.c_str(), NULL, NULL);
     if (errNum != CL_SUCCESS)
     {
         // Determine the reason for the error
@@ -251,85 +254,122 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    std::vector<std::string> optionss = {
+        //! mode = 3 is ok
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+
+     // ! some mode = 4 case will build deadlock
+    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+    };
     // Create OpenCL program from HelloWorld.cl kernel source
-    program = CreateProgram(context, device, "HelloWorld.cl");
-    if (program == NULL)
-    {
-        Cleanup(context, commandQueue, program, kernel, memObjects);
-        return 1;
+    for (auto& options:optionss) {
+        program = CreateProgram(context, device, "test_lock.cl", options);
+        if (program == NULL)
+        {
+            Cleanup(context, commandQueue, program, kernel, memObjects);
+            return 1;
+        }
     }
 
-    // Create OpenCL kernel
-    kernel = clCreateKernel(program, "hello_kernel", NULL);
-    if (kernel == NULL)
-    {
-        std::cerr << "Failed to create kernel" << std::endl;
-        Cleanup(context, commandQueue, program, kernel, memObjects);
-        return 1;
-    }
+    //// Create OpenCL kernel
+    //kernel = clCreateKernel(program, "hello_kernel", NULL);
+    //if (kernel == NULL)
+    //{
+    //    std::cerr << "Failed to create kernel" << std::endl;
+    //    Cleanup(context, commandQueue, program, kernel, memObjects);
+    //    return 1;
+    //}
 
-    // Create memory objects that will be used as arguments to
-    // kernel.  First create host memory arrays that will be
-    // used to store the arguments to the kernel
-    float result[ARRAY_SIZE];
-    float a[ARRAY_SIZE];
-    float b[ARRAY_SIZE];
-    for (int i = 0; i < ARRAY_SIZE; i++)
-    {
-        a[i] = (float)i;
-        b[i] = (float)(i * 2);
-    }
+    //// Create memory objects that will be used as arguments to
+    //// kernel.  First create host memory arrays that will be
+    //// used to store the arguments to the kernel
+    //float result[ARRAY_SIZE];
+    //float a[ARRAY_SIZE];
+    //float b[ARRAY_SIZE];
+    //for (int i = 0; i < ARRAY_SIZE; i++)
+    //{
+    //    a[i] = (float)i;
+    //    b[i] = (float)(i * 2);
+    //}
 
-    if (!CreateMemObjects(context, memObjects, a, b))
-    {
-        Cleanup(context, commandQueue, program, kernel, memObjects);
-        return 1;
-    }
+    //if (!CreateMemObjects(context, memObjects, a, b))
+    //{
+    //    Cleanup(context, commandQueue, program, kernel, memObjects);
+    //    return 1;
+    //}
 
-    // Set the kernel arguments (result, a, b)
-    errNum = clSetKernelArg(kernel, 0, sizeof(cl_mem), &memObjects[0]);
-    errNum |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &memObjects[1]);
-    errNum |= clSetKernelArg(kernel, 2, sizeof(cl_mem), &memObjects[2]);
-    if (errNum != CL_SUCCESS)
-    {
-        std::cerr << "Error setting kernel arguments." << std::endl;
-        Cleanup(context, commandQueue, program, kernel, memObjects);
-        return 1;
-    }
+    //// Set the kernel arguments (result, a, b)
+    //errNum = clSetKernelArg(kernel, 0, sizeof(cl_mem), &memObjects[0]);
+    //errNum |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &memObjects[1]);
+    //errNum |= clSetKernelArg(kernel, 2, sizeof(cl_mem), &memObjects[2]);
+    //if (errNum != CL_SUCCESS)
+    //{
+    //    std::cerr << "Error setting kernel arguments." << std::endl;
+    //    Cleanup(context, commandQueue, program, kernel, memObjects);
+    //    return 1;
+    //}
 
-    size_t globalWorkSize[1] = { ARRAY_SIZE };
-    size_t localWorkSize[1] = { 1 };
+    //size_t globalWorkSize[1] = { ARRAY_SIZE };
+    //size_t localWorkSize[1] = { 1 };
 
-    // Queue the kernel up for execution across the array
-    errNum = clEnqueueNDRangeKernel(commandQueue, kernel, 1, NULL,
-                                    globalWorkSize, localWorkSize,
-                                    0, NULL, NULL);
-    if (errNum != CL_SUCCESS)
-    {
-        std::cerr << "Error queuing kernel for execution." << std::endl;
-        Cleanup(context, commandQueue, program, kernel, memObjects);
-        return 1;
-    }
+    //// Queue the kernel up for execution across the array
+    //errNum = clEnqueueNDRangeKernel(commandQueue, kernel, 1, NULL,
+    //                                globalWorkSize, localWorkSize,
+    //                                0, NULL, NULL);
+    //if (errNum != CL_SUCCESS)
+    //{
+    //    std::cerr << "Error queuing kernel for execution." << std::endl;
+    //    Cleanup(context, commandQueue, program, kernel, memObjects);
+    //    return 1;
+    //}
 
-    // Read the output buffer back to the Host
-    errNum = clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE,
-                                 0, ARRAY_SIZE * sizeof(float), result,
-                                 0, NULL, NULL);
-    if (errNum != CL_SUCCESS)
-    {
-        std::cerr << "Error reading result buffer." << std::endl;
-        Cleanup(context, commandQueue, program, kernel, memObjects);
-        return 1;
-    }
+    //// Read the output buffer back to the Host
+    //errNum = clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE,
+    //                             0, ARRAY_SIZE * sizeof(float), result,
+    //                             0, NULL, NULL);
+    //if (errNum != CL_SUCCESS)
+    //{
+    //    std::cerr << "Error reading result buffer." << std::endl;
+    //    Cleanup(context, commandQueue, program, kernel, memObjects);
+    //    return 1;
+    //}
 
-    // Output the result buffer
-    for (int i = 0; i < ARRAY_SIZE; i++)
-    {
-        std::cout << result[i] << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "Executed program succesfully." << std::endl;
-    Cleanup(context, commandQueue, program, kernel, memObjects);
+    //// Output the result buffer
+    //for (int i = 0; i < ARRAY_SIZE; i++)
+    //{
+    //    std::cout << result[i] << " ";
+    //}
+    //std::cout << std::endl;
+    //std::cout << "Executed program succesfully." << std::endl;
+    //Cleanup(context, commandQueue, program, kernel, memObjects);
 
     return 0;
 }
