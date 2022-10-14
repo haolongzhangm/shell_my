@@ -255,43 +255,42 @@ int main(int argc, char** argv)
     }
 
     std::vector<std::string> optionss = {
-        //! mode = 3 is ok
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=3 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-
-     // ! some mode = 4 case will build deadlock
-    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=1 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=2 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-    // " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=3 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=5 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=8 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=8 -DUSE_ASYNC_MERGE -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
-     " -D MODE=4 -D ARG_INDEX=1 -DTYPE_ENUM=6 -D VEC_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=float -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-DST=float  -DDT=float  -DNDIM=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=half -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=int -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=short -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=ushort -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=char -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=uchar -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=char -D BLOCK_SIZE=4 -D COMPUTE_TYPE=float -DOTHER_SYMM -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=uchar -D BLOCK_SIZE=4 -D COMPUTE_TYPE=float -DOTHER_ASYMM -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=float -D DT=int -D BLOCK_SIZE=4 -D COMPUTE_TYPE=float -DOTHER_SYMM -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=float -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=half -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=int -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=short -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=ushort -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=char -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=uchar -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=char -D BLOCK_SIZE=4 -D COMPUTE_TYPE=float -DOTHER_SYMM -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=uchar -D BLOCK_SIZE=4 -D COMPUTE_TYPE=float -DOTHER_ASYMM -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=half -D DT=int -D BLOCK_SIZE=4 -D COMPUTE_TYPE=float -DOTHER_SYMM -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=float -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=half -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=int -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=short -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=ushort -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=char -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=uchar -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=char -D BLOCK_SIZE=4 -D COMPUTE_TYPE=float -DOTHER_SYMM -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=uchar -D BLOCK_SIZE=4 -D COMPUTE_TYPE=float -DOTHER_ASYMM -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=int -D DT=int -D BLOCK_SIZE=4 -D COMPUTE_TYPE=float -DOTHER_SYMM -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
+       "-D ST=short -D DT=float -D BLOCK_SIZE=4 -DOPENCL_ENABLE_FP16=1  -cl-fast-relaxed-math -cl-mad-enable -DNON_UNIFORM_WORK_GROUP",
     };
     // Create OpenCL program from HelloWorld.cl kernel source
     for (auto& options:optionss) {
-        program = CreateProgram(context, device, "test_lock.cl", options);
+        program = CreateProgram(context, device, "cvt.cl", options);
         if (program == NULL)
         {
             Cleanup(context, commandQueue, program, kernel, memObjects);
