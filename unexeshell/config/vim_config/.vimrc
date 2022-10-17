@@ -140,11 +140,17 @@ highlight YcmWarningSection guibg=#000000
 "add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
 "or interface to switch ycm back-end, 1: clangd, 0: libclang
 let s:already_enable_youcomplete = 1
-function! YouCompleteMe_Start_Or_Stop(use_clangd)
+function! YouCompleteMe_Start_Or_Stop(use_clangd, use_android_ndk_resource_dir)
 	if 1 == a:use_clangd
 		let g:ycm_use_clangd = 1
 	else
 		let g:ycm_use_clangd = 0
+	endif
+
+	if 1 == a:use_android_ndk_resource_dir
+		let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0', '-resource-dir=/home/cd_engine_group/group_common_dirs/NDK/android-ndk-r21d/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.8']
+	else
+		let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
 	endif
 
 	if 1 == s:already_enable_youcomplete
@@ -163,7 +169,7 @@ function! YouCompleteMe_Start_Or_Stop(use_clangd)
 		let s:already_enable_youcomplete = 1
 	endif
 endfunction
-nnoremap <C-\>y :call YouCompleteMe_Start_Or_Stop(1)
+nnoremap <C-\>y :call YouCompleteMe_Start_Or_Stop(1, 0)
 nmap <F12> :YcmCompleter GoToDeclaration<CR>
 nmap <F3> :YcmCompleter GoToDefinition<CR>
 nmap <F7> :YcmCompleter GoToReferences<CR>
@@ -173,6 +179,7 @@ nmap \f :YcmCompleter FixIt<CR>
 ""let g:ycm_clangd_args = ['-log=verbose']
 " disable ycm hover auto popup
 let g:ycm_auto_hover = "0"
+let g:ycm_enable_inlay_hints = 1
 nmap <F10> <plug>(YCMHover)
 augroup MyYCMCustom
 	autocmd!
@@ -448,7 +455,7 @@ function! Myusage()
 				\                 F10 -- YCMHover\n
 				\                 F12 -- GoToDeclaration\n
 				\                 \\f FixIt\n
-				\                 <C-\\>y YouCompleteMe_Start_Or_Stop(flag) 1:clangd, 0:libclang",
+				\                 <C-\\>y YouCompleteMe_Start_Or_Stop(flag, flag2) flag, 1:clangd, 0:libclang, flag2: 1: use android ndk resource, 0: use system resource",
 				\ "UltiSnips    ": "<C-w> -- trigger complete code snippets",
 				\ "window navi  ": "F9 -- TlistToggle\n
 				\                 F4 -- NERDTree [pwd]\n
