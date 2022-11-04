@@ -130,6 +130,7 @@ let g:ycm_error_symbol = 'Er'
 let g:ycm_warning_symbol = 'Wr'
 let g:ycm_auto_trigger = 1
 let g:ycm_disable_for_files_larger_than_kb = 2500
+let g:ycm_max_diagnostics_to_display = 0
 ""let g:ycm_log_level = 'debug'
 ""let g:ycm_clangd_binary_path = 'clangd-12'
 ""use to debug clangd issue
