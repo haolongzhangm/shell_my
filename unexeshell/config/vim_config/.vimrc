@@ -499,6 +499,7 @@ function! Myusage()
 				\                 :Gdblocalhost -- config local gdb env\n
 				\                 :Gdbasmshow -- show asm\n
 				\                 :Gdbasmdisable -- not show asm\n
+				\                 :choose program window, then cmd: <Ctrl-W>:bwipeout! or bdelete-- close program window windows\n
 				\                 <C-\\>g -- gdb breakpoint command\n
 				\                 Android env example: adb forward tcp:1234 tcp:1234\n
 				\                         (gdb)set solib-absolute-prefix ...\n
