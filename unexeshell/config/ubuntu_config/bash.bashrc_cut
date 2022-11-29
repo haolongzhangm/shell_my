@@ -127,3 +127,5 @@ export PATH=/home/zhl/bin:$PATH
 export DOCKER_HOST=unix:///run/user/$UID/docker.sock
 
 #systemctl --user (start|stop|restart) docker.service
+# ssh alias
+alias sshl='ssh -o "ServerAliveInterval 60"'
