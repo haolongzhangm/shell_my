@@ -155,7 +155,7 @@ cl_program CreateProgram(cl_context context, cl_device_id device, const char* fi
         return NULL;
     }
 
-    errNum = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+    errNum = clBuildProgram(program, 0, NULL, "", NULL, NULL);
     if (errNum != CL_SUCCESS)
     {
         // Determine the reason for the error
@@ -276,8 +276,8 @@ int main(int argc, char** argv)
     float b[ARRAY_SIZE];
     for (int i = 0; i < ARRAY_SIZE; i++)
     {
-        a[i] = (float)i;
-        b[i] = (float)(i * 2);
+        a[i] = 0.4159265312345679;
+        b[i] = 0.1415926531234567;
     }
 
     if (!CreateMemObjects(context, memObjects, a, b))
@@ -325,7 +325,7 @@ int main(int argc, char** argv)
     // Output the result buffer
     for (int i = 0; i < ARRAY_SIZE; i++)
     {
-        std::cout << result[i] << " ";
+        printf("%.10f\n", result[i]);
     }
     std::cout << std::endl;
     std::cout << "Executed program succesfully." << std::endl;
