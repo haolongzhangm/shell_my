@@ -101,6 +101,7 @@ Plugin 'francoiscabrol/ranger.vim'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 Plugin 'voldikss/vim-floaterm'
+Plugin 'github/copilot.vim'
 call vundle#end()            " required
 filetype plugin indent on    " required
 " Brief help
