@@ -509,6 +509,8 @@ function! Myusage()
 				\                 :mksession file.vim then vim -S file.vim -- vim snapshoot",
 				\ "vim spell    ": "z= -- give spell correction suggest\n
 				\                 zg -- put this to spell dict eg: ~/.vim/spell/en.utf-8.add",
+				\ "minibuffer    ":":MBECloseAll -- close minibuffer\n
+				\                 : MBEOpen -- openc minibuffer",
 				\ }
 	for key in keys(help_msg)
 		echo key . '--> ' . help_msg[key]
