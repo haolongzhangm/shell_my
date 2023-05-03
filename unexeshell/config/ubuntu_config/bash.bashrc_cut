@@ -29,6 +29,8 @@ alias ggclean='echo git clean -xdf --exclude=.cache --exclude=.ycm; git clean -x
 alias ggclean_dry-run='echo git clean -xdfn --exclude=.cache --exclude=.ycm; git clean -xdfn --exclude=.cache --exclude=.ycm'
 alias v=vim
 alias V=vim
+alias nv=nvim
+alias NV=nvim
 alias gvim='LANG=EN gvim'
 alias mysource=source
 alias cdf='cd $(find . -type d| fzf)'

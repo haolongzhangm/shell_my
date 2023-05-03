@@ -34,7 +34,9 @@ if has("gui_running")
 	colorscheme industry
 endif
 "fix mouse issue when use ssh server mode, eg resize window by mouse
-set ttymouse=xterm2
+if !has('nvim')
+	set ttymouse=xterm2
+endif
 nnoremap <silent><F8> :exec 'match StatusLineTerm /' . expand('<cword>') . '/'<CR>
 nmap <C-\>m :TranslateW -t <C-R>=expand("<cword>")<CR>
 set spell spelllang=en_us
@@ -102,6 +104,10 @@ Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 Plugin 'voldikss/vim-floaterm'
 Plugin 'github/copilot.vim'
+Plugin 'APZelos/blamer.nvim'
+if has('nvim')
+	Plugin 'cloudhead/neovim-fuzzy'
+endif
 call vundle#end()            " required
 filetype plugin indent on    " required
 " Brief help
@@ -482,7 +488,7 @@ function! Myusage()
 				\ "<C-\\>c       ": "call ClangFormat manually",
 				\ "<C-\\>v/V     ": "show function name",
 				\ "<C-\\>d       ": "bdelete current buffer",
-				\ "\\g           ": "show git blame info",
+				\ "\\g           ": "show git blame info(or BlamerToggle/BlamerHide)",
 				\ "terminal split": "<C-\\><F3> -- vertical terminal\n
 				\                  <C-\\><F4> -- terminal",
 				\ "<C-\\>m       ": "call TranslateW",
@@ -560,10 +566,18 @@ function! ShowcommadT(use_may_tag_dir)
 	endif
 endfunction
 
-nnoremap <C-h> :call ShowcommadT(1)<CR>:CommandT <C-r>z
-nnoremap <C-\>h :call ShowcommadT(0)<CR>:CommandT <C-r>z
-map <c-\>f :CommandTBuffer<CR>
-map <c-\>F :CommandTBuffer<CR>
+if !has('nvim')
+	nnoremap <C-h> :call ShowcommadT(1)<CR>:CommandT <C-r>z
+	nnoremap <C-\>h :call ShowcommadT(0)<CR>:CommandT <C-r>z
+	map <c-\>f :CommandTBuffer<CR>
+	map <c-\>F :CommandTBuffer<CR>
+else
+	nnoremap <C-h> :call ShowcommadT(1)<CR>:FuzzyOpen <C-r>z
+	nnoremap <C-\>h :call ShowcommadT(0)<CR>:FuzzyOpen <C-r>z
+	map <c-\>f :FuzzyOpen<CR>
+	map <c-\>F :FuzzyOpen<CR>
+	let g:fuzzy_bindkeys = 0
+endif
 "==================end for command-t=============================
 
 "==================add for quick show func by enter 'f'==========
@@ -606,7 +620,11 @@ autocmd BufNewFile,BufRead *.vim call Map_to_func_head_python_style()
 
 "==================add source vimrc_example.vim==================
 "==================just for linux/unix style env=================
-source $VIMRUNTIME/vimrc_example.vim
+if has('nvim')
+	source ~/shell_my/unexeshell/misc/vimrc_example.vim
+else
+	source $VIMRUNTIME/vimrc_example.vim
+endif
 "==================end add source vimrc_example.vim==============
 
 "=========add Froce hiserach color to ctermbg=Red================
@@ -645,8 +663,10 @@ let g:SrcExpl_pluginList = [
 let g:EchoFuncKeyNext='<C-\>j'
 let g:EchoFuncKeyPrev='<C-\>k'
 "show balloon_eval meg
-set balloonevalterm
-set ballooneval
+if !has('nvim')
+	set balloonevalterm
+	set ballooneval
+endif
 "========end for echofunc.vim===================================
 "========add for auto update cscope ctags log ==================
 let g:Auto_update_cscope_ctags_debug_log = 0
@@ -733,3 +753,7 @@ set statusline+=%{Codestyle()}
 let g:ranger_map_keys = 0
 map <silent>\<F4> :Ranger<CR>
 "===============end ranger================================
+
+" keep vim and neovim with the same colorscheme
+colorscheme default
+set background=light

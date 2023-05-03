@@ -53,6 +53,14 @@ ln -s $root_dir/vim_config/en.utf-8.add ~/.vim/spell/en.utf-8.add
 echo "cp external_vim_file"
 mkdir -p ~/.vim/
 cp $root_dir/vim_config/external_vim_file/* -rf ~/.vim/ 
+echo "config nvim"
+rm -rf ~/.config/nvim
+mkdir -p ~/.config/nvim/
+# link vimrc to nvim
+ln -s ~/.vimrc ~/.config/nvim/init.vim
+cp $root_dir/vim_config/external_vim_file/* -rf ~/.config/nvim/
+python3 -m pip install --upgrade pip
+python3 -m pip install pynvim
 
 echo "7: config usb udev"
 sudo cp $root_dir/ubuntu_config/usb_udev_config/*.rules /etc/udev/rules.d/
