@@ -758,3 +758,19 @@ set statusline+=%{Codestyle()}
 let g:ranger_map_keys = 0
 map <silent>\<F4> :Ranger<CR>
 "===============end ranger================================
+
+"===============start config cursor==============================
+" make vim cursor same as nvim: insert mode is a line and normal mode is a block
+" Reference chart of values:
+"   Ps = 0  -> blinking block.
+"   Ps = 1  -> blinking block (default).
+"   Ps = 2  -> steady block.
+"   Ps = 3  -> blinking underline.
+"   Ps = 4  -> steady underline.
+"   Ps = 5  -> blinking bar (xterm).
+"   Ps = 6  -> steady bar (xterm).
+if !has('nvim')
+	let &t_SI = "\e[6 q"
+	let &t_EI = "\e[2 q"
+endif
+"===============end config cursor==============================
