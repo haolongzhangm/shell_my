@@ -164,3 +164,6 @@ use  fallocate to quick create a file
  git clean exclude dir:
  git clean -xdf --exclude=.cache --exclude=.ycm
  ===================================================================================
+ du show hidden file:
+ du -sh * .[^.]*
+ ===================================================================================
