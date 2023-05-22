@@ -638,9 +638,9 @@ hi Search ctermbg=Red
 
 "=========override mouse set from default.vim(vimrc_example.vim)=
 "compat for tmux copy mode,so use mouse mode
-"if has('mouse')
-"  set mouse=
-"endif
+if has('mouse')
+  set mouse=a
+endif
 set nobackup
 "=========end override mouse and nobackup set from default.vim===
 
