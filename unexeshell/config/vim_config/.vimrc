@@ -774,3 +774,7 @@ if !has('nvim')
 	let &t_EI = "\e[2 q"
 endif
 "===============end config cursor==============================
+
+"===============start config copilot==============================
+let g:copilot_node_command = "~/node-v18.16.0-linux-x64/bin/node"
+"===============end config copilot==============================
