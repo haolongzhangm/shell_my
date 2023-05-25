@@ -682,10 +682,10 @@ let g:update_cscope_ctags_do_not_care_dir = 'build_dir bazel-bin ci/workdir ci/b
 "========add for vim gdb config=================================
 packadd termdebug
 nmap <C-\>g :Break<CR>
-command -nargs=0 Gdblinuxarm :let termdebugger="gdb_arm_linux_10_1"
-command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb_aarch64_linux_10_1"
-command -nargs=0 Gdbmacosarm :let termdebugger="gdb_arm_macos_8_3"
-command -nargs=0 Gdbmacosarm64 :let termdebugger="gdb_aarch64_macos_8_3"
+command -nargs=0 Gdblinuxarm :let termdebugger="gdb-multiarch"
+command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb-multiarch"
+command -nargs=0 Gdbmacosarm :let termdebugger="gdb-multiarch"
+command -nargs=0 Gdbmacosarm64 :let termdebugger="gdb-multiarch"
 command -nargs=0 Gdblocalhost :let termdebugger="gdb"
 command -nargs=0 Gdbasmshow : let g:termdebug_disasm_window = 15
 command -nargs=0 Gdbasmdisable : let g:termdebug_disasm_window = 0
