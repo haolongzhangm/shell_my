@@ -161,7 +161,15 @@ function! YouCompleteMe_Start_Or_Stop(use_clangd, use_android_ndk_resource_dir)
 	endif
 
 	if 1 == a:use_android_ndk_resource_dir
-		let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0', '-resource-dir=/home/cd_engine_group/group_common_dirs/NDK/android-ndk-r21d/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.8']
+		" get resource-dir from NDK_ROOT
+		let s:clang_path_with_ver = system('echo $NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/*')
+		if filereadable(s:clang_path_with_ver[:-2] . '/include/float.h')
+			echo "use clangd with android ndk resource dir"
+			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0', '-resource-dir=' . s:clang_path_with_ver[:-2]]
+		else
+			echo "can't find clangd with android ndk resource dir: ". s:clang_path_with_ver . ", pls check NDK_ROOT"
+			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
+		endif
 	else
 		let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
 	endif
