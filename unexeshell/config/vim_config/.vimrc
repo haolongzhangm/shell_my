@@ -187,6 +187,9 @@ function! YouCompleteMe_Start_Or_Stop(use_clangd, use_android_ndk_resource_dir)
 			echo "Now manual enable YouCompleteMe with libclang"
 		endif
 		call youcompleteme#Enable()
+		" fix copilot <Tab> failed after restart ycm
+		" just re imap <Tab> to copilot#Accept, if upgrade copilot plugin, need check org imap <Tab>
+		imap <silent><script><expr> <Tab>  copilot#Accept({ -> pumvisible() ? "\<C-N>" : "\<Tab>" })
 		let s:already_enable_youcomplete = 1
 	endif
 endfunction
@@ -785,4 +788,6 @@ endif
 
 "===============start config copilot==============================
 let g:copilot_node_command = "~/node-v18.16.0-linux-x64/bin/node"
+" FIXME: vim imap ALT <M- do not take effect,
+" copilot-suggest/copilot-previous/copilot-next
 "===============end config copilot==============================
