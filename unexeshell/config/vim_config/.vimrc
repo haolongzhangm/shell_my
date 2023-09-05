@@ -148,6 +148,36 @@ let g:ycm_max_diagnostics_to_display = 0
 ""use to debug clangd issue
 ""let g:ycm_clangd_args = ['-log=verbose', '-pretty']
 let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
+function! YouCompleteMe_Config_Args(show_msg, try_use_android)
+	if 1 == a:try_use_android
+		" get resource-dir from NDK_ROOT
+		let s:clang_path_with_ver = system('echo $NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/*')
+		if filereadable(s:clang_path_with_ver[:-2] . '/include/float.h')
+			if 1 == a:show_msg
+				echo "use clangd with android ndk resource dir"
+			endif
+			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0', '-resource-dir=' . s:clang_path_with_ver[:-2]]
+		else
+			if 1 == a:show_msg
+				echo "can't find clangd with android ndk resource dir: ". s:clang_path_with_ver . ", pls check NDK_ROOT"
+			endif
+			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
+		endif
+	else
+		if 1 == a:show_msg
+			echo "use clangd with system resource dir"
+		endif
+		let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
+	endif
+endfunction
+" config default ycm-clangd args
+let b:android_keywork = 'linux-android'
+let b:check_database_cmd = 'grep "' . b:android_keywork . '" compile_commands.json'
+if stridx(system(b:check_database_cmd), b:android_keywork) >=0
+	call YouCompleteMe_Config_Args(0, 1)
+else
+	call YouCompleteMe_Config_Args(0, 0)
+endif
 highlight YcmErrorSection guibg=#000000
 highlight YcmWarningSection guibg=#000000
 "add a interface to manual stop and start YouCompleteMe,sometime need use new-omni-completion
@@ -160,19 +190,7 @@ function! YouCompleteMe_Start_Or_Stop(use_clangd, use_android_ndk_resource_dir)
 		let g:ycm_use_clangd = 0
 	endif
 
-	if 1 == a:use_android_ndk_resource_dir
-		" get resource-dir from NDK_ROOT
-		let s:clang_path_with_ver = system('echo $NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/*')
-		if filereadable(s:clang_path_with_ver[:-2] . '/include/float.h')
-			echo "use clangd with android ndk resource dir"
-			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0', '-resource-dir=' . s:clang_path_with_ver[:-2]]
-		else
-			echo "can't find clangd with android ndk resource dir: ". s:clang_path_with_ver . ", pls check NDK_ROOT"
-			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
-		endif
-	else
-		let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
-	endif
+	call YouCompleteMe_Config_Args(1, a:use_android_ndk_resource_dir)
 
 	if 1 == s:already_enable_youcomplete
 		echo "Now manual disable YouCompleteMe"
