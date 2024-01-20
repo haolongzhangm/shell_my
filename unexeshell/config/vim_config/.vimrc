@@ -110,6 +110,7 @@ Plugin 'honza/vim-snippets'
 Plugin 'voldikss/vim-floaterm'
 Plugin 'github/copilot.vim'
 Plugin 'APZelos/blamer.nvim'
+Plugin 'puremourning/vimspector'
 if has('nvim')
 	Plugin 'cloudhead/neovim-fuzzy'
 endif
