@@ -44,7 +44,9 @@ ln -s $root_dir/gdb_config/.gdbinit ~/.gdbinit
 echo "6: config vim config..."
 echo "try remove exist file..."
 rm ~/.vimrc
+rm ~/.vimspector.json
 ln -s $root_dir/vim_config/.vimrc ~/.vimrc
+ln -s $root_dir/vim_config/.vimspector.json ~/.vimspector.json
 mkdir -p ~/.vim/spell
 rm ~/.vim/spell/en.utf-8.add
 rm ~/.vim/spell/en.utf-8.add.spl

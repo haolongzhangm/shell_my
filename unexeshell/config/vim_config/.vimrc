@@ -546,6 +546,11 @@ function! Myusage()
 				\                 Android env example: adb forward tcp:1234 tcp:1234\n
 				\                         (gdb)set solib-absolute-prefix ...\n
 				\                         (gdb)set solib-search-path ...",
+				\ "Vimspector   ": ":Vimspectorlaunch -- launch Vimspector\n
+				\                 :VimspectorReset -- relaunch Vimspector\n
+				\                 :Vimspectorlistbreakpoints -- list all break\n
+				\                 :Vimspectortogglebreakpoint -- make/off a break\n
+				\                 :Vimspectorshowdisassembly -- show disassembly",
 				\ "vim          ": ":source ~/.vimrc and :!reset -- reset vimrc\n
 				\                 :mksession file.vim then vim -S file.vim -- vim snapshoot",
 				\ "vim spell    ": "z= -- give spell correction suggest\n
@@ -716,10 +721,18 @@ command -nargs=0 Gdblinuxarm :let termdebugger="gdb-multiarch"
 command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb-multiarch"
 command -nargs=0 Gdbmacosarm :let termdebugger="gdb-multiarch"
 command -nargs=0 Gdbmacosarm64 :let termdebugger="gdb-multiarch"
-command -nargs=0 Gdblocalhost :let termdebugger="gdb"
+command -nargs=0 Gdblocalhost :let termdebugger="gdb-multiarch"
 command -nargs=0 Gdbasmshow : let g:termdebug_disasm_window = 15
 command -nargs=0 Gdbasmdisable : let g:termdebug_disasm_window = 0
 "========end for vim gdb config=================================
+
+"========add for vimspector config=================================
+"install vimspector by command: ./install_gadget.py --all
+command -nargs=0 Vimspectorlaunch :call vimspector#Launch()
+command -nargs=0 Vimspectorlistbreakpoints :call vimspector#ListBreakpoints()
+command -nargs=0 Vimspectortogglebreakpoint :call vimspector#ToggleBreakpoint()
+command -nargs=0 Vimspectorshowdisassembly :call vimspector#ShowDisassembly()
+"========end for vimspector config=================================
 
 "===============add GitBranchOrTag==============================
 let b:GitBranchOrTagInfoNeedReFresh = 1

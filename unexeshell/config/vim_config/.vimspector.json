@@ -1,0 +1,135 @@
+{
+	"configurations": {
+		"python_with_args":{
+			"adapter": "debugpy",
+			"configuration": {
+				"name": "python3 with file",
+				"type": "python",
+				"request": "launch",
+				"python.pythonPath": "python3",
+				"program": "${run_file}",
+				"cwd": "${run_dir}",
+				"args": [ "*${args}" ]
+			},
+			"breakpoints": {
+				"exception": {
+					"raised": "N",
+					"caught": "N",
+					"uncaught": "Y",
+					"userUnhandled": "N"
+				}
+			}
+		},
+		"python_with_args_with_all_exception":{
+			"adapter": "debugpy",
+			"configuration": {
+				"name": "python3 with file",
+				"type": "python",
+				"request": "launch",
+				"python.pythonPath": "python3",
+				"program": "${run_file}",
+				"cwd": "${run_dir}",
+				"args": [ "*${args}" ]
+			},
+			"breakpoints": {
+				"exception": {
+					"raised": "Y",
+					"caught": "Y",
+					"uncaught": "Y",
+					"userUnhandled": "Y"
+				}
+			}
+		},
+		"pytest_with_args":{
+			"adapter": "debugpy",
+			"configuration": {
+				"name": "python3 with file",
+				"module": "pytest",
+				"type": "python",
+				"request": "launch",
+				"python.pythonPath": "python3",
+				"args": [ "*${args}" ]
+			},
+			"breakpoints": {
+				"exception": {
+					"raised": "N",
+					"caught": "N",
+					"uncaught": "Y",
+					"userUnhandled": "N"
+				}
+			}
+		},
+		"pytest_with_args_with_all_exception":{
+			"adapter": "debugpy",
+			"configuration": {
+				"name": "python3 with file",
+				"module": "pytest",
+				"type": "python",
+				"request": "launch",
+				"python.pythonPath": "python3",
+				"args": [ "*${args}" ]
+			},
+			"breakpoints": {
+				"exception": {
+					"raised": "Y",
+					"caught": "Y",
+					"uncaught": "Y",
+					"userUnhandled": "Y"
+				}
+			}
+		},
+		"bash": {
+			"adapter": "vscode-bash",
+			"autoselect": false,
+			"configuration": {
+				"request": "launch",
+				"program": "${run_file}",
+				"cwd": "${run_dir}",
+				"args": [ "*${args}" ]
+			}
+		},
+		"cpp:launch": {
+			"adapter": "vscode-cpptools",
+			"configuration": {
+				"name": "cpp:launch",
+				"stopAtEntry": true,
+				"type": "cppdbg",
+				"request": "launch",
+				"program": "${run_file}",
+				"cwd": "${run_dir}",
+				"args": [ "*${args}" ],
+				"environment": [], 
+				"externalConsole": true,
+				"MIMode": "gdb",
+				"miDebuggerPath": "gdb-multiarch",
+				"breakpointers": {
+					"exception": {
+						"cpp_throw": "Y",
+						"cpp_catch": "N" 
+					}   
+				}   
+			}   
+		},  
+		"cpp:attach": {
+			"adapter": "vscode-cpptools",
+			"configuration": {
+				"name": "cpp:attach",
+				"stopAtEntry": true,
+				"type": "cppdbg",
+				"request": "launch",
+				"cwd": "${workspaceFolder}",
+				"program": "${run_file_path_without_home}",
+				"MIMode": "gdb",
+				"useExtendedRemote": true,
+				"miDebuggerPath": "gdb-multiarch",
+				"miDebuggerServerAddress": "${host}:${port}",
+				"breakpointers": {
+					"exception": {
+						"cpp_throw": "Y",
+						"cpp_catch": "N" 
+					}   
+				}   
+			}   
+		}
+	}
+}
