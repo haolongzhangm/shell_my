@@ -88,7 +88,7 @@
 				"args": [ "*${args}" ]
 			}
 		},
-		"cpp:launch": {
+		"gdb-multiarch:launch": {
 			"adapter": "vscode-cpptools",
 			"configuration": {
 				"name": "cpp:launch",
@@ -99,8 +99,15 @@
 				"cwd": "${run_dir}",
 				"args": [ "*${args}" ],
 				"environment": [], 
-				"externalConsole": true,
+				"console": "externalTerminal",
 				"MIMode": "gdb",
+				"setupCommands": [
+					{
+						"description": "Enable pretty-printing for gdb",
+						"text": "-enable-pretty-printing",
+						"ignoreFailures": true
+					}
+				],
 				"miDebuggerPath": "gdb-multiarch",
 				"breakpointers": {
 					"exception": {
@@ -110,7 +117,7 @@
 				}   
 			}   
 		},  
-		"cpp:attach": {
+		"gdb-multiarch:attach": {
 			"adapter": "vscode-cpptools",
 			"configuration": {
 				"name": "cpp:attach",
@@ -120,6 +127,14 @@
 				"cwd": "${workspaceFolder}",
 				"program": "${run_file_path_without_home}",
 				"MIMode": "gdb",
+				"setupCommands": [
+					{
+						"description": "Enable pretty-printing for gdb",
+						"text": "-enable-pretty-printing",
+						"ignoreFailures": true
+					}
+				],
+				"console": "internalConsole",
 				"useExtendedRemote": true,
 				"miDebuggerPath": "gdb-multiarch",
 				"miDebuggerServerAddress": "${host}:${port}",

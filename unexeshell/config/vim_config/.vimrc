@@ -534,11 +534,7 @@ function! Myusage()
 				\                 <C-\\>e -- enable or disable echofunc",
 				\ "createtag    ": ":Createtag -- create tag\n
 				\                  <C-\\>t -- Manualupdatedatabaseonetime",
-				\ "termdebug    ": ":Gdblinuxarm -- config linux-arm host cross gdb env\n
-				\                 :Gdblinuxarm64 -- config linux-arm64 host cross gdb env\n
-				\                 :Gdbmacosarm -- config macos-arm host cross gdb env\n
-				\                 :Gdbmacosarm64 -- config macos-arm64 host cross gdb env\n
-				\                 :Gdblocalhost -- config local gdb env\n
+				\ "termdebug    ": ":let termdebugger=xxx -- to config anthor debugger\n
 				\                 :Gdbasmshow -- show asm\n
 				\                 :Gdbasmdisable -- not show asm\n
 				\                 :choose program window, then cmd: <Ctrl-W>:bwipeout! or bdelete-- close program window windows\n
@@ -717,11 +713,9 @@ let g:update_cscope_ctags_do_not_care_dir = 'build_dir bazel-bin ci/workdir ci/b
 "========add for vim gdb config=================================
 packadd termdebug
 nmap <C-\>g :Break<CR>
-command -nargs=0 Gdblinuxarm :let termdebugger="gdb-multiarch"
-command -nargs=0 Gdblinuxarm64 :let termdebugger="gdb-multiarch"
-command -nargs=0 Gdbmacosarm :let termdebugger="gdb-multiarch"
-command -nargs=0 Gdbmacosarm64 :let termdebugger="gdb-multiarch"
-command -nargs=0 Gdblocalhost :let termdebugger="gdb-multiarch"
+"we mark all termdebugger to gdb-multiarch, at some case, we need to change it to other debugger, e.g gdb/lldb
+"just use command: :let termdebugger="gdb" or :let termdebugger="lldb"
+let termdebugger="gdb-multiarch"
 command -nargs=0 Gdbasmshow : let g:termdebug_disasm_window = 15
 command -nargs=0 Gdbasmdisable : let g:termdebug_disasm_window = 0
 "========end for vim gdb config=================================
