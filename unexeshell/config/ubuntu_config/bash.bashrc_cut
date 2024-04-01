@@ -135,3 +135,16 @@ export DOCKER_HOST=unix:///run/user/$UID/docker.sock
 #systemctl --user (start|stop|restart) docker.service
 # ssh alias
 alias sshl='ssh -o "ServerAliveInterval 60"'
+
+# open file with vim background job
+function vv() {
+	local job=$(jobs | perl -ne 'print $1 if /\[(\d+)\].*vim/')
+	if [[ -n $job ]]; then
+		tmux send-keys fg Space $job Enter
+		for f in $*; do
+			tmux send-keys :e Space `realpath $f` Enter
+		done
+	else
+		vim $*
+	fi
+}
