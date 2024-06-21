@@ -148,3 +148,7 @@ function vv() {
 		vim $*
 	fi
 }
+
+# for python3.12+ must use venv
+# export VIRTUAL_ENV_DISABLE_PROMPT=1
+# source ~/.venv/bin/activate

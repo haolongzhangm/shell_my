@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -ex
+
 dir_pre="/home"
 if [ `uname` == "Darwin" ]
 then
