@@ -18,8 +18,8 @@ echo "try config all config...."
 
 echo "1: config git config....."
 echo "try remove exist file...."
-rm ~/.gitconfig
-rm ~/.gitignore_global
+rm -rf ~/.gitconfig
+rm -rf ~/.gitignore_global
 
 ln -s $root_dir/git_config/.gitconfig ~/.gitconfig
 ln -s $root_dir/git_config/.gitignore_global ~/.gitignore_global
@@ -36,23 +36,23 @@ echo -e "${RED}all to  longhaozhang@gmail.com${NC}"
 
 echo "4: config tmux..."
 echo "try remove exist file..."
-rm ~/.tmux.conf
+rm -rf ~/.tmux.conf
 ln -s $root_dir/tmux_config/.tmux.conf ~/.tmux.conf
 
 echo "5: config gdb..."
 echo "try remove exist file..."
-rm ~/.gdbinit
+rm -rf ~/.gdbinit
 ln -s $root_dir/gdb_config/.gdbinit ~/.gdbinit
 
 echo "6: config vim config..."
 echo "try remove exist file..."
-rm ~/.vimrc
-rm ~/.vimspector.json
+rm -rf ~/.vimrc
+rm -rf ~/.vimspector.json
 ln -s $root_dir/vim_config/.vimrc ~/.vimrc
 ln -s $root_dir/vim_config/.vimspector.json ~/.vimspector.json
 mkdir -p ~/.vim/spell
-rm ~/.vim/spell/en.utf-8.add
-rm ~/.vim/spell/en.utf-8.add.spl
+rm -rf ~/.vim/spell/en.utf-8.add
+rm -rf ~/.vim/spell/en.utf-8.add.spl
 ln -s $root_dir/vim_config/en.utf-8.add.spl ~/.vim/spell/en.utf-8.add.spl
 ln -s $root_dir/vim_config/en.utf-8.add ~/.vim/spell/en.utf-8.add
 echo "cp external_vim_file"
@@ -64,8 +64,8 @@ mkdir -p ~/.config/nvim/
 # link vimrc to nvim
 ln -s ~/.vimrc ~/.config/nvim/init.vim
 cp $root_dir/vim_config/external_vim_file/* -rf ~/.config/nvim/
-python3 -m pip install --upgrade pip
-python3 -m pip install pynvim
+python3 -m pip install --upgrade pip --break-system-packages
+python3 -m pip install pynvim --break-system-packages
 
 echo "7: config usb udev"
 sudo cp $root_dir/ubuntu_config/usb_udev_config/*.rules /etc/udev/rules.d/
