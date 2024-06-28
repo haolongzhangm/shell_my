@@ -21,8 +21,8 @@ set smartindent
 set shortmess-=S
 
 " keep vim and neovim with the same colorscheme
-" colorscheme default
-set background=light
+colorscheme koehler
+set background=dark
 
 au BufNewFile,BufRead *.cu set filetype=cpp
 au BufNewFile,BufRead *.opencl set filetype=c
