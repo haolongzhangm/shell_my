@@ -1,0 +1,1 @@
+ssh -o "ServerAliveInterval 60" zhl@10.172.198.205
