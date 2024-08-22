@@ -1,6 +1,8 @@
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <thread>
 
 #ifdef __APPLE__
 #include <OpenCL/cl.h>
@@ -12,6 +14,51 @@
 
 const long long ARRAY_SIZE = 1024 * 1024 * 15; // 60MB
 
+//! define a timer
+class Timer {
+    using clock = ::std::chrono::high_resolution_clock;
+    clock::time_point m_start;
+
+public:
+    Timer();
+
+    void reset();
+
+    [[nodiscard]] double get_secs() const;
+    [[nodiscard]] double get_msecs() const;
+
+    double get_secs_reset();
+    double get_msecs_reset();
+};
+
+double Timer::get_secs() const {
+    auto now = std::chrono::high_resolution_clock::now();
+    return ::std::chrono::duration_cast<::std::chrono::nanoseconds>(now -
+                                                                    m_start)
+                   .count() *
+           1e-9;
+}
+double Timer::get_msecs() const {
+    auto now = std::chrono::high_resolution_clock::now();
+    return ::std::chrono::duration_cast<::std::chrono::nanoseconds>(now -
+                                                                    m_start)
+                   .count() *
+           1e-6;
+}
+double Timer::get_secs_reset() {
+    auto ret = get_secs();
+    reset();
+    return ret;
+}
+double Timer::get_msecs_reset() {
+    return get_secs_reset() * 1e3;
+}
+void Timer::reset() {
+    m_start = clock::now();
+}
+Timer::Timer() {
+    reset();
+}
 cl_context CreateContext() {
   cl_int errNum;
   cl_uint numPlatforms;
@@ -82,9 +129,13 @@ cl_command_queue CreateCommandQueue(cl_context context, cl_device_id *device) {
 }
 
 std::string buffer_kernel = R"(
-__kernel void hello_one(__global float *a)
+__kernel void hello_one(__global float *a, __global float *fast_out_flag)
 {
     int gid = get_global_id(0);
+    float fast_out = fast_out_flag[0];
+    if (fast_out > 0) {
+        return;
+    }
 
     a[gid] = a[gid] + gid % 1000;
 }
@@ -158,6 +209,7 @@ int main(int argc, char **argv) {
   cl_kernel kernel_image = 0;
   cl_int errNum;
   float *svm_ptr;
+  float *svm_ptr_fast_out_flag;
 
   context = CreateContext();
   if (context == NULL) {
@@ -195,6 +247,8 @@ int main(int argc, char **argv) {
     printf("test normal svm without FINE_GRAIN\n");
     svm_ptr = (float *)clSVMAlloc(context, CL_MEM_READ_WRITE,
                                   ARRAY_SIZE * sizeof(float), 0);
+    svm_ptr_fast_out_flag = (float *)clSVMAlloc(
+        context, CL_MEM_READ_WRITE, 1 * sizeof(float), 0);
   } else if (test_args == 1) {
     printf("test svm with FINE_GRAIN\n");
     // svm_ptr = (float *)clSVMAlloc(
@@ -204,6 +258,9 @@ int main(int argc, char **argv) {
     svm_ptr = (float *)clSVMAlloc(
         context, CL_MEM_READ_WRITE | CL_MEM_SVM_FINE_GRAIN_BUFFER,
         ARRAY_SIZE * sizeof(float), 0);
+    svm_ptr_fast_out_flag = (float *)clSVMAlloc(
+        context, CL_MEM_READ_WRITE | CL_MEM_SVM_FINE_GRAIN_BUFFER,
+        1 * sizeof(float), 0);
   } else {
     printf("errr args\n");
     return -1;
@@ -214,13 +271,17 @@ int main(int argc, char **argv) {
     printf("call svm map to host contrel\n");
     clEnqueueSVMMap(commandQueue, CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION,
                     svm_ptr, ARRAY_SIZE * sizeof(float), 0, NULL, NULL);
+    clEnqueueSVMMap(commandQueue, CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION,
+                    svm_ptr_fast_out_flag, 1 * sizeof(float), 0, NULL, NULL);
   }
 
   for (size_t t = 0; t < ARRAY_SIZE; t++) {
     svm_ptr[t] = 1000;
   }
+  svm_ptr_fast_out_flag[0] = 0;
   printf("svm set args\n");
   errNum = clSetKernelArgSVMPointer(kernel, 0, (void *)svm_ptr);
+  errNum = clSetKernelArgSVMPointer(kernel, 1, (void *)svm_ptr_fast_out_flag);
   if (errNum != CL_SUCCESS) {
     std::cerr << "Error setting kernel arguments." << std::endl;
     Cleanup(context, commandQueue, program, kernel);
@@ -228,7 +289,21 @@ int main(int argc, char **argv) {
   }
 
   size_t globalWorkSize[1] = {ARRAY_SIZE};
-  size_t localWorkSize[1] = {32};
+  size_t localWorkSize[1] = {4};
+  Timer timer0;
+  //! define std::thread to change svm_ptr_fast_out_flag value
+  std::thread tt([&svm_ptr_fast_out_flag]() {
+          //! get env value to sleep
+    char *sleep_time = getenv("SLEEP_TIME");
+    if (sleep_time != NULL) {
+    Timer print_timer;
+      printf("sleep time: %s\n", sleep_time);
+      //! sleep sleep_time 
+      std::this_thread::sleep_for(std::chrono::milliseconds(atoi(sleep_time)));
+      printf("sleep time: %s, use time: %fms\n", sleep_time, print_timer.get_msecs_reset());
+    }
+    svm_ptr_fast_out_flag[0] = 1;
+  });
   errNum = clEnqueueNDRangeKernel(commandQueue, kernel, 1, NULL, globalWorkSize,
                                   localWorkSize, 0, NULL, NULL);
   if (errNum != CL_SUCCESS) {
@@ -241,8 +316,11 @@ int main(int argc, char **argv) {
     printf("call svm map to host contrel\n");
     clEnqueueSVMMap(commandQueue, CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION,
                     svm_ptr, ARRAY_SIZE * sizeof(float), 0, NULL, NULL);
+    clEnqueueSVMMap(commandQueue, CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION,
+                    svm_ptr_fast_out_flag, 1 * sizeof(float), 0, NULL, NULL);
   }
   clFinish(commandQueue);
+  printf("use 0time %fms\n", timer0.get_msecs_reset());
 
   printf("test result: %f\n", svm_ptr[ARRAY_SIZE - 3]);
 
@@ -341,8 +419,9 @@ int main(int argc, char **argv) {
   }
 
   size_t globalWorkSizeImage[2] = {64, 64};
-  size_t localWorkSizeImage[2] = {16, 16};
+  size_t localWorkSizeImage[2] = {1, 1};
   // Queue the kernel up for execution across the array
+  Timer timer;
   errNum = clEnqueueNDRangeKernel(commandQueue, kernel_image, 2, NULL,
                                   globalWorkSizeImage, localWorkSizeImage, 0,
                                   NULL, NULL);
@@ -359,6 +438,9 @@ int main(int argc, char **argv) {
                     svm_ptr, ARRAY_SIZE * sizeof(float), 0, NULL, NULL);
   }
   clFinish(commandQueue);
+  auto t = timer.get_msecs_reset();
+  printf("use time %fms\n", t);
+
 
   int offset = 64 * 64 * 4;
   printf("test offset: %d result: %f %f %f %f\n", offset, svm_ptr[0 + offset],
@@ -371,6 +453,12 @@ int main(int argc, char **argv) {
   offset = offset + 4;
   printf("test offset: %d result: %f %f %f %f\n", offset, svm_ptr[0 + offset],
          svm_ptr[1 + offset], svm_ptr[2 + offset], svm_ptr[3 + offset]);
+  //! add all svm_ptr value
+  long long sum = 0;
+  for (size_t t = 0; t < ARRAY_SIZE; t++) {
+    sum += svm_ptr[t];
+  }
+  printf("sum: %lld\n", sum);
 
   std::cout << "Executed program succesfully." << std::endl;
   Cleanup(context, commandQueue, program, kernel);
