@@ -1,5 +1,10 @@
-#from NDK17, default use clang
+#!/usr/bin/env bash
+set -e
+
+rm -rf out
+mkdir -p out
+
 echo "build for aarch64...."
-aarch64-linux-android29-clang++ -static-libstdc++ -pie -fPIE -IOpenCL -LOpenCL/aarch64_lib -lOpenCL -fuse-ld=gold src/HelloWorld.cpp -o out/HelloWorld_64
+aarch64-linux-android29-clang++ -static-libstdc++ -pie -fPIE -Iopencl-stub/include/ src/HelloWorld.cpp opencl-stub/src/libopencl.cpp -llog -o out/HelloWorld_64
 echo "build for arm...."
-armv7a-linux-androideabi23-clang++ -static-libstdc++ -pie -fPIE -IOpenCL -LOpenCL/arm_lib -lOpenCL -fuse-ld=gold src/HelloWorld.cpp -o out/HelloWorld_32
+armv7a-linux-androideabi23-clang++ -static-libstdc++ -pie -fPIE -Iopencl-stub/include/ src/HelloWorld.cpp opencl-stub/src/libopencl.cpp -llog -o out/HelloWorld_32
