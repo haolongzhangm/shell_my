@@ -153,6 +153,11 @@ let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
 function! YouCompleteMe_Config_Args(show_msg, try_use_android)
 	if 1 == a:try_use_android
 		" get resource-dir from NDK_ROOT
+		" old ndk dir is like
+		" ${NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/*/include/float.h
+		" new ndk dir is like
+		" ${NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/*/include/float.h
+		" need compat it
 		let s:clang_path_with_ver = system('echo $NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/*')
 		if filereadable(s:clang_path_with_ver[:-2] . '/include/float.h')
 			if 1 == a:show_msg
@@ -160,10 +165,19 @@ function! YouCompleteMe_Config_Args(show_msg, try_use_android)
 			endif
 			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0', '-resource-dir=' . s:clang_path_with_ver[:-2]]
 		else
-			if 1 == a:show_msg
-				echo "can't find clangd with android ndk resource dir: ". s:clang_path_with_ver . ", pls check NDK_ROOT"
+			" try new ndk dir
+			let s:clang_path_with_ver = system('echo $NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/*')
+			if filereadable(s:clang_path_with_ver[:-2] . '/include/float.h')
+				if 1 == a:show_msg
+					echo "use clangd with android new ndk resource dir"
+				endif
+				let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0', '-resource-dir=' . s:clang_path_with_ver[:-2]]
+			else
+				if 1 == a:show_msg
+					echo "can't find clangd with android ndk resource dir: ". s:clang_path_with_ver . ", pls check NDK_ROOT"
+				endif
+				let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
 			endif
-			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
 		endif
 	else
 		if 1 == a:show_msg
