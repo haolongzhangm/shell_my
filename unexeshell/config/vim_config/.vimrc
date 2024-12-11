@@ -150,8 +150,8 @@ let g:ycm_max_diagnostics_to_display = 0
 ""use to debug clangd issue
 ""let g:ycm_clangd_args = ['-log=verbose', '-pretty']
 let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
-function! YouCompleteMe_Config_Args(show_msg, try_use_android)
-	if 1 == a:try_use_android
+function! YouCompleteMe_Config_Args(show_msg, try_use_android_or_ohos)
+	if 1 == a:try_use_android_or_ohos
 		" get resource-dir from NDK_ROOT
 		" old ndk dir is like
 		" ${NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/*/include/float.h
@@ -179,6 +179,20 @@ function! YouCompleteMe_Config_Args(show_msg, try_use_android)
 				let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
 			endif
 		endif
+	elseif 2 == a:try_use_android_or_ohos
+		" OHOS case
+		let s:clang_path_with_ver = system('echo ${OHOS_NDK_ROOT}/llvm/lib/clang/*')
+		if filereadable(s:clang_path_with_ver[:-2] . '/include/float.h')
+			if 1 == a:show_msg
+				echo "use clangd with OHOS ndk resource dir"
+			endif
+			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0', '-resource-dir=' . s:clang_path_with_ver[:-2]]
+		else
+			if 1 == a:show_msg
+				echo "can't find clangd with OHOS ndk resource dir: ". s:clang_path_with_ver . ", pls check OHOS_NDK_ROOT"
+			endif
+			let g:ycm_clangd_args = ['--all-scopes-completion', '-limit-results=0']
+		endif
 	else
 		if 1 == a:show_msg
 			echo "use clangd with system resource dir"
@@ -188,9 +202,13 @@ function! YouCompleteMe_Config_Args(show_msg, try_use_android)
 endfunction
 " config default ycm-clangd args
 let b:android_keywork = 'linux-android'
+let b:ohos_keywork = 'linux-ohos'
 let b:check_database_cmd = 'grep "' . b:android_keywork . '" compile_commands.json'
+let b:check_database_cmd_ohos = 'grep "' . b:ohos_keywork . '" compile_commands.json'
 if stridx(system(b:check_database_cmd), b:android_keywork) >=0
 	call YouCompleteMe_Config_Args(0, 1)
+elseif stridx(system(b:check_database_cmd_ohos), b:ohos_keywork) >=0
+	call YouCompleteMe_Config_Args(0, 2)
 else
 	call YouCompleteMe_Config_Args(0, 0)
 endif
@@ -513,7 +531,7 @@ function! Myusage()
 				\                 F10 -- YCMHover\n
 				\                 F12 -- GoToDeclaration\n
 				\                 \\f FixIt\n
-				\                 <C-\\>y YouCompleteMe_Start_Or_Stop(flag, flag2) flag, 1:clangd, 0:libclang, flag2: 1: use android ndk resource, 0: use system resource",
+				\                 <C-\\>y YouCompleteMe_Start_Or_Stop(flag, flag2) flag, 1:clangd, 0:libclang, flag2: 2: use OHOS ndk resource, 1: use android ndk resource, 0: use system resource",
 				\ "UltiSnips    ": "<C-w> -- trigger complete code snippets",
 				\ "window navi  ": "F9 -- TlistToggle\n
 				\                 F4 -- NERDTree [pwd]\n
