@@ -4,7 +4,7 @@
 	excludesfile = ~/.gitignore_global
 [user]
 	name = zhanghaolong
-	email = zhanghaolong@megvii.com
+	email = zhanghaolong@jiigan.com
 [color]
 	ui = auto
 [pull]
