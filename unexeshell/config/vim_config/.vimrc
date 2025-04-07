@@ -846,7 +846,7 @@ endif
 "===============end config cursor==============================
 
 "===============start config copilot==============================
-let g:copilot_node_command = "~/node-v18.16.0-linux-x64/bin/node"
+let g:copilot_node_command = "~/node-v22.14.0-linux-x64/bin/node"
 " FIXME: vim imap ALT <M- do not take effect,
 " copilot-suggest/copilot-previous/copilot-next
 "===============end config copilot==============================
