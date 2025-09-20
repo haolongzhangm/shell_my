@@ -1,0 +1,12 @@
+diff --git a/unexeshell/config/git_config/.gitconfig b/unexeshell/config/git_config/.gitconfig
+index 3ba4d2f..71f45e0 100644
+--- a/unexeshell/config/git_config/.gitconfig
++++ b/unexeshell/config/git_config/.gitconfig
+@@ -14,3 +14,7 @@
+ 	smudge = git-lfs smudge -- %f
+ 	process = git-lfs filter-process
+ 	required = true
++[http]
++	proxy = socks5://127.0.0.1:1080
++[https]
++	proxy = socks5://127.0.0.1:1080
