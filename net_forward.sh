@@ -9,4 +9,5 @@ export https_proxy="socks5://127.0.0.1:1080"
 curl --socks5 127.0.0.1:1080 http://ifconfig.me
 
 pkill -9 chrome || true
+cat ~/.ssh/config
 google-chrome --proxy-server="socks5://127.0.0.1:1080"
