@@ -117,3 +117,8 @@ if ! shopt -oq posix; then
 fi
 
 source /home/zhl/shell_my/unexeshell/config/ubuntu_config/bash.bashrc_cut
+
+# opencode
+export PATH=/home/zhl/.opencode/bin:$PATH
+# npm global after: npm config set prefix ~/.npm-global
+export PATH=~/.npm-global/bin:$PATH
