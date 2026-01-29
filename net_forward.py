@@ -20,11 +20,17 @@ def run_host(vm_user, chrome=False):
     os.environ["https_proxy"] = "socks5://127.0.0.1:1080"
 
     run_cmd('curl --socks5 127.0.0.1:1080 http://ifconfig.me', check=False)
+    is_macos = sys.platform == "darwin"
 
     if chrome:
-        run_cmd("pkill -9 chrome || true", check=False)
-        run_cmd("cat ~/.ssh/config", check=False)
-        run_cmd('google-chrome --proxy-server="socks5://127.0.0.1:1080"', background=True)
+        if is_macos:
+            run_cmd("pkill -9 Chrome || true", check=False)
+            run_cmd("cat ~/.ssh/config", check=False)
+            run_cmd('/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --proxy-server="socks5://127.0.0.1:1080"', background=True)
+        else:
+            run_cmd("pkill -9 chrome || true", check=False)
+            run_cmd("cat ~/.ssh/config", check=False)
+            run_cmd('google-chrome --proxy-server="socks5://127.0.0.1:1080"', background=True)
 
 def run_vm(host_user, host_ip_p, host_ip_post, vm_ip, remote_ip, net_interface):
     run_cmd(f"sudo ip route add {host_ip_p}.0/24 via {vm_ip} dev {net_interface}",check=False)
