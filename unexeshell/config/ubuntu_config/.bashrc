@@ -127,3 +127,4 @@ export PATH=~/.npm-global/bin:$PATH
 # agent: https://cursor.com/cn/cli
 # codex: https://developers.openai.com/codex/cli/
 # gemini: https://geminicli.com/
+# copilot: https://github.com/features/copilot
