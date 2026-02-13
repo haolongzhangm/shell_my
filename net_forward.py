@@ -19,7 +19,7 @@ def run_host(vm_user, chrome=False):
     os.environ["http_proxy"] = "socks5://127.0.0.1:1080"
     os.environ["https_proxy"] = "socks5://127.0.0.1:1080"
 
-    run_cmd('curl --socks5 127.0.0.1:1080 http://ifconfig.me', check=False)
+    # run_cmd('curl --socks5 127.0.0.1:1080 http://ifconfig.me', check=False)
     is_macos = sys.platform == "darwin"
 
     if chrome:
