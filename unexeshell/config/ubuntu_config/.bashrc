@@ -128,3 +128,8 @@ export PATH=~/.npm-global/bin:$PATH
 # codex: https://developers.openai.com/codex/cli/
 # gemini: https://geminicli.com/
 # copilot: https://github.com/features/copilot
+# claude: https://github.com/anthropics/claude-code
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
