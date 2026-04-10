@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+
+HOME=~/step_claude_home claude "$@"
