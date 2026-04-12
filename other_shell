@@ -1,2 +1,11 @@
 #!/bin/bash
 cat ~/shell_my/unexeshell/misc/other_shell_usage
+
+# show all python3 venv activate and deactivate
+mkdir -p ~/python3_venv_prefix/
+echo "find all python3 venv activate and deactivate in ~/python3_venv_prefix/"
+find ~/python3_venv_prefix/ -name activate
+echo "use: source xxxx activate to activate the venv, and use: deactivate to deactivate the venv"
+echo "find all python3 venv activate and deactivate in ~/python3_venv_prefix/ done"
+echo "create a by example: ~/.pyenv/versions/3.11.15/bin/python3 venv in ~/python3_venv_prefix/example_venv/"
+echo "==================================================================================="
