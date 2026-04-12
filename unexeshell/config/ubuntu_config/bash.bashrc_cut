@@ -169,5 +169,8 @@ export PATH=~/.npm-global/bin:$PATH
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# export rust env
+# export rust env after cmd: curl https://sh.rustup.rs -sSf | sh
 . "$HOME/.cargo/env"
+
+# prefix for user local bin, for example: ~/.local/bin
+export PATH="$HOME/.local/bin:$PATH"

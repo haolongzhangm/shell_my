@@ -117,3 +117,4 @@ if ! shopt -oq posix; then
 fi
 
 source /home/zhl/shell_my/unexeshell/config/ubuntu_config/bash.bashrc_cut
+. "$HOME/.cargo/env"
