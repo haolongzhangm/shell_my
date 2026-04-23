@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-HOME=~/self_claude_home ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://10.235.80.220:11434 claude --model qwen3.6:27b-q8_0 "$@"
+HOME=~/self_claude_home ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://10.235.80.220:11434 claude --model qwopus3.5-27B:q6_k "$@"
