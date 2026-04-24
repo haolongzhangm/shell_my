@@ -1,0 +1,9 @@
+[model_providers.ollama-remote]
+name = "Ollama"
+base_url = "http://10.235.80.220:11434/v1"
+
+[profiles.ollama-remote]
+model = "qwen3.6:27b-q8_0"
+model_provider = "ollama-remote"
+
+# merge this file to ~/.codex/config.toml 
