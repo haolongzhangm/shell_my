@@ -7,3 +7,4 @@ model = "qwen3.6:27b-q8_0"
 model_provider = "ollama-remote"
 
 # merge this file to ~/.codex/config.toml 
+# then use `codex --profile ollama-remote` to run codex with ollama remote model provider
