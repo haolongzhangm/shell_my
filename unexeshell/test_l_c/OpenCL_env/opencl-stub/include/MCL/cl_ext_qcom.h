@@ -414,6 +414,23 @@ clQueryImageInfoQCOM(cl_device_id device,
                      void                    *param_value,
                      size_t                  *param_value_size_ret);
 
+
+/* New cl_device_type */
+#define CL_DEVICE_SERVICE_ACCELERATOR_TYPE_QCOM (1ull << 32)
+
+/**************************
+* cl_qcom_special_device_ids *
+**************************/
+
+extern CL_API_ENTRY cl_int CL_API_CALL clGetSpecialDeviceIDsQCOM(
+        cl_platform_id platform, cl_device_type device_type, cl_uint num_entries,
+        cl_device_id* devices, cl_uint* num_devices);
+
+typedef cl_int(CL_API_CALL* clGetSpecialDeviceIDsQCOM_fn)(
+        cl_platform_id platform, cl_device_type device_type, cl_uint num_entries,
+        cl_device_id* devices, cl_uint* num_devices);
+
+
 /**************************
  * cl_qcom_onchip_global_memory *
  **************************/
