@@ -7,11 +7,13 @@ import sys
 
 # Host name to IP mapping
 HOST_MAP = {
-    "engine": "10.235.81.101",
-    "bj_hpc": "10.172.198.205",
-    "cd_hpc": "10.235.80.15",
+    "engine": "zhl@10.235.122.101",
+    "bj_hpc": "zhl@10.172.198.205",
+    "cd_hpc": "zhl@10.235.122.15",
     "local": "localhost",
-    "cd_hpc2": "10.235.80.220",
+    "cd_hpc2": "zhl@10.235.122.220",
+    "cd_taishan": "zhl@10.235.122.218",
+    "cd_macos": "hpc-aarch64-macos@10.235.112.162",
 }
 
 # Hosts that use port 2222
@@ -41,9 +43,7 @@ def build_ssh_command(args):
     cmd.extend(["-o", f"ServerAliveInterval {args.alive_interval}"])
 
     # Destination
-    if args.user and args.host_resolved:
-        cmd.append(f"{args.user}@{args.host_resolved}")
-    elif args.host_resolved:
+    if args.host_resolved:
         cmd.append(args.host_resolved)
     else:
         print("Error: --host is required", file=sys.stderr)
@@ -59,7 +59,6 @@ def main():
 
     # Connection target
     parser.add_argument("host", nargs="?", help="Target host (IP or alias: engine, bj_hpc, cd_hpc, local, cd_hpc2)")
-    parser.add_argument("--user", "-u", default="zhl", help="Username (default: zhl)")
     parser.add_argument("--port", "-p", type=int, help="SSH port (default: 22, or 2222 for localhost)")
 
     # Features
