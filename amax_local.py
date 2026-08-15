@@ -7,13 +7,13 @@ import sys
 
 # Host name to IP mapping
 HOST_MAP = {
-    "engine": "zhl@10.235.122.101",
+    "engine": "zhl@10.99.122.101",
     "bj_hpc": "zhl@10.172.198.205",
-    "cd_hpc": "zhl@10.235.122.15",
+    "cd_hpc": "zhl@10.99.122.15",
     "local": "localhost",
-    "cd_hpc2": "zhl@10.235.122.220",
-    "cd_taishan": "zhl@10.235.122.218",
-    "cd_macos": "hpc-aarch64-macos@10.235.112.162",
+    "cd_hpc2": "zhl@10.99.122.220",
+    "cd_taishan": "zhl@10.99.122.218",
+    "cd_macos": "hpc-aarch64-macos@10.99.112.85",
 }
 
 # Hosts that use port 2222
