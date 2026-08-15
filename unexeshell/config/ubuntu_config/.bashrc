@@ -118,3 +118,6 @@ fi
 
 source /home/zhl/shell_my/unexeshell/config/ubuntu_config/bash.bashrc_cut
 . "$HOME/.cargo/env"
+
+# Added by stepcode installer
+export PATH="$HOME/.local/bin:$PATH"
