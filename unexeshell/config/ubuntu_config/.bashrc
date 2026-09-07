@@ -121,3 +121,4 @@ source /home/zhl/shell_my/unexeshell/config/ubuntu_config/bash.bashrc_cut
 
 # Added by stepcode installer
 export PATH="$HOME/.local/bin:$PATH"
+export EDITOR=vim
