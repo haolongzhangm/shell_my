@@ -8,7 +8,7 @@ import sys
 # Host name to IP mapping
 HOST_MAP = {
     "engine": "zhl@10.99.122.101",
-    "bj_hpc": "zhl@10.172.198.205",
+    "bj_hpc": "zhl@10.168.248.83",
     "cd_hpc": "zhl@10.99.122.15",
     "local": "localhost",
     "cd_hpc2": "zhl@10.99.122.220",
