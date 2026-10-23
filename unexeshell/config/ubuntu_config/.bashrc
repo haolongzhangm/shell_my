@@ -122,3 +122,18 @@ source /home/zhl/shell_my/unexeshell/config/ubuntu_config/bash.bashrc_cut
 # Added by stepcode installer
 export PATH="$HOME/.local/bin:$PATH"
 export EDITOR=vim
+
+# Added by stepgo installer
+export PATH="$HOME/.stepgo/bin:$PATH"
+
+
+# stepcode
+case ":$PATH:" in
+  *":/home/zhl/.stepcode/bin:"*) ;;
+  *) export PATH="/home/zhl/.stepcode/bin:$PATH" ;;
+esac
+case ":$PATH:" in
+  *":/home/zhl/.stepgo/config/agent/bin:"*) ;;
+  *) export PATH="/home/zhl/.stepgo/config/agent/bin:$PATH" ;;
+esac
+# stepcode end
