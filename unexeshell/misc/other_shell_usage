@@ -167,4 +167,10 @@ use  fallocate to quick create a file
  du show hidden file:
  du -sh * .[^.]*
  du -sh .[!.]* * 2>/dev/null | sort -rh
+ du -h --max-depth=1 ~ 2>/dev/null | sort -h | tail -20
+
+ du -h --max-depth=1 . 2>/dev/null | sort -h | tail -20 | while read -r size path; do
+  printf '%8s  %-22s %s\n' "$size" "$(stat -c '%U:%G' "$path" 2>/dev/null || echo '?')" "$path"
+    done
+
  ===================================================================================
